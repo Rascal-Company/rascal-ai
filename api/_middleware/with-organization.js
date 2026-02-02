@@ -5,6 +5,20 @@
 import { createClient } from '@supabase/supabase-js'
 import logger from '../_lib/logger.js'
 
+function getRolePriority(role) {
+  switch (role) {
+    case 'owner':
+      return 3
+    case 'admin':
+      return 2
+    case 'moderator':
+      return 1
+    case 'member':
+    default:
+      return 0
+  }
+}
+
 export function withOrganization(handler) {
   return async (req, res) => {
     try {
@@ -82,16 +96,17 @@ export function withOrganization(handler) {
       const user = authResult.user
 
       // 4. Hae käyttäjän organisaatio org_members taulusta
-      // Käytetään maybeSingle() jotta ei tule virhettä jos jäsenyyttä ei löydy
-      // Tarkistetaan että käyttäjällä on oikeat oikeudet
-      // HUOM: RLS-politiikka tarkistaa automaattisesti että auth_user_id = auth.uid()
-      // Joten meidän ei tarvitse tarkistaa tätä erikseen
+      // HUOM: maybeSingle() kaatuu, jos käyttäjällä on useampi org_members-rivi (PGRST116).
+      // Haetaan rivit listana ja valitaan deterministisesti paras (owner > admin > moderator > member).
       logger.debug('withOrganization: Fetching org_members for auth_user_id', { auth_user_id: user.id })
-      const { data: orgMember, error: orgError } = await supabase
+      const { data: orgMembers, error: orgError } = await supabase
         .from('org_members')
         .select('org_id, role')
         .eq('auth_user_id', user.id) // Tarkista että haetaan oikean käyttäjän organisaatio
-        .maybeSingle()
+      
+      const orgMember = Array.isArray(orgMembers) && orgMembers.length > 0
+        ? [...orgMembers].sort((a, b) => getRolePriority(b.role) - getRolePriority(a.role))[0]
+        : null
 
       logger.debug('withOrganization: org_members query result', { hasOrgMember: !!orgMember, hasError: !!orgError })
 
