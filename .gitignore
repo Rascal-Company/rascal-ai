@@ -28,6 +28,8 @@ dist-ssr
 node_modules
 dist
 .env
+.cursor
+*CLAUDE.MD
 
 # Test/Dev files that shouldn't be in production
 src/dev/
