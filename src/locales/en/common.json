@@ -1713,6 +1713,8 @@
       "refresh": "Refresh",
       "saving": "Saving...",
       "save": "Save",
+      "approve": "Approve",
+      "toggleAll": "Approve all",
       "update": "Update",
       "send": "Send",
       "sending": "Sending...",
@@ -2124,8 +2126,18 @@
       "sent": "Selection sent!",
       "userCompanyMissing": "User company ID not found",
       "sendError": "Send error",
-      "unknownError": "Unknown error"
+      "unknownError": "Unknown error",
+      "segments": "Pages",
+      "noSegments": "No content"
+    },
+    "approvalModal": {
+      "title": "Approve slides?",
+      "description": "You are approving {{count}} slide(s). Do you want to continue?"
     }
+  },
+  "approvalModal": {
+    "title": "Approve slides?",
+    "description": "You are approving {{count}} slide(s). Do you want to continue?"
   },
   "integrations": {
     "loading": "Loading integrations...",

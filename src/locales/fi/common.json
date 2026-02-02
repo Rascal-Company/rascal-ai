@@ -1826,6 +1826,8 @@
       "refresh": "Päivitä",
       "saving": "Tallennetaan...",
       "save": "Tallenna",
+      "approve": "Hyväksy",
+      "toggleAll": "Hyväksy kaikki",
       "update": "Päivitä",
       "send": "Lähetä",
       "sending": "Lähetetään...",
@@ -2166,8 +2168,18 @@
       "sent": "Valinta lähetetty!",
       "userCompanyMissing": "Käyttäjän company ID ei löytynyt",
       "sendError": "Virhe lähetyksessä",
-      "unknownError": "Tuntematon virhe"
+      "unknownError": "Tuntematon virhe",
+      "segments": "Sivut",
+      "noSegments": "Ei sisältöä"
+    },
+    "approvalModal": {
+      "title": "Hyväksy slaidit?",
+      "description": "Olet hyväksymässä {{count}} slaidia. Haluatko jatkaa?"
     }
+  },
+  "approvalModal": {
+    "title": "Hyväksy slaidit?",
+    "description": "Olet hyväksymässä {{count}} slaidia. Haluatko jatkaa?"
   },
   "integrations": {
     "loading": "Ladataan integraatioita...",
