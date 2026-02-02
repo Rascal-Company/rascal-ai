@@ -1092,75 +1092,36 @@ export default function SettingsIntegrationsTab() {
   return (
     <div className="settings-integrations-container">
       {/* AI-mallin valinta */}
-      <div
-        className="ai-model-selector"
-        style={{
-          marginBottom: "24px",
-          padding: "20px",
-          backgroundColor: "#fff",
-          borderRadius: "12px",
-          border: "1px solid #e5e7eb",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-        }}
-      >
-        <h3
-          style={{
-            margin: "0 0 12px 0",
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "#1f2937",
-          }}
-        >
+      <div className="ai-model-selector mb-6 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+        <h3 className="m-0 mb-3 text-base font-semibold text-gray-800">
           {t("integrations.aiModel.title")}
         </h3>
-        <p
-          style={{
-            margin: "0 0 16px 0",
-            fontSize: "14px",
-            color: "#6b7280",
-          }}
-        >
+        <p className="m-0 mb-4 text-sm text-gray-500">
           {t("integrations.aiModel.description")}
         </p>
 
         {aiModelMessage && (
           <div
-            style={{
-              padding: "8px 12px",
-              marginBottom: "16px",
-              borderRadius: "6px",
-              fontSize: "14px",
-              backgroundColor:
-                aiModelMessage.includes("Virhe") ||
-                aiModelMessage.includes("Error")
-                  ? "#fef2f2"
-                  : "#f0fdf4",
-              color:
-                aiModelMessage.includes("Virhe") ||
-                aiModelMessage.includes("Error")
-                  ? "#dc2626"
-                  : "#16a34a",
-              border: `1px solid ${aiModelMessage.includes("Virhe") || aiModelMessage.includes("Error") ? "#fecaca" : "#bbf7d0"}`,
-            }}
+            className={`py-2 px-3 mb-4 rounded-md text-sm border ${
+              aiModelMessage.includes("Virhe") || aiModelMessage.includes("Error")
+                ? "bg-red-50 text-red-600 border-red-200"
+                : "bg-green-50 text-green-600 border-green-200"
+            }`}
           >
             {aiModelMessage}
           </div>
         )}
 
         {aiModelLoading ? (
-          <div style={{ color: "#6b7280", fontSize: "14px" }}>
+          <div className="text-gray-500 text-sm">
             {t("integrations.aiModel.loading")}
           </div>
         ) : (
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <div className="flex items-center gap-4">
             <label
-              style={{
-                fontSize: "14px",
-                fontWeight: 500,
-                color: aiModel === "gemini" ? "#1f2937" : "#9ca3af",
-                cursor: "pointer",
-                transition: "color 0.2s",
-              }}
+              className={`text-sm font-medium cursor-pointer transition-colors duration-200 ${
+                aiModel === "gemini" ? "text-gray-800" : "text-gray-400"
+              }`}
             >
               Gemini 3
             </label>
@@ -1172,50 +1133,21 @@ export default function SettingsIntegrationsTab() {
                 handleAiModelChange(aiModel === "gemini" ? "mistral" : "gemini")
               }
               disabled={aiModelSaving}
-              style={{
-                position: "relative",
-                width: "52px",
-                height: "28px",
-                borderRadius: "14px",
-                border: "none",
-                cursor: aiModelSaving ? "not-allowed" : "pointer",
-                backgroundColor: aiModel === "gemini" ? "#10b981" : "#6b7280",
-                transition: "background-color 0.3s",
-                outline: "none",
-                padding: "2px",
-              }}
-              onMouseEnter={(e) => {
-                if (!aiModelSaving) {
-                  e.target.style.opacity = "0.9";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.opacity = "1";
-              }}
+              className={`relative w-[52px] h-7 rounded-full border-none outline-none p-0.5 transition-colors duration-300 hover:opacity-90 ${
+                aiModelSaving ? "cursor-not-allowed" : "cursor-pointer"
+              } ${aiModel === "gemini" ? "bg-emerald-500" : "bg-gray-500"}`}
             >
               <div
-                style={{
-                  position: "absolute",
-                  top: "2px",
-                  left: aiModel === "gemini" ? "2px" : "26px",
-                  width: "24px",
-                  height: "24px",
-                  borderRadius: "50%",
-                  backgroundColor: "#fff",
-                  transition: "left 0.3s",
-                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-                }}
+                className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 ${
+                  aiModel === "gemini" ? "left-0.5" : "left-[26px]"
+                }`}
               />
             </button>
 
             <label
-              style={{
-                fontSize: "14px",
-                fontWeight: 500,
-                color: aiModel === "mistral" ? "#1f2937" : "#9ca3af",
-                cursor: "pointer",
-                transition: "color 0.2s",
-              }}
+              className={`text-sm font-medium cursor-pointer transition-colors duration-200 ${
+                aiModel === "mistral" ? "text-gray-800" : "text-gray-400"
+              }`}
             >
               Mistral
             </label>
@@ -1225,25 +1157,12 @@ export default function SettingsIntegrationsTab() {
 
       <div className="integrations-description">
         <p>{t("integrations.description")}</p>
-        <div style={{ marginTop: "8px" }}>
+        <div className="mt-2">
           <a
             href="https://rascalcompany.notion.site/"
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              fontSize: "14px",
-              color: "#3b82f6",
-              textDecoration: "none",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-            }}
-            onMouseEnter={(e) => {
-              e.target.style.textDecoration = "underline";
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.textDecoration = "none";
-            }}
+            className="text-sm text-blue-500 no-underline inline-flex items-center gap-1 hover:underline"
           >
             Katso tarkemmat ohjeet →
           </a>
@@ -1351,42 +1270,20 @@ export default function SettingsIntegrationsTab() {
                   // Nango-pohjainen integraatio (Google Ads, Meta Ads jne.)
                   <div>
                     {integration.isConfigured ? (
-                      <div style={{ marginBottom: "20px" }}>
-                        <div
-                          style={{
-                            padding: "12px",
-                            backgroundColor: "#f0fdf4",
-                            border: "1px solid #bbf7d0",
-                            borderRadius: "6px",
-                            color: "#16a34a",
-                            fontSize: "14px",
-                            marginBottom: "16px",
-                          }}
-                        >
+                      <div className="mb-5">
+                        <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-600 text-sm mb-4">
                           ✅{" "}
                           {t("integrations.nango.connectedSuccess", {
                             name: integration.name,
                           })}
                         </div>
-                        <p
-                          style={{
-                            fontSize: "14px",
-                            color: "#6b7280",
-                            marginBottom: "16px",
-                          }}
-                        >
+                        <p className="text-sm text-gray-500 mb-4">
                           {t("integrations.nango.reconnectHint")}
                         </p>
                       </div>
                     ) : (
-                      <div style={{ marginBottom: "20px" }}>
-                        <p
-                          style={{
-                            fontSize: "14px",
-                            color: "#6b7280",
-                            marginBottom: "16px",
-                          }}
-                        >
+                      <div className="mb-5">
+                        <p className="text-sm text-gray-500 mb-4">
                           {t("integrations.nango.connectDescription", {
                             name: integration.name,
                           })}
@@ -1396,14 +1293,9 @@ export default function SettingsIntegrationsTab() {
                     <div className="integration-card-actions">
                       <button
                         type="button"
-                        className="btn-primary"
+                        className="btn-primary flex items-center gap-2"
                         onClick={() => handleNangoConnect(integration)}
                         disabled={nangoConnecting || saving}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
                       >
                         {nangoConnecting ? (
                           <span>{t("integrations.nango.connecting")}</span>
@@ -1429,40 +1321,18 @@ export default function SettingsIntegrationsTab() {
                   // OAuth-pohjainen integraatio (Google Analytics)
                   <div>
                     {integration.isConfigured ? (
-                      <div style={{ marginBottom: "20px" }}>
-                        <div
-                          style={{
-                            padding: "12px",
-                            backgroundColor: "#f0fdf4",
-                            border: "1px solid #bbf7d0",
-                            borderRadius: "6px",
-                            color: "#16a34a",
-                            fontSize: "14px",
-                            marginBottom: "16px",
-                          }}
-                        >
+                      <div className="mb-5">
+                        <div className="p-3 bg-green-50 border border-green-200 rounded-md text-green-600 text-sm mb-4">
                           ✅{" "}
                           {t("integrations.googleAnalytics.connectedSuccess")}
                         </div>
-                        <p
-                          style={{
-                            fontSize: "14px",
-                            color: "#6b7280",
-                            marginBottom: "16px",
-                          }}
-                        >
+                        <p className="text-sm text-gray-500 mb-4">
                           {t("integrations.googleAnalytics.reconnectHint")}
                         </p>
                       </div>
                     ) : (
-                      <div style={{ marginBottom: "20px" }}>
-                        <p
-                          style={{
-                            fontSize: "14px",
-                            color: "#6b7280",
-                            marginBottom: "16px",
-                          }}
-                        >
+                      <div className="mb-5">
+                        <p className="text-sm text-gray-500 mb-4">
                           {t("integrations.googleAnalytics.connectDescription")}
                         </p>
                       </div>
@@ -1470,14 +1340,9 @@ export default function SettingsIntegrationsTab() {
                     <div className="integration-card-actions">
                       <button
                         type="button"
-                        className="btn-primary"
+                        className="btn-primary flex items-center gap-2"
                         onClick={handleGoogleAnalyticsOAuth}
                         disabled={oauthConnecting || saving}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
                       >
                         {oauthConnecting ? (
                           <>

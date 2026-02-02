@@ -141,22 +141,22 @@ export default function WorkspaceSettings() {
 
   if (loading) {
     return (
-      <div style={{ padding: 20, textAlign: 'center' }}>
+      <div className="p-5 text-center">
         <div>Ladataan workspace konfiguraatiota...</div>
       </div>
     )
   }
 
   return (
-    <div style={{ maxWidth: 600, margin: '0 auto', padding: 20 }}>
-      <h2 style={{ fontSize: 24, fontWeight: 700, color: '#1f2937', marginBottom: 20 }}>
+    <div className="max-w-[600px] mx-auto p-5">
+      <h2 className="text-2xl font-bold text-gray-800 mb-5">
         Workspace Yhdistäminen
       </h2>
 
-      <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <form onSubmit={handleSave} className="flex flex-col gap-5">
         {/* API Token */}
         <div>
-          <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             API Token
           </label>
           <input
@@ -164,16 +164,9 @@ export default function WorkspaceSettings() {
             value={config.mixpost_api_token}
             onChange={(e) => handleInputChange('mixpost_api_token', e.target.value)}
             placeholder="Syötä API token"
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: 8,
-              fontSize: 14,
-              backgroundColor: '#fff'
-            }}
+            className="w-full py-3 px-4 border border-gray-300 rounded-lg text-sm bg-white"
           />
-          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+          <div className="text-xs text-gray-500 mt-1">
             Löydät API tokenin workspace dashboardista
           </div>
         </div>
@@ -181,8 +174,8 @@ export default function WorkspaceSettings() {
 
 
         {/* Workspace UUID */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Workspace UUID
           </label>
           <input
@@ -190,67 +183,58 @@ export default function WorkspaceSettings() {
             value={config.mixpost_workspace_uuid}
             onChange={(e) => handleInputChange('mixpost_workspace_uuid', e.target.value)}
             placeholder="Syötä workspace UUID"
-            style={{
-              width: '100%',
-              padding: '12px 16px',
-              border: '1px solid #d1d5db',
-              borderRadius: 8,
-              fontSize: 14,
-              backgroundColor: '#fff'
-            }}
+            className="w-full py-3 px-4 border border-gray-300 rounded-lg text-sm bg-white"
           />
-          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
+          <div className="text-xs text-gray-500 mt-1">
             Workspace UUID löytyy workspace dashboardista
           </div>
         </div>
 
         {/* Active Toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="flex items-center gap-3">
           <input
             type="checkbox"
             id="is_active"
             checked={config.is_active}
             onChange={(e) => handleInputChange('is_active', e.target.checked)}
-            style={{ width: 18, height: 18 }}
+            className="w-[18px] h-[18px]"
           />
-          <label htmlFor="is_active" style={{ fontSize: 14, fontWeight: 600, color: '#374151' }}>
+          <label htmlFor="is_active" className="text-sm font-semibold text-gray-700">
             Aktivoi workspace yhdistäminen
           </label>
         </div>
 
         {/* Error & Success Messages */}
         {error && (
-          <div style={{ padding: 12, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, color: '#dc2626' }}>
+          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600">
             {error}
           </div>
         )}
 
         {success && (
-          <div style={{ padding: 12, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, color: '#16a34a' }}>
+          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-600">
             {success}
           </div>
         )}
 
         {/* Test Result */}
         {testResult && (
-          <div style={{ 
-            padding: 12, 
-            background: testResult.success ? '#f0fdf4' : '#fef2f2', 
-            border: `1px solid ${testResult.success ? '#bbf7d0' : '#fecaca'}`, 
-            borderRadius: 8, 
-            color: testResult.success ? '#16a34a' : '#dc2626' 
-          }}>
+          <div className={`p-3 rounded-lg border ${
+            testResult.success
+              ? 'bg-green-50 border-green-200 text-green-600'
+              : 'bg-red-50 border-red-200 text-red-600'
+          }`}>
             {testResult.message}
           </div>
         )}
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+        <div className="flex gap-3 flex-wrap">
           <Button
             type="submit"
             variant="primary"
             disabled={saving}
-            style={{ minWidth: 120 }}
+            className="min-w-[120px]"
           >
             {saving ? 'Tallennetaan...' : 'Tallenna'}
           </Button>
@@ -260,7 +244,7 @@ export default function WorkspaceSettings() {
             variant="secondary"
             onClick={handleTestConnection}
             disabled={!config.mixpost_api_token || !config.mixpost_workspace_uuid}
-            style={{ minWidth: 120 }}
+            className="min-w-[120px]"
           >
             Testaa Yhteys
           </Button>
@@ -268,11 +252,11 @@ export default function WorkspaceSettings() {
       </form>
 
       {/* Help Section */}
-      <div style={{ marginTop: 40, padding: 20, background: '#f9fafb', borderRadius: 12 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, color: '#374151', marginBottom: 12 }}>
+      <div className="mt-10 p-5 bg-gray-50 rounded-xl">
+        <h3 className="text-lg font-semibold text-gray-700 mb-3">
           Miten löydän workspace tiedot?
         </h3>
-        <div style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.6 }}>
+        <div className="text-sm text-gray-500 leading-relaxed">
           <p>1. Kirjaudu workspace dashboardiin</p>
           <p>2. Mene Settings → API</p>
           <p>3. Kopioi API token ja workspace UUID</p>

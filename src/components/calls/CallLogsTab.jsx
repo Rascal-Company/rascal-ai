@@ -34,46 +34,40 @@ export default function CallLogsTab({
   const { t } = useTranslation('common')
 
   return (
-    <div style={{
-      background: '#fff',
-      borderRadius: 16,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-      padding: 32,
-      width: '100%'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-        <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#1f2937' }}>
+    <div className="bg-white rounded-2xl shadow-md p-8 w-full">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="m-0 text-2xl font-bold text-gray-800">
           {t('calls.tabs.logs')}
         </h2>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Button type="button" onClick={exportCallLogs} variant="secondary" style={{ padding: '8px 16px', fontSize: 14, background: '#10b981', color: '#fff' }}>
+        <div className="flex gap-3">
+          <Button type="button" onClick={exportCallLogs} variant="secondary" className="py-2 px-4 text-sm bg-emerald-500 text-white">
             {t('calls.logsTab.buttons.export')}
           </Button>
-          <Button type="button" onClick={() => fetchCallLogs()} disabled={loadingCallLogs} variant="secondary" style={{ padding: '8px 16px', fontSize: 14, background: loadingCallLogs ? '#9ca3af' : '#3b82f6', color: '#fff' }}>
+          <Button type="button" onClick={() => fetchCallLogs()} disabled={loadingCallLogs} variant="secondary" className={`py-2 px-4 text-sm text-white ${loadingCallLogs ? 'bg-gray-400' : 'bg-blue-500'}`}>
             {loadingCallLogs ? t('calls.logsTab.buttons.refreshing') : t('calls.logsTab.buttons.refresh')}
           </Button>
         </div>
       </div>
 
       {/* Filtterit */}
-      <div style={{ background: '#f8fafc', padding: 24, borderRadius: 12, border: '1px solid #e2e8f0', marginBottom: 32 }}>
-        <h3 style={{ margin: '0 0 16px 0', fontSize: 16, fontWeight: 600, color: '#374151' }}>
+      <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 mb-8">
+        <h3 className="m-0 mb-4 text-base font-semibold text-gray-700">
           {t('calls.logsTab.filters.title')}
         </h3>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-4">
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               {t('calls.logsTab.filters.searchLabel')}
             </label>
-            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder={t('calls.logsTab.filters.searchPlaceholder')} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, color: '#1f2937', background: '#fff' }} />
+            <input type="text" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder={t('calls.logsTab.filters.searchPlaceholder')} className="w-full py-2 px-3 border border-gray-300 rounded-md text-sm text-gray-800 bg-white" />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               {t('calls.logsTab.filters.statusLabel')}
             </label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, color: '#1f2937', background: '#fff' }}>
+            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="w-full py-2 px-3 border border-gray-300 rounded-md text-sm text-gray-800 bg-white">
               <option value="">{t('calls.logsTab.filters.all')}</option>
               <option value="success">{t('calls.logsTab.filters.statusOptions.success')}</option>
               <option value="failed">{t('calls.logsTab.filters.statusOptions.failed')}</option>
@@ -83,10 +77,10 @@ export default function CallLogsTab({
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               {t('calls.logsTab.filters.typeLabel')}
             </label>
-            <select value={callTypeFilter} onChange={(e) => setCallTypeFilter(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, color: '#1f2937', background: '#fff' }}>
+            <select value={callTypeFilter} onChange={(e) => setCallTypeFilter(e.target.value)} className="w-full py-2 px-3 border border-gray-300 rounded-md text-sm text-gray-800 bg-white">
               <option value="">{t('calls.logsTab.filters.all')}</option>
               <option value="successful">{t('calls.logsTab.filters.statusOptions.successful')}</option>
               {callTypes.map(type => (
@@ -96,27 +90,27 @@ export default function CallLogsTab({
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16, marginBottom: 16 }}>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-4">
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               {t('calls.logsTab.filters.dateFrom')}
             </label>
-            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, color: '#1f2937', background: '#fff' }} />
+            <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} className="w-full py-2 px-3 border border-gray-300 rounded-md text-sm text-gray-800 bg-white" />
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: 8, fontSize: 14, fontWeight: 500, color: '#374151' }}>
+            <label className="block mb-2 text-sm font-medium text-gray-700">
               {t('calls.logsTab.filters.dateTo')}
             </label>
-            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid #d1d5db', borderRadius: 6, fontSize: 14, color: '#1f2937', background: '#fff' }} />
+            <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} className="w-full py-2 px-3 border border-gray-300 rounded-md text-sm text-gray-800 bg-white" />
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Button onClick={handleSearch} disabled={loadingCallLogs} style={{ fontSize: 14, fontWeight: 500, marginRight: 8 }}>
+        <div className="flex gap-3">
+          <Button onClick={handleSearch} disabled={loadingCallLogs} className="text-sm font-medium mr-2">
             {t('calls.logsTab.filters.searchButton')}
           </Button>
-          <Button onClick={clearFilters} style={{ fontSize: 14, fontWeight: 500 }} variant="secondary">
+          <Button onClick={clearFilters} className="text-sm font-medium" variant="secondary">
             {t('calls.logsTab.filters.clearButton')}
           </Button>
         </div>

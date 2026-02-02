@@ -45,12 +45,11 @@ export default function SingleCallModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="modal-container"
-        style={{ maxWidth: '800px' }}
+        className="modal-container max-w-[800px]"
       >
         <div className="modal-header">
-          <h2 className="modal-title" style={{ fontSize: 22, color: '#1f2937', fontWeight: '700', backgroundColor: 'transparent' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+          <h2 className="modal-title text-[22px] text-gray-800 font-bold bg-transparent">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" className="mr-2 align-middle inline-block">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
             </svg>
             {t('calls.modals.single.title')}
@@ -68,15 +67,14 @@ export default function SingleCallModal({
         </div>
 
         <div className="modal-body">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+          <div className="grid grid-cols-2 gap-6">
             {/* Left column: Voice + Call type */}
             <div>
               <label className="label">{t('calls.modals.single.callType')}</label>
               <select
                 value={callType}
                 onChange={e => { setCallType(e.target.value); updateScriptFromCallType(e.target.value) }}
-                className="select"
-                style={{ width: '100%', marginBottom: 20 }}
+                className="select w-full mb-5"
               >
                 <option value="">{t('calls.modals.single.selectCallType')}</option>
                 {callTypes.map(type => (
@@ -88,8 +86,7 @@ export default function SingleCallModal({
               <select
                 value={selectedVoice}
                 onChange={e => setSelectedVoice(e.target.value)}
-                className="select"
-                style={{ width: '100%', marginBottom: 20 }}
+                className="select w-full mb-5"
               >
                 {getVoiceOptions().map(voice => (
                   <option key={voice.value} value={voice.value}>{voice.label}</option>
@@ -105,8 +102,7 @@ export default function SingleCallModal({
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder={t('placeholders.exampleName')}
-                className="input"
-                style={{ marginBottom: 20 }}
+                className="input mb-5"
               />
 
               <label className="label">{t('calls.modals.single.phone')}</label>
@@ -115,14 +111,13 @@ export default function SingleCallModal({
                 value={phoneNumber}
                 onChange={e => setPhoneNumber(e.target.value)}
                 placeholder={t('calls.modals.single.phonePlaceholder')}
-                className="input"
-                style={{ marginBottom: 20 }}
+                className="input mb-5"
               />
 
               {/* SMS toggles */}
-              <div style={{ marginTop: 8, marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <label style={{ fontWeight: 500, fontSize: 13, minWidth: 120 }}>{t('calls.modals.mass.step2.sms.before')}</label>
+              <div className="mt-2 mb-3">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <label className="font-medium text-[13px] min-w-[120px]">{t('calls.modals.mass.step2.sms.before')}</label>
                   <label className="switch">
                     <input
                       type="checkbox"
@@ -134,8 +129,8 @@ export default function SingleCallModal({
                   </label>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <label style={{ fontWeight: 500, fontSize: 13, minWidth: 120 }}>{t('calls.modals.mass.step2.sms.after')}</label>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <label className="font-medium text-[13px] min-w-[120px]">{t('calls.modals.mass.step2.sms.after')}</label>
                   <label className="switch">
                     <input
                       type="checkbox"
@@ -147,8 +142,8 @@ export default function SingleCallModal({
                   </label>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                  <label style={{ fontWeight: 500, fontSize: 13, minWidth: 120 }}>{t('calls.modals.mass.step2.sms.missed')}</label>
+                <div className="flex items-center gap-2.5 mb-3">
+                  <label className="font-medium text-[13px] min-w-[120px]">{t('calls.modals.mass.step2.sms.missed')}</label>
                   <label className="switch">
                     <input
                       type="checkbox"
@@ -163,21 +158,21 @@ export default function SingleCallModal({
 
               {/* SMS preview */}
               {(singleCallSmsFirst || singleCallSmsAfterCall || singleCallSmsMissedCall) && (
-                <div className="sms-preview-container" style={{ marginTop: 12 }}>
-                  <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 6 }}>{t('calls.modals.mass.step2.sms.preview')}</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                <div className="sms-preview-container mt-3">
+                  <div className="text-xs text-gray-500 mb-1.5">{t('calls.modals.mass.step2.sms.preview')}</div>
+                  <div className="flex flex-col gap-2">
                     {singleCallSmsFirst && selectedCallType?.first_sms && (
-                      <div style={{ padding: 8, background: '#f3f4f6', borderRadius: 6, fontSize: 12 }}>
+                      <div className="p-2 bg-gray-100 rounded-md text-xs">
                         <strong>{t('calls.modals.mass.step2.sms.before')}:</strong> {selectedCallType.first_sms}
                       </div>
                     )}
                     {singleCallSmsAfterCall && selectedCallType?.after_call_sms && (
-                      <div style={{ padding: 8, background: '#f3f4f6', borderRadius: 6, fontSize: 12 }}>
+                      <div className="p-2 bg-gray-100 rounded-md text-xs">
                         <strong>{t('calls.modals.mass.step2.sms.after')}:</strong> {selectedCallType.after_call_sms}
                       </div>
                     )}
                     {singleCallSmsMissedCall && selectedCallType?.missed_call_sms && (
-                      <div style={{ padding: 8, background: '#f3f4f6', borderRadius: 6, fontSize: 12 }}>
+                      <div className="p-2 bg-gray-100 rounded-md text-xs">
                         <strong>{t('calls.modals.mass.step2.sms.missed')}:</strong> {selectedCallType.missed_call_sms}
                       </div>
                     )}
@@ -188,8 +183,8 @@ export default function SingleCallModal({
           </div>
 
           {/* Call button and error messages */}
-          <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid #e5e7eb' }}>
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="flex gap-3 justify-end">
               <Button
                 onClick={onClose}
                 variant="secondary"
@@ -206,7 +201,7 @@ export default function SingleCallModal({
             </div>
 
             {singleCallError && (
-              <div className="status-error" style={{ marginTop: 12 }}>{singleCallError}</div>
+              <div className="status-error mt-3">{singleCallError}</div>
             )}
           </div>
         </div>

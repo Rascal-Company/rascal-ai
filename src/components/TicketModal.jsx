@@ -183,8 +183,7 @@ const TicketModal = ({ isOpen, onClose }) => {
   return (
     <div className="modal-overlay modal-overlay--light" onClick={onClose}>
       <div
-        className="modal-container"
-        style={{ maxWidth: "600px" }}
+        className="modal-container max-w-[600px]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
@@ -196,16 +195,13 @@ const TicketModal = ({ isOpen, onClose }) => {
 
         <div className="modal-content">
           {submitStatus === "success" && (
-            <div
-              className="alert alert-success"
-              style={{ marginBottom: "20px" }}
-            >
+            <div className="alert alert-success mb-5">
               {t("ticket.successMessage")}
             </div>
           )}
 
           {submitStatus === "error" && (
-            <div className="alert alert-error" style={{ marginBottom: "20px" }}>
+            <div className="alert alert-error mb-5">
               {t("ticket.errorMessage")}
             </div>
           )}
@@ -214,7 +210,7 @@ const TicketModal = ({ isOpen, onClose }) => {
             <div className="form-group">
               <label className="form-label" htmlFor="page">
                 {t("ticket.pageLabel")}{" "}
-                <span style={{ fontSize: "12px", color: "#666" }}>
+                <span className="text-xs text-gray-500">
                   ({t("ticket.pageHint")})
                 </span>
               </label>
@@ -233,7 +229,7 @@ const TicketModal = ({ isOpen, onClose }) => {
             <div className="form-group">
               <label className="form-label" htmlFor="description">
                 {t("ticket.descriptionLabel")}{" "}
-                <span style={{ fontSize: "12px", color: "#666" }}>
+                <span className="text-xs text-gray-500">
                   ({t("ticket.descriptionHint")})
                 </span>
               </label>
@@ -252,55 +248,27 @@ const TicketModal = ({ isOpen, onClose }) => {
             <div className="form-group">
               <label className="form-label">
                 {t("ticket.attachmentsLabel")}{" "}
-                <span style={{ fontSize: "12px", color: "#666" }}>
+                <span className="text-xs text-gray-500">
                   ({t("ticket.attachmentsHint")})
                 </span>
               </label>
 
               <div
-                className={`drag-drop-zone ${dragActive ? "drag-active" : ""}`}
+                className={`drag-drop-zone border-2 border-dashed border-gray-300 rounded-lg p-5 text-center cursor-pointer transition-all duration-300 ${
+                  dragActive ? "drag-active bg-blue-50" : "bg-gray-50"
+                }`}
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
-                style={{
-                  border: "2px dashed #ddd",
-                  borderRadius: "8px",
-                  padding: "20px",
-                  textAlign: "center",
-                  cursor: "pointer",
-                  backgroundColor: dragActive ? "#f0f8ff" : "#fafafa",
-                  transition: "all 0.3s ease",
-                }}
               >
-                <p
-                  style={{
-                    margin: "0 0 6px 0",
-                    fontWeight: "500",
-                    fontSize: "14px",
-                    display: "block",
-                  }}
-                >
+                <p className="m-0 mb-1.5 font-medium text-sm block">
                   {t("ticket.dragDropText")}
                 </p>
-                <p
-                  style={{
-                    margin: "0 0 16px 0",
-                    fontSize: "13px",
-                    color: "#888",
-                    display: "block",
-                  }}
-                >
+                <p className="m-0 mb-4 text-[13px] text-gray-400 block">
                   {t("ticket.dragDropHint")}
                 </p>
-                <p
-                  style={{
-                    margin: "0",
-                    fontSize: "12px",
-                    color: "#666",
-                    display: "block",
-                  }}
-                >
+                <p className="m-0 text-xs text-gray-500 block">
                   {t("ticket.supportedFiles")}
                 </p>
               </div>
@@ -311,28 +279,12 @@ const TicketModal = ({ isOpen, onClose }) => {
                 multiple
                 accept="image/*,video/*,audio/*"
                 onChange={handleFileSelect}
-                style={{ display: "none" }}
+                className="hidden"
               />
 
               {fileError && (
-                <div
-                  style={{
-                    color: "#ef4444",
-                    marginTop: "8px",
-                    padding: "8px 12px",
-                    backgroundColor: "#fef2f2",
-                    border: "1px solid #fecaca",
-                    borderRadius: "6px",
-                    fontSize: "13px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
+                <div className="text-red-500 mt-2 py-2 px-3 bg-red-50 border border-red-200 rounded-md text-[13px]">
+                  <div className="flex items-center gap-1.5">
                     <span>⚠️</span>
                     <span>{fileError}</span>
                   </div>
@@ -340,59 +292,32 @@ const TicketModal = ({ isOpen, onClose }) => {
               )}
 
               {selectedFiles.length > 0 && (
-                <div style={{ marginTop: "15px" }}>
-                  <h4 style={{ margin: "0 0 10px 0", fontSize: "14px" }}>
+                <div className="mt-4">
+                  <h4 className="m-0 mb-2.5 text-sm">
                     {t("ticket.selectedFiles")}
                   </h4>
                   {selectedFiles.map((file, index) => (
                     <div
                       key={index}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        padding: "8px 12px",
-                        backgroundColor: "#f8f9fa",
-                        borderRadius: "6px",
-                        marginBottom: "8px",
-                      }}
+                      className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md mb-2"
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <span style={{ fontSize: "14px" }}>{file.name}</span>
-                        <span style={{ fontSize: "12px", color: "#666" }}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">{file.name}</span>
+                        <span className="text-xs text-gray-500">
                           ({(file.size / 1024 / 1024).toFixed(1)}MB)
                         </span>
                       </div>
                       <button
                         type="button"
                         onClick={() => removeFile(index)}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "#dc3545",
-                          cursor: "pointer",
-                          fontSize: "16px",
-                          padding: "4px",
-                        }}
+                        className="bg-transparent border-none text-red-500 cursor-pointer text-base p-1"
                       >
                         ×
                       </button>
                     </div>
                   ))}
                   {selectedFiles.length >= 5 && (
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        color: "#666",
-                        margin: "8px 0 0 0",
-                      }}
-                    >
+                    <p className="text-xs text-gray-500 mt-2 mb-0">
                       {t("general.maxFiles", { count: 5 })}
                     </p>
                   )}
@@ -400,15 +325,7 @@ const TicketModal = ({ isOpen, onClose }) => {
               )}
             </div>
 
-            <div
-              className="form-actions"
-              style={{
-                display: "flex",
-                gap: "12px",
-                justifyContent: "flex-end",
-                marginTop: "20px",
-              }}
-            >
+            <div className="form-actions flex gap-3 justify-end mt-5">
               <button
                 type="button"
                 onClick={onClose}
@@ -419,11 +336,10 @@ const TicketModal = ({ isOpen, onClose }) => {
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn btn-primary min-w-[120px]"
                 disabled={
                   isSubmitting || !formData.page || !formData.description.trim()
                 }
-                style={{ minWidth: "120px" }}
               >
                 {isSubmitting
                   ? t("ui.buttons.sending")

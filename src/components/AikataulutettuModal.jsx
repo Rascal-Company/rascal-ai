@@ -37,20 +37,16 @@ const AikataulutettuModal = ({
     
     return (
       <div key={accountId} className="border rounded-lg p-4 bg-gray-50">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+        <div className="flex justify-between items-center mb-2">
           <label className="block text-sm font-medium text-gray-700 mb-0">
             <span className="text-sm font-medium text-gray-900">{accountName}</span>
           </label>
-          <span style={{ 
-            fontSize: '12px', 
-            color: charCount > 2000 ? '#ef4444' : '#6b7280',
-            fontWeight: charCount > 2000 ? '600' : '400'
-          }}>
+          <span className={`text-xs ${charCount > 2000 ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
             {charCount} / 2000
           </span>
         </div>
         <textarea
-          className="form-textarea"
+          className={`form-textarea ${charCount > 2000 ? 'border-red-500' : ''}`}
           rows={4}
           value={currentContent}
           onChange={(e) => setChannelContents({
@@ -58,17 +54,9 @@ const AikataulutettuModal = ({
             [accountId]: e.target.value
           })}
           placeholder={`Teksti kanavalle ${accountName}...`}
-          style={{
-            border: charCount > 2000 ? '1px solid #ef4444' : undefined
-          }}
         />
         {charCount > 2000 && (
-          <p style={{ 
-            color: '#ef4444', 
-            fontSize: '12px', 
-            marginTop: '4px',
-            fontWeight: '500'
-          }}>
+          <p className="text-red-500 text-xs mt-1 font-medium">
             Postauksen pituus ylittää maksimin 2000 merkkiä
           </p>
         )}
@@ -535,28 +523,21 @@ const AikataulutettuModal = ({
         </div>
         <div className="modal-content">
           {error && (
-            <div className="error-message" style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#fee', color: '#c33', borderRadius: '4px' }}>
+            <div className="error-message mb-4 p-3 bg-red-50 text-red-600 rounded">
               {error}
             </div>
           )}
-          
+
           {success && (
-            <div className="success-message" style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: '#efe', color: '#3c3', borderRadius: '4px' }}>
+            <div className="success-message mb-4 p-3 bg-green-50 text-green-600 rounded">
               Postaus päivitetty onnistuneesti!
             </div>
           )}
 
           {/* Luontipäivämäärä */}
-          <div className="form-group" style={{ marginBottom: '16px' }}>
+          <div className="form-group mb-4">
             <label className="form-label">Luotu</label>
-            <p className="form-text" style={{ 
-              padding: '8px 12px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>
+            <p className="form-text py-2 px-3 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-500">
               {editingPost.created_at ? new Date(editingPost.created_at).toLocaleString('fi-FI', {
                 year: 'numeric',
                 month: 'long',
@@ -571,18 +552,11 @@ const AikataulutettuModal = ({
           {/* Media-preview */}
           <div className="form-group">
             <label className="form-label">Media</label>
-            <div style={{ 
-              maxWidth: '300px', 
-              maxHeight: '200px', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px',
-              overflow: 'hidden',
-              backgroundColor: '#f9fafb'
-            }}>
+            <div className="max-w-[300px] max-h-[200px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
               {(() => {
                 // Hae media URL editingPost-datasta
                 let mediaUrl = null
-                
+
                 if (editingPost.source === 'mixpost' && editingPost.versions?.[0]?.content?.[0]?.media?.[0]) {
                   // Mixpost-data: hae media URL
                   const mediaItem = editingPost.versions[0].content[0].media[0]
@@ -595,46 +569,32 @@ const AikataulutettuModal = ({
                   // Supabase-data: käytä thumbnail tai media_urls
                   mediaUrl = editingPost.thumbnail || editingPost.media_urls?.[0]
                 }
-                
+
                 if (!mediaUrl) {
                   return (
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      height: '200px',
-                      color: '#6b7280'
-                    }}>
+                    <div className="flex items-center justify-center h-[200px] text-gray-500">
                       Ei mediaa
                     </div>
                   )
                 }
-                
+
                 // Video-tarkistus
                 if (mediaUrl.includes('.mp4') || mediaUrl.includes('video')) {
                   return (
-                    <video 
-                      src={mediaUrl} 
-                      style={{ 
-                        width: '100%', 
-                        height: '200px', 
-                        objectFit: 'cover' 
-                      }}
+                    <video
+                      src={mediaUrl}
+                      className="w-full h-[200px] object-cover"
                       controls
                     />
                   )
                 }
-                
+
                 // Kuva
                 return (
-                  <img 
-                    src={mediaUrl} 
+                  <img
+                    src={mediaUrl}
                     alt="Postauksen media"
-                    style={{ 
-                      width: '100%', 
-                      height: '200px', 
-                      objectFit: 'cover' 
-                    }}
+                    className="w-full h-[200px] object-cover"
                     onError={(e) => {
                       e.target.style.display = 'none'
                       e.target.nextSibling.style.display = 'flex'
@@ -642,15 +602,9 @@ const AikataulutettuModal = ({
                   />
                 )
               })()}
-              
+
               {/* Fallback placeholder */}
-              <div style={{ 
-                display: 'none', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                height: '200px',
-                color: '#6b7280'
-              }}>
+              <div className="hidden items-center justify-center h-[200px] text-gray-500">
                 Media ei lataa
               </div>
             </div>
@@ -667,17 +621,11 @@ const AikataulutettuModal = ({
             return dateTimeStr
           })() && (
             <div className="form-group">
-              <div style={{ 
-                padding: '1rem', 
-                backgroundColor: '#f0f9ff', 
-                border: '1px solid #0ea5e9', 
-                borderRadius: '6px',
-                marginBottom: '0.5rem'
-              }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: '600', color: '#0369a1', marginBottom: '0.25rem' }}>
+              <div className="p-4 bg-sky-50 border border-sky-400 rounded-md mb-2">
+                <div className="text-sm font-semibold text-sky-700 mb-1">
                   📅 Ajastettu julkaisuajankohta
                 </div>
-                <div style={{ fontSize: '1.125rem', fontWeight: '700', color: '#0c4a6e' }}>
+                <div className="text-lg font-bold text-sky-900">
                   {(() => {
                     try {
                       let dateTimeStr = null
@@ -686,7 +634,7 @@ const AikataulutettuModal = ({
                       } else if (editingPost.source === 'mixpost') {
                         dateTimeStr = editingPost.scheduled_at
                       }
-                      
+
                       if (dateTimeStr) {
                         // Mixpost tallentaa UTC-ajan ilman Z-merkintää
                         // Lisätään Z jotta JavaScript tulkitsee sen UTC:nä
@@ -716,50 +664,34 @@ const AikataulutettuModal = ({
           {/* Näytetään statustieto */}
           <div className="form-group">
             <label className="form-label">Status</label>
-            <p className="form-text" style={{ 
-              display: 'inline-block',
-              padding: '0.25rem 0.75rem',
-              borderRadius: '9999px',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              backgroundColor: editingPost.status === 'Aikataulutettu' ? '#dbeafe' : 
-                               editingPost.status === 'Luonnos' ? '#fef3c7' : '#f3f4f6',
-              color: editingPost.status === 'Aikataulutettu' ? '#1e40af' : 
-                     editingPost.status === 'Luonnos' ? '#92400e' : '#374151'
-            }}>
+            <p className={`form-text inline-block py-1 px-3 rounded-full text-sm font-semibold ${
+              editingPost.status === 'Aikataulutettu'
+                ? 'bg-blue-100 text-blue-800'
+                : editingPost.status === 'Luonnos'
+                  ? 'bg-amber-100 text-amber-800'
+                  : 'bg-gray-100 text-gray-700'
+            }`}>
               {editingPost.status || 'Ei statusta'}
             </p>
           </div>
 
 
           <div className="form-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label className="form-label" style={{ marginBottom: 0 }}>Postaus (pääteksti)</label>
-              <span style={{ 
-                fontSize: '12px', 
-                color: formData.content.length > 2000 ? '#ef4444' : '#6b7280',
-                fontWeight: formData.content.length > 2000 ? '600' : '400'
-              }}>
+            <div className="flex justify-between items-center mb-2">
+              <label className="form-label mb-0">Postaus (pääteksti)</label>
+              <span className={`text-xs ${formData.content.length > 2000 ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
                 {formData.content.length} / 2000
               </span>
             </div>
             <textarea
-              className="form-textarea"
+              className={`form-textarea ${formData.content.length > 2000 ? 'border-red-500' : ''}`}
               rows={6}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               placeholder="Kirjoita postauksen teksti..."
-              style={{
-                border: formData.content.length > 2000 ? '1px solid #ef4444' : undefined
-              }}
             />
             {formData.content.length > 2000 && (
-              <p style={{ 
-                color: '#ef4444', 
-                fontSize: '12px', 
-                marginTop: '4px',
-                fontWeight: '500'
-              }}>
+              <p className="text-red-500 text-xs mt-1 font-medium">
                 Postauksen pituus ylittää maksimin 2000 merkkiä
               </p>
             )}
