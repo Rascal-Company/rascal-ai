@@ -75,17 +75,7 @@ const ConfirmPopover = ({
   return createPortal(
     <div
       ref={popoverRef}
-      style={{
-        position: 'fixed',
-        background: 'white',
-        border: '1px solid #e5e7eb',
-        borderRadius: '8px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        padding: '10px 12px',
-        width: '240px',
-        zIndex: 10000,
-        animation: 'fadeIn 0.2s ease-out'
-      }}
+      className="fixed bg-white border border-gray-200 rounded-lg shadow-lg py-2.5 px-3 w-60 z-[10000] animate-[fadeIn_0.2s_ease-out]"
       onClick={(e) => e.stopPropagation()}
     >
       <style>{`
@@ -100,19 +90,10 @@ const ConfirmPopover = ({
           }
         }
       `}</style>
-      <p style={{ 
-        margin: '0 0 10px 0', 
-        fontSize: '13px', 
-        color: '#374151',
-        lineHeight: '1.4'
-      }}>
+      <p className="m-0 mb-2.5 text-[13px] text-gray-700 leading-snug">
         {message}
       </p>
-      <div style={{ 
-        display: 'flex', 
-        gap: '6px', 
-        justifyContent: 'flex-end' 
-      }}>
+      <div className="flex gap-1.5 justify-end">
         <Button
           type="button"
           variant="secondary"

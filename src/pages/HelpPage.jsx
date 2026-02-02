@@ -408,7 +408,7 @@ export default function HelpPage() {
   return (
     <div className="help-container">
       <div className="help-header">
-        <h2 style={{ fontSize: 32, fontWeight: 800, color: '#1f2937', margin: 0 }}>Help Center</h2>
+        <h2 className="text-[32px] font-extrabold text-gray-800 m-0">Help Center</h2>
       </div>
       <div className="help-content">
         {/* Sidebar */}
@@ -523,7 +523,7 @@ export default function HelpPage() {
                 </h1>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+              <div className="flex flex-col gap-10">
                 {currentSection.content.map((item, index) => (
                   <div key={index} className="help-content-item">
                     <h2 className="help-content-title">
@@ -535,13 +535,8 @@ export default function HelpPage() {
                     </p>
 
                     {item.features && (
-                      <div style={{ marginBottom: '20px' }}>
-                        <h3 style={{ 
-                          margin: '0 0 12px 0', 
-                          fontSize: 18, 
-                          fontWeight: 600, 
-                          color: '#374151' 
-                        }}>
+                      <div className="mb-5">
+                        <h3 className="m-0 mb-3 text-lg font-semibold text-gray-700">
                           Ominaisuudet:
                         </h3>
                         <ul className="help-features-list">
@@ -553,13 +548,8 @@ export default function HelpPage() {
                     )}
 
                     {item.tips && (
-                      <div style={{ marginBottom: '20px' }}>
-                        <h3 style={{ 
-                          margin: '0 0 12px 0', 
-                          fontSize: 18, 
-                          fontWeight: 600, 
-                          color: '#374151' 
-                        }}>
+                      <div className="mb-5">
+                        <h3 className="m-0 mb-3 text-lg font-semibold text-gray-700">
                           Vinkkejä:
                         </h3>
                         <ul className="help-tips-list">
@@ -571,13 +561,8 @@ export default function HelpPage() {
                     )}
 
                     {item.steps && (
-                      <div style={{ marginBottom: '20px' }}>
-                        <h3 style={{ 
-                          margin: '0 0 12px 0', 
-                          fontSize: 18, 
-                          fontWeight: 600, 
-                          color: '#374151' 
-                        }}>
+                      <div className="mb-5">
+                        <h3 className="m-0 mb-3 text-lg font-semibold text-gray-700">
                           Vaiheet:
                         </h3>
                         <ol className="help-steps-list">

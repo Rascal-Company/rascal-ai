@@ -217,7 +217,6 @@
     "passwordTooShort": "Password must be at least 6 characters long",
     "passwordUpdated": "Password updated successfully!"
   },
-
   "aiDD": {
     "meta": {
       "title": "AI Due Diligence – RascalAI",
@@ -595,10 +594,22 @@
       "cancel": "Cancel",
       "schedule": "Schedule",
       "publishNow": "Publish now",
+      "publishImmediatelyHint": "Leave empty to publish immediately",
       "slides": "Slides ({{count}})",
       "noMedia": "No media",
       "noCaption": "No caption",
-      "captionTooLong": "Post exceeds maximum 2000 characters"
+      "captionTooLong": "Post exceeds maximum 2000 characters",
+      "reviewModal": {
+        "title": "Review Post",
+        "subtitle": "Verify details before publishing",
+        "createdLabel": "Created",
+        "typeLabel": "Type",
+        "titleLabel": "Title",
+        "captionLabel": "Caption",
+        "statusLabel": "Status",
+        "close": "Close",
+        "publishNow": "Publish Now"
+      }
     },
     "carouselsTab": {
       "title": "Carousels",
@@ -616,14 +627,105 @@
         "approved": "Approved",
         "placeholder": "Segment text..."
       },
+      "editor": {
+        "backToList": "Back to list",
+        "editingTitle": "Editing Carousel",
+        "workingPreview": "{{count}} Carousels in progress",
+        "themeLabel": "Carousel Theme",
+        "contextLabel": "Caption Context",
+        "statusLabel": "Status",
+        "pagesLabel": "Pages",
+        "selectAnother": "Select another carousel",
+        "untitled": "Untitled Carousel",
+        "segmentPlaceholder": "Segment text...",
+        "ok": "OK",
+        "editing": "EDITING",
+        "noDescription": "No description"
+      },
+      "list": {
+        "badge": "Carousel",
+        "untitled": "Untitled Draft",
+        "noDescription": "No description...",
+        "pagesLabel": "Pages"
+      },
+      "postCard": {
+        "noMedia": "No media",
+        "untitled": "Untitled post",
+        "noDescription": "No description available...",
+        "duplicate": "Duplicate",
+        "duplicateNew": "Duplicate to new"
+      },
       "messages": {
         "noChanges": "No changes to save",
         "saved": "Saved {{count}} changes",
         "saveFailed": "Save failed",
         "segmentUpdateFailed": "Update for segment {{id}} failed",
         "noAuth": "Not authenticated",
-        "userIdNotFound": "User ID not found"
+        "userIdNotFound": "User ID not found",
+        "fetchError": "Error fetching posts"
       }
+    },
+    "imageBank": {
+      "title": "Image Bank",
+      "upload": "Add images",
+      "uploading": "Uploading...",
+      "dropHint": "Drag images here or click",
+      "empty": "No images yet. Upload your first one!",
+      "deleteConfirm": "Are you sure you want to delete this image?",
+      "deleteTitle": "Delete image",
+      "selectTitle": "Select image from bank",
+      "noImagesSelector": "No images in bank. Add images from the dashboard.",
+      "error": {
+        "fetch": "Error fetching images",
+        "upload": "Error uploading image",
+        "delete": "Error deleting image",
+        "idNotFound": "User ID not found",
+        "notImage": "File {{name}} is not an image",
+        "tooLarge": "Image {{name}} is too large (max 10MB)"
+      },
+      "close": "Close"
+    },
+    "ugcTab": {
+      "title": "New UGC Content",
+      "contentType": "Content Type",
+      "image": "Image",
+      "video": "Video",
+      "productImage": "Product Image *",
+      "removeImage": "Remove image",
+      "selectProductImage": "Select product image",
+      "imageHint": "JPG, PNG or GIF (max 10MB)",
+      "productName": "Product Name",
+      "productNamePlaceholder": "e.g. Sunglasses 2024",
+      "productDetails": "Product Details",
+      "productDetailsPlaceholder": "What do you want to say about the product?",
+      "style": "Style",
+      "format": "Format",
+      "select": "Select...",
+      "styles": {
+        "studio": "Studio",
+        "lifestyle": "Lifestyle",
+        "premium": "Premium",
+        "nature": "Nature",
+        "urban": "Urban"
+      },
+      "formats": {
+        "story": "9:16 Story",
+        "square": "1:1 Square",
+        "landscape": "16:9 Landscape"
+      },
+      "generate": "Generate content",
+      "sending": "Sending...",
+      "empty": "UGC content will appear here.",
+      "processing": "Processing...",
+      "ready": "Ready",
+      "viewDetails": "View details",
+      "untitled": "Generation in progress",
+      "loading": "Preparing your content...",
+      "formError": "Please fill in all required fields",
+      "uploadError": "Error uploading image",
+      "requestSuccess": "UGC content request sent successfully!",
+      "requestError": "Error sending UGC content request",
+      "userIdNotFound": "User ID not found"
     },
     "schedule": {
       "prompt": "Enter schedule (YYYY-MM-DD HH:MM):"
@@ -660,7 +762,10 @@
       "allStatuses": "All statuses",
       "allTypes": "All content types"
     },
-    "types": { "blog": "📝 Blog articles", "newsletter": "📧 Newsletters" },
+    "types": {
+      "blog": "📝 Blog articles",
+      "newsletter": "📧 Newsletters"
+    },
     "status": {
       "Luonnos": "Draft",
       "Kesken": "In progress",
@@ -683,7 +788,9 @@
       "saveChanges": "Save changes",
       "archive": "Archive"
     },
-    "loading": { "loadingContent": "Loading content..." },
+    "loading": {
+      "loadingContent": "Loading content..."
+    },
     "empty": {
       "title": "No content yet",
       "description": "Start by creating a new blog article or newsletter",
@@ -699,7 +806,11 @@
     },
     "createModal": {
       "title": "Create content",
-      "fields": { "title": "Title", "type": "Type", "content": "Content" },
+      "fields": {
+        "title": "Title",
+        "type": "Type",
+        "content": "Content"
+      },
       "placeholders": {
         "title": "Enter the title...",
         "content": "Write the content..."
@@ -730,7 +841,13 @@
   "strategy": {
     "header": "Target audience, goals and content plan",
     "loading": "Loading content strategy...",
-    "status": { "current": "Current", "upcoming": "Upcoming", "old": "Old" },
+    "status": {
+      "current": "This month",
+      "upcoming": "Upcoming",
+      "old": "Past",
+      "approved": "Approved",
+      "pending": "Pending"
+    },
     "icp": {
       "title": "Target audience",
       "placeholder": "Write audience profiles here (one per line)...",
@@ -745,14 +862,11 @@
       "empty": "No goals yet",
       "create": "Create goals"
     },
-    "list": { "title": "Content strategies" },
-    "strategyCard": { "placeholder": "Write the monthly strategy here..." },
-    "status": {
-      "current": "This month",
-      "upcoming": "Upcoming",
-      "old": "Past",
-      "approved": "Approved",
-      "pending": "Pending"
+    "list": {
+      "title": "Content strategies"
+    },
+    "strategyCard": {
+      "placeholder": "Write the monthly strategy here..."
     },
     "buttons": {
       "save": "Save",
@@ -935,8 +1049,11 @@
       "crm": "CRM"
     },
     "common": {
+      "close": "Close",
       "cancel": "Cancel",
-      "close": "Close"
+      "back": "Back",
+      "continue": "Continue",
+      "save": "Save"
     },
     "callsTab": {
       "mass": {
@@ -972,7 +1089,10 @@
       "inbound": {
         "header": "Inbound settings",
         "editLarge": "Edit in large window",
-        "voice": { "label": "Voice", "test": "Test" },
+        "voice": {
+          "label": "Voice",
+          "test": "Test"
+        },
         "welcome": {
           "label": "Welcome message",
           "placeholder": "Write the welcome message...",
@@ -1014,7 +1134,10 @@
       }
     },
     "messagesTab": {
-      "buttons": { "refresh": "Refresh", "refreshing": "Refreshing..." },
+      "buttons": {
+        "refresh": "Refresh",
+        "refreshing": "Refreshing..."
+      },
       "loading": "Loading messages...",
       "empty": "No messages found",
       "history": {
@@ -1030,7 +1153,10 @@
         "customerText": "Customer reply",
         "date": "Date"
       },
-      "direction": { "outbound": "Sent", "inbound": "Received" },
+      "direction": {
+        "outbound": "Sent",
+        "inbound": "Received"
+      },
       "status": {
         "sent": "Sent",
         "delivered": "Delivered",
@@ -1093,7 +1219,10 @@
     },
     "textMessagesTab": {
       "header": "Text messages",
-      "buttons": { "refresh": "Refresh", "refreshing": "Refreshing..." },
+      "buttons": {
+        "refresh": "Refresh",
+        "refreshing": "Refreshing..."
+      },
       "sectionTitle": "First text message",
       "showingCount": "Showing {count} call types",
       "loadingTypes": "Loading call types...",
@@ -1113,13 +1242,6 @@
         "edit": "Edit",
         "save": "Save"
       }
-    },
-    "common": {
-      "close": "Close",
-      "cancel": "Cancel",
-      "back": "Back",
-      "continue": "Continue",
-      "save": "Save"
     },
     "modals": {
       "callTypeLanguages": {
@@ -1217,10 +1339,20 @@
         "step2": {
           "title": "Step 2: Call settings",
           "desc": "Select campaign (optional segment), call type and voice.",
-          "campaign": { "label": "Campaign *", "select": "Select campaign" },
-          "segment": { "label": "Segment (optional)", "none": "No segment" },
-          "type": { "label": "Call type" },
-          "voice": { "label": "Voice" },
+          "campaign": {
+            "label": "Campaign *",
+            "select": "Select campaign"
+          },
+          "segment": {
+            "label": "Segment (optional)",
+            "none": "No segment"
+          },
+          "type": {
+            "label": "Call type"
+          },
+          "voice": {
+            "label": "Voice"
+          },
           "sms": {
             "title": "Text messages",
             "before": "Before call",
@@ -1239,7 +1371,10 @@
         "step3": {
           "title": "Step 3: Start or schedule calls",
           "desc": "Choose whether to start calls now or schedule them.",
-          "startNow": { "label": "🚀 Start now", "starting": "Starting..." },
+          "startNow": {
+            "label": "🚀 Start now",
+            "starting": "Starting..."
+          },
           "orSchedule": "📅 Or schedule calls",
           "date": "Date",
           "time": "Time",
@@ -1267,13 +1402,18 @@
             "label": "Call type",
             "placeholder": "Select call type..."
           },
-          "voice": { "label": "Voice" },
+          "voice": {
+            "label": "Voice"
+          },
           "cancel": "Cancel",
           "next": "Continue →"
         },
         "step2": {
           "title": "Step 2: Customer info",
-          "name": { "label": "Name", "placeholder": "John Doe" },
+          "name": {
+            "label": "Name",
+            "placeholder": "John Doe"
+          },
           "phone": {
             "label": "Phone number",
             "placeholder": "040 123 4567 or +358401234567"
@@ -1288,7 +1428,10 @@
             "missing": "Add SMS text to the call type first"
           },
           "back": "← Back",
-          "call": { "label": "Call", "calling": "Calling…" }
+          "call": {
+            "label": "Call",
+            "calling": "Calling…"
+          }
         }
       },
       "inbound": {
@@ -1471,17 +1614,9 @@
           "agentName": "e.g. Sarah from Sales",
           "targetAudience": "Corporate finance managers, retail managers, entrepreneurs",
           "mainGoal": "Ask for interest, request confirmation, tell about the event and confirm participation",
-          "toneStyle": "Friendly, professional and calm. No small talk.",
-          "firstSentence": "Hi! I'm [agent_name], from [company].",
-          "callStart": "We have new products, I'd like to briefly tell you about them.",
-          "questions": "Would you be interested in testing?\nWould you like to order now?\nIs the right person available?",
-          "callEnd": "Thank you for your time! We'll get back to you if needed.",
-          "successfulEnd": "Mark the call as successful when the customer expresses interest in continuing the conversation about the product or service.",
-          "summary": "Write the store name you called and what the store ordered.\nDid the store ask to be contacted again?",
-          "successAssessment": "• In 2-3 sentences, assess whether the Goals section goals were met.\n• Describe why it succeeded/failed and mention any gaps.",
-          "agentPersona": "You are Sarah, a friendly sales consultant at TechCorp. You help business owners streamline their operations with our software solutions.",
-          "toneStyle": "Professional yet warm. Use clear, jargon-free language. Keep sentences short and pause naturally for responses.",
+          "agentPersona": "You are Sarah, a friendly sales consultant at TechCorp. You help business owners streamline their operations with our software solutions. Professional yet warm. Use clear, jargon-free language. Keep sentences short and pause naturally for responses.",
           "callGoals": "1. Qualify budget and timeline\n2. Identify key pain points\n3. Determine decision-making process\n4. Book demo with qualified leads",
+          "toneStyle": "Professional yet warm. Use clear, jargon-free language. Keep sentences short and pause naturally for responses.",
           "guidelines": "Always confirm understanding before moving on. If prospect asks off-topic questions, acknowledge briefly and redirect. Never interrupt; let them finish speaking completely.",
           "greeting": "Hi, this is Sarah from TechCorp!",
           "purposeIntro": "I'm reaching out because you recently downloaded our pricing guide. I wanted to see if you had any questions and share how we've helped similar companies reduce costs by 30%.",
@@ -1529,12 +1664,22 @@
       }
     },
     "manageTab": {
-      "header": { "title": "Manage call types" },
-      "cta": { "addNew": "➕ Add new type" },
-      "existing": { "title": "Existing call types" },
+      "header": {
+        "title": "Manage call types"
+      },
+      "cta": {
+        "addNew": "➕ Add new type"
+      },
+      "existing": {
+        "title": "Existing call types"
+      },
       "loading": "Loading call types...",
       "empty": "No call types added yet",
-      "sort": { "label": "Sort:", "byStatus": "Status", "byName": "Name" },
+      "sort": {
+        "label": "Sort:",
+        "byStatus": "Status",
+        "byName": "Name"
+      },
       "item": {
         "identifier": "Identifier:",
         "statusActive": "Active",
@@ -1683,7 +1828,10 @@
   },
   "assistant": {
     "loadingUser": "Loading user data...",
-    "tabs": { "chat": "Chat", "files": "Knowledge base" },
+    "tabs": {
+      "chat": "Chat",
+      "files": "Knowledge base"
+    },
     "typing": "Typing…",
     "inputPlaceholder": "Write your message...",
     "send": "Send",
@@ -1845,6 +1993,7 @@
     "voice": {
       "title": "Voice Clone",
       "loading": "Loading audio...",
+      "uploading": "Uploading...",
       "addNewAria": "Add new audio file",
       "add": "Add",
       "processing": "Processing...",
@@ -2422,6 +2571,10 @@
       "imageFromKuvapankkiFailed": "Adding image from image bank failed: {{message}}",
       "captionTooLong": "Post length exceeds maximum of 2000 characters",
       "saveFailed": "Saving data failed"
+    },
+    "mediaSource": {
+      "selectFromImageBank": "Select from image bank",
+      "selectFromDevice": "Select from device"
     }
   },
   "ticket": {
@@ -2558,6 +2711,47 @@
     "languageSwitcher": "Language switcher",
     "toggleMobileMenu": "Toggle mobile menu",
     "crmConnected": "CRM connected"
+  },
+  "calendar": {
+    "title": "Publishing Calendar",
+    "today": "Today",
+    "view": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    },
+    "modals": {
+      "selectPost": {
+        "title": "Select post",
+        "subtitle": "Ready drafts",
+        "empty": "No ready posts"
+      },
+      "schedule": {
+        "title": "Scheduling",
+        "preview": "Preview",
+        "timeLabel": "Publish Time",
+        "channelsLabel": "Select Channels",
+        "confirm": "Confirm Schedule"
+      },
+      "scheduledDetail": {
+        "title": "Scheduled Post",
+        "draftTitle": "Post Draft",
+        "subtitle": "Manage and edit scheduled content",
+        "createdLabel": "Created",
+        "mediaLabel": "Media",
+        "statusLabel": "Status",
+        "scheduledAtLabel": "Scheduled publication",
+        "dateLabel": "Publish Date",
+        "timeLabel": "Publish Time",
+        "contentLabel": "Main Text",
+        "contentPlaceholder": "Write post content...",
+        "perChannelLabel": "Text per channel",
+        "noMedia": "No media",
+        "unknown": "Unknown",
+        "noDateTime": "No date/time",
+        "successUpdate": "Post updated successfully!"
+      }
+    }
   },
   "monitoring": {
     "title": "Media Monitoring",

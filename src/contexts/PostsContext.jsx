@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useReducer, useCallback, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
-import { getCurrentUser } from '../utils/userApi'
 import { getUserOrgId } from '../lib/getUserOrgId'
 
 // Initial state
@@ -357,30 +356,30 @@ export const PostsProvider = ({ children }) => {
 
   const fetchReelsPosts = useCallback(async (userId) => {
     if (!userId) return
-    
+
     try {
       dispatch({ type: ACTIONS.SET_REELS_LOADING, payload: true })
       dispatch({ type: ACTIONS.SET_REELS_ERROR, payload: null })
-      
-      // Hae käyttäjän ID API:n kautta
-      const userData = await getCurrentUser()
-      
-      if (!userData?.id) {
+
+      // Hae organisaation ID
+      const orgId = await getUserOrgId(userId)
+
+      if (!orgId) {
         throw new Error('Käyttäjän ID ei löytynyt')
       }
-      
+
       const { data, error } = await supabase
         .from('content')
         .select('*')
-        .eq('user_id', userData.id)
+        .eq('user_id', orgId)
         .eq('type', 'Reel')
         .order('created_at', { ascending: false })
-      
+
       if (error) throw error
-      
+
       const transformedReels = transformReelsData(data || [])
       dispatch({ type: ACTIONS.SET_REELS_POSTS, payload: transformedReels })
-      
+
     } catch (err) {
       console.error('Virhe reels-datan haussa:', err)
       dispatch({ type: ACTIONS.SET_REELS_ERROR, payload: 'Reels-datan haku epäonnistui' })

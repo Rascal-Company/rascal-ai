@@ -342,45 +342,11 @@ export default function DevChatPage() {
             </button>
           </div>
 
-          <div style={{
-            flex: 1,
-            minHeight: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            margin: 0,
-            padding: 0
-          }}>
+          <div className="flex-1 min-h-0 flex flex-col m-0 p-0">
             {tab === 'chat' ? (
-              <div style={{
-                flex: 1,
-                minHeight: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                margin: 0,
-                padding: 0,
-                height: '100%'
-              }}>
-                <div style={{
-                  flex: 1,
-                  minHeight: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  margin: 0,
-                  padding: 0,
-                  overflow: 'hidden'
-                }}>
-                  <div style={{
-                    flex: 1,
-                    minHeight: 0,
-                    overflowY: 'auto',
-                    display: 'flex',
-                    flexDirection: 'column-reverse',
-                    gap: 12,
-                    margin: 0,
-                    padding: 24,
-                    width: '100%',
-                    height: '100%'
-                  }}>
+              <div className="flex-1 min-h-0 flex flex-col m-0 p-0 h-full">
+                <div className="flex-1 min-h-0 flex flex-col m-0 p-0 overflow-hidden">
+                  <div className="flex-1 min-h-0 overflow-y-auto flex flex-col-reverse gap-3 m-0 p-6 w-full h-full">
                     {(() => {
                       const list = [...messages]
                       if (loading) list.push({ role: 'assistant', content: 'Kirjoittaa…', temp: true })
@@ -427,16 +393,8 @@ export default function DevChatPage() {
                 </form>
               </div>
             ) : (
-              <div style={{
-                flex: 1,
-                display: 'flex',
-                flexDirection: 'column',
-                padding: windowWidth <= 768 ? '16px' : windowWidth <= 480 ? '12px' : '24px',
-                gap: windowWidth <= 768 ? '20px' : windowWidth <= 480 ? '16px' : '24px',
-                overflow: 'hidden',
-                background: '#f7f8fc'
-              }}>
-                <div className="ai-chat-upload-card" style={{ flexShrink: 0 }}>
+              <div className="flex-1 flex flex-col p-6 md:p-4 gap-6 md:gap-5 overflow-hidden bg-slate-50">
+                <div className="ai-chat-upload-card shrink-0">
                   <h3>Lisää tiedosto tietokantaan</h3>
                   <p>Voit liittää PDF-, Word- tai tekstimuotoisen tiedoston. Tiedosto tallennetaan yrityksesi tietokantaan.</p>
                   <div
@@ -448,7 +406,7 @@ export default function DevChatPage() {
                     onClick={() => dropRef.current && dropRef.current.querySelector('input[type=file]').click()}
                   >
                     Vedä ja pudota tiedostoja tähän tai <span>valitse tiedostot</span>
-                    <input type="file" multiple style={{ display: 'none' }} onChange={handleFileInput} />
+                    <input type="file" multiple className="hidden" onChange={handleFileInput} />
                   </div>
                   {pendingFiles.length > 0 && (
                     <div className="ai-chat-pending-files">

@@ -19,10 +19,13 @@ export default async function handler(req, res) {
     // Varmista että count on validi numero (1-10)
     const postCount = count ? Math.max(1, Math.min(10, parseInt(count, 10))) : 1
     
-    // Type on pakollinen vain jos luodaan yksi postaus
+    // Type on pakollinen vain jos luodaan yksi postaus ja type ei ole "All" tai "Kaikki"
     if (postCount === 1 && !type) {
       return res.status(400).json({ error: 'Missing required field: type (required when count is 1)' })
     }
+    
+    // Jos type on "All" tai "Kaikki", asetetaan se null:ksi backendille
+    const finalType = (type === "All" || type === "Kaikki") ? null : type;
 
     // N8N webhook URL
     const n8nWebhookUrl = process.env.N8N_IDEA_GENERATION || 'https://samikiias.app.n8n.cloud/webhook/idea-generation'
@@ -37,7 +40,7 @@ export default async function handler(req, res) {
     const safePayload = {
       idea: String(idea),
       content: content ? String(content) : null,
-      type: type ? String(type) : null,
+      type: finalType ? String(finalType) : null,
       companyId: String(companyId),
       caption: caption ? String(caption) : null,
       count: Number(postCount),

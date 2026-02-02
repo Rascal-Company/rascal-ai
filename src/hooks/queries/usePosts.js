@@ -1,7 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback } from 'react'
 import { supabase } from '../../lib/supabase'
-import { getCurrentUser } from '../../utils/userApi'
 import { useOrgId } from './useOrgId'
 import axios from 'axios'
 import { POST_STATUS_MAP, MIXPOST_STATUS_MAP } from '../../constants/posts'
@@ -201,13 +200,21 @@ export function usePostsQuery(user, t) {
   })
 
   const reelsQuery = useQuery({
-    queryKey: ['reels', user?.company_id],
+    queryKey: ['reels', orgId],
     queryFn: async () => {
-      const userData = await getCurrentUser()
-      if (!userData?.company_id) return []
+      if (!orgId) return []
+
+      // Hae company_id suoraan Supabasesta
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('company_id')
+        .eq('id', orgId)
+        .single()
+
+      if (userError || !userData?.company_id) return []
       return fetchReelsData(userData.company_id, t)
     },
-    enabled: !!user && !orgLoading,
+    enabled: !!orgId && !orgLoading,
     staleTime: 1000 * 60 * 2,
     placeholderData: [],
   })

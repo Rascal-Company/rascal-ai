@@ -26,12 +26,11 @@ export default function CompanyTab({
 
   const loadUsers = async () => {
     if (!orgId) return
-    
+
     setLoadingUsers(true)
     setUsersError(null)
-    
+
     try {
-      // Hae käyttäjät API-endpointista
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) {
         setUsersError('Ei kirjautumistietoja')
@@ -74,156 +73,95 @@ export default function CompanyTab({
     }
   }
 
+  const cards = [
+    { field: 'company_summary', title: 'Yritysyhteenveto', emptyText: 'Ei yhteenvetoa', placeholder: 'Yrityksen yhteenveto...' },
+    { field: 'icp_summary', title: 'ICP (Ideal Customer Profile)', emptyText: 'Ei ICP-kuvausta', placeholder: 'Ideal Customer Profile...' },
+    { field: 'kpi', title: 'KPI', emptyText: 'Ei KPI-tietoja', placeholder: 'Key Performance Indicators...' },
+    { field: 'tov', title: 'ToV (Tone of Voice)', emptyText: 'Ei ToV-kuvausta', placeholder: 'Tone of Voice...' },
+  ]
+
   return (
     <>
-      <div className="company-cards-grid">
-        {/* Yritysyhteenveto kortti */}
-        <div className={`company-card ${editingCard === 'company_summary' ? 'editing' : ''}`}>
-          <div className="company-card-header">
-            <h3>Yritysyhteenveto</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {cards.map(({ field, title, emptyText }) => (
+          <div
+            key={field}
+            className={`bg-white rounded-xl shadow-sm border overflow-hidden ${
+              editingCard === field ? 'border-primary-500' : 'border-gray-200'
+            }`}
+          >
+            <div className="px-5 py-4 border-b border-gray-100 bg-gray-50">
+              <h3 className="font-semibold text-gray-800">{title}</h3>
+            </div>
+            <div className="p-5">
+              {company[field] ? (
+                <p className="text-sm text-gray-600 mb-4">
+                  {company[field].length > 150
+                    ? company[field].substring(0, 150) + '...'
+                    : company[field]}
+                </p>
+              ) : (
+                <p className="text-sm text-gray-400 italic mb-4">{emptyText}</p>
+              )}
+              <button
+                className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit(field)
+                }}
+              >
+                Muokkaa
+              </button>
+            </div>
           </div>
-          <div className="company-card-content">
-            {company.company_summary ? (
-              <p>{company.company_summary.length > 150 
-                ? company.company_summary.substring(0, 150) + '...'
-                : company.company_summary}</p>
-            ) : (
-              <p className="empty-text">Ei yhteenvetoa</p>
-            )}
-            <button 
-              className="edit-btn-bottom"
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit('company_summary')
-              }}
-            >
-              Muokkaa
-            </button>
-          </div>
-        </div>
-
-        {/* ICP kortti */}
-        <div className={`company-card ${editingCard === 'icp_summary' ? 'editing' : ''}`}>
-          <div className="company-card-header">
-            <h3>ICP (Ideal Customer Profile)</h3>
-          </div>
-          <div className="company-card-content">
-            {company.icp_summary ? (
-              <p>{company.icp_summary.length > 150 
-                ? company.icp_summary.substring(0, 150) + '...'
-                : company.icp_summary}</p>
-            ) : (
-              <p className="empty-text">Ei ICP-kuvausta</p>
-            )}
-            <button 
-              className="edit-btn-bottom"
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit('icp_summary')
-              }}
-            >
-              Muokkaa
-            </button>
-          </div>
-        </div>
-
-        {/* KPI kortti */}
-        <div className={`company-card ${editingCard === 'kpi' ? 'editing' : ''}`}>
-          <div className="company-card-header">
-            <h3>KPI</h3>
-          </div>
-          <div className="company-card-content">
-            {company.kpi ? (
-              <p>{company.kpi.length > 150 
-                ? company.kpi.substring(0, 150) + '...'
-                : company.kpi}</p>
-            ) : (
-              <p className="empty-text">Ei KPI-tietoja</p>
-            )}
-            <button 
-              className="edit-btn-bottom"
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit('kpi')
-              }}
-            >
-              Muokkaa
-            </button>
-          </div>
-        </div>
-
-        {/* ToV kortti */}
-        <div className={`company-card ${editingCard === 'tov' ? 'editing' : ''}`}>
-          <div className="company-card-header">
-            <h3>ToV (Tone of Voice)</h3>
-          </div>
-          <div className="company-card-content">
-            {company.tov ? (
-              <p>{company.tov.length > 150 
-                ? company.tov.substring(0, 150) + '...'
-                : company.tov}</p>
-            ) : (
-              <p className="empty-text">Ei ToV-kuvausta</p>
-            )}
-            <button 
-              className="edit-btn-bottom"
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit('tov')
-              }}
-            >
-              Muokkaa
-            </button>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Käyttäjät kortti - koko sivun levyinen */}
-      <div className="users-card-full-width">
-        <div className="users-card-header">
-          <h3>Käyttäjät</h3>
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-100 bg-gray-50">
+          <h3 className="font-semibold text-gray-800">Käyttäjät</h3>
         </div>
-        <div className="users-card-body">
+        <div className="p-5">
           {loadingUsers ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+            <div className="text-center py-8 text-gray-500">
               Ladataan käyttäjiä...
             </div>
           ) : usersError ? (
-            <div style={{ color: '#ef4444', padding: '1rem' }}>
+            <div className="text-red-500 py-4">
               {usersError}
             </div>
           ) : users.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+            <div className="text-center py-8 text-gray-500">
               Ei käyttäjiä
             </div>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>Sähköposti</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>Rooli</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>Viimeksi kirjautunut</th>
-                    <th style={{ padding: '12px', textAlign: 'left', fontWeight: 600, color: '#1f2937' }}>Liittynyt</th>
+                  <tr className="border-b-2 border-gray-200">
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">Sähköposti</th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">Rooli</th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">Viimeksi kirjautunut</th>
+                    <th className="p-3 text-left text-sm font-semibold text-gray-800">Liittynyt</th>
                   </tr>
                 </thead>
                 <tbody>
                   {users.map((user) => (
-                    <tr key={user.auth_user_id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                      <td style={{ padding: '12px', color: '#1f2937' }}>{user.email || '-'}</td>
-                      <td style={{ padding: '12px', color: '#1f2937' }}>
-                        <span style={{
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '14px',
-                          backgroundColor: user.role === 'owner' ? '#fef3c7' : user.role === 'admin' ? '#dbeafe' : '#f3f4f6',
-                          color: user.role === 'owner' ? '#92400e' : user.role === 'admin' ? '#1e40af' : '#374151'
-                        }}>
+                    <tr key={user.auth_user_id} className="border-b border-gray-200">
+                      <td className="p-3 text-sm text-gray-800">{user.email || '-'}</td>
+                      <td className="p-3 text-sm">
+                        <span className={`py-1 px-2 rounded text-xs font-medium ${
+                          user.role === 'owner'
+                            ? 'bg-amber-100 text-amber-800'
+                            : user.role === 'admin'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-gray-100 text-gray-700'
+                        }`}>
                           {user.role === 'owner' ? 'Omistaja' : user.role === 'admin' ? 'Admin' : 'Jäsen'}
                         </span>
                       </td>
-                      <td style={{ padding: '12px', color: '#1f2937' }}>
-                        {user.last_sign_in_at 
+                      <td className="p-3 text-sm text-gray-800">
+                        {user.last_sign_in_at
                           ? new Date(user.last_sign_in_at).toLocaleDateString('fi-FI', {
                               day: '2-digit',
                               month: '2-digit',
@@ -233,7 +171,7 @@ export default function CompanyTab({
                             })
                           : 'Ei koskaan'}
                       </td>
-                      <td style={{ padding: '12px', color: '#1f2937' }}>
+                      <td className="p-3 text-sm text-gray-800">
                         {new Date(user.created_at).toLocaleDateString('fi-FI', {
                           day: '2-digit',
                           month: '2-digit',
@@ -250,46 +188,43 @@ export default function CompanyTab({
       </div>
 
       {editingCard && createPortal(
-        <div 
-          className="edit-card-modal-overlay modal-overlay modal-overlay--light"
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9998] p-4"
           onClick={onCancel}
         >
-          <div 
-            className="edit-card-modal modal-container"
+          <div
+            className="bg-white rounded-2xl w-full max-w-[700px] max-h-[90vh] overflow-hidden flex flex-col shadow-2xl border border-gray-200"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="edit-card-modal-header">
-              <h2>{getCardTitle(editingCard)}</h2>
-              <button 
-                className="edit-card-close-btn"
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-800">{getCardTitle(editingCard)}</h2>
+              <button
+                className="text-gray-500 bg-gray-100 border border-gray-200 cursor-pointer p-2 rounded-lg transition-all duration-200 w-9 h-9 flex items-center justify-center hover:bg-gray-200 hover:text-gray-700 active:scale-95 text-xl"
                 onClick={onCancel}
                 disabled={isSaving}
               >
                 ×
               </button>
             </div>
-            <div className="edit-card-modal-body">
+            <div className="flex-1 overflow-auto px-6 py-6">
               <textarea
                 value={editValues[editingCard] || ''}
                 onChange={(e) => onEditValueChange(editingCard, e.target.value)}
-                className="edit-card-textarea"
+                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y min-h-[300px]"
                 rows="12"
-                placeholder={editingCard === 'company_summary' ? 'Yrityksen yhteenveto...' :
-                            editingCard === 'icp_summary' ? 'Ideal Customer Profile...' :
-                            editingCard === 'kpi' ? 'Key Performance Indicators...' :
-                            'Tone of Voice...'}
+                placeholder={cards.find(c => c.field === editingCard)?.placeholder || ''}
               />
             </div>
-            <div className="edit-card-modal-footer">
-              <button 
-                className="cancel-card-btn"
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <button
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all disabled:opacity-50"
                 onClick={onCancel}
                 disabled={isSaving}
               >
                 Peruuta
               </button>
-              <button 
-                className="save-card-btn"
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-all disabled:opacity-50"
                 onClick={() => onSave(editingCard)}
                 disabled={isSaving}
               >
@@ -300,8 +235,6 @@ export default function CompanyTab({
         </div>,
         document.body
       )}
-
     </>
   )
 }
-

@@ -14,7 +14,7 @@ export default function CampaignsPage() {
 
   if (isLoading) {
     return (
-      <div className="container" style={{ padding: 24 }}>
+      <div className="container p-6">
         <p>{t('campaigns.loading')}</p>
       </div>
     )
@@ -22,8 +22,8 @@ export default function CampaignsPage() {
 
   if (error) {
     return (
-      <div className="container" style={{ padding: 24 }}>
-        <div style={{ color: '#dc2626' }}>{t('campaigns.error')}: {error.message}</div>
+      <div className="container p-6">
+        <div className="text-red-600">{t('campaigns.error')}: {error.message}</div>
       </div>
     )
   }
@@ -35,23 +35,23 @@ export default function CampaignsPage() {
   const answerRate = totalCalls > 0 ? Math.round((answeredCalls / totalCalls) * 100) : 0
 
   return (
-    <div className="container" style={{ padding: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+    <div className="container p-6">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{t('campaigns.header.title')}</h1>
-          <p style={{ color: '#6b7280', marginTop: 8 }}>{t('campaigns.header.description')}</p>
+          <h1 className="text-[28px] font-bold m-0">{t('campaigns.header.title')}</h1>
+          <p className="text-gray-500 mt-2">{t('campaigns.header.description')}</p>
         </div>
         <Button onClick={() => setShowCreate(true)}>{t('campaigns.actions.create')}</Button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div className="grid grid-cols-4 gap-4 mb-6">
         <StatsCard title={t('campaigns.stats.active')} value={activeCount} />
         <StatsCard title={t('campaigns.stats.totalCalls')} value={totalCalls} />
         <StatsCard title={t('campaigns.stats.answerRate')} value={`${answerRate}%`} />
         <StatsCard title={t('campaigns.stats.successful')} value={successfulCalls} />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 16 }}>
+      <div className="grid grid-cols-3 gap-4">
         {campaigns.map((campaign) => (
           <CampaignCard
             key={campaign.id}
@@ -63,8 +63,8 @@ export default function CampaignsPage() {
       </div>
 
       {campaigns.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <p style={{ color: '#6b7280', marginBottom: 16 }}>{t('campaigns.empty')}</p>
+        <div className="text-center py-12">
+          <p className="text-gray-500 mb-4">{t('campaigns.empty')}</p>
         </div>
       )}
 

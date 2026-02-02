@@ -1,133 +1,40 @@
-import React, { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
+import React, { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
+import { useVoiceStatus, useVoiceUpload } from "../../hooks/queries";
 
-// Äänitiedostojen upload-komponentti
 export default function VoiceSection({ companyId }) {
-  const { t } = useTranslation('common')
-  const [audioFiles, setAudioFiles] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const fileInputRef = React.useRef(null);
+  const { t } = useTranslation("common");
+  const fileInputRef = useRef(null);
+  const [uploadError, setUploadError] = useState("");
+  const [pendingFile, setPendingFile] = useState(null);
 
-  // Apufunktio: poimi äänitiedostot N8N/Airtable-rakenteesta
-  function extractAudioFiles(apiData) {
-    if (!Array.isArray(apiData)) return [];
-    
-    // Etsi äänitiedostot Voice ID -kentästä
-    const audioFiles = [];
-    for (const record of apiData) {
-      // Tarkista onko Voice ID -kenttää
-      if (record['Voice ID']) {
-        // Voice ID voi olla string tai array
-        const voiceIds = Array.isArray(record['Voice ID']) ? record['Voice ID'] : [record['Voice ID']];
-        
-        for (const voiceId of voiceIds) {
-          if (voiceId) {
-            audioFiles.push({ 
-              url: null, 
-              id: voiceId, 
-              filename: 'Voice Clone',
-              fileType: 'audio',
-              voiceId: record["Variable ID"] || record.id,
-              isPlaceholder: true
-            });
-          }
-        }
-      }
-      if (audioFiles.length >= 1) break; // Max 1 äänitiedosto
-    }
-    return audioFiles.slice(0, 1);
-  }
+  const {
+    data: audioFiles = [],
+    isLoading,
+    error: fetchError,
+  } = useVoiceStatus(companyId);
 
-  // Hae äänitiedostot N8N/Airtable-rakenteesta
-  const fetchAudioFiles = async () => {
-    if (!companyId) return;
-    
-    setLoading(true);
-    setError('');
-    
-    try {
-      const res = await fetch('/api/avatars/status', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ companyId })
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        const extractedAudioFiles = extractAudioFiles(data);
-        setAudioFiles(extractedAudioFiles);
-      } else {
-        setError(t('settings.voice.fetchError'));
-      }
-    } catch (error) {
-      setError(t('settings.voice.fetchError'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const uploadMutation = useVoiceUpload(companyId);
 
-  // Hae äänitiedostot kun komponentti latautuu
-  useEffect(() => {
-    fetchAudioFiles();
-  }, [companyId]);
-
-  // Lisää uusi äänitiedosto (lähetä backendiin)
   const handleAddAudio = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    if (audioFiles.length >= 1) return; // Max 1 äänitiedosto
+    if (audioFiles.length >= 1) return;
 
-    setLoading(true);
-    setError('');
+    setUploadError("");
+    setPendingFile(file);
 
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('companyId', companyId);
+    uploadMutation.mutate(file, {
+      onSuccess: () => {
+        setPendingFile(null);
+      },
+      onError: (error) => {
+        setUploadError(error.message || t("settings.voice.uploadError"));
+        setPendingFile(null);
+      },
+    });
 
-      const res = await fetch('/api/avatars/upload', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        // Odota että äänitiedosto ilmestyy N8N/Airtable-rakenteeseen
-        setTimeout(() => {
-          fetchAudioFiles();
-        }, 3000); // 3 sekunnin viive
-        
-        // Näytä väliaikainen tila
-        setAudioFiles([{
-          id: `uploading-${Date.now()}`,
-          filename: file.name,
-          fileType: data.fileType,
-          status: 'uploading'
-        }]);
-      } else {
-        const errorData = await res.json();
-        setError(errorData.error || t('settings.voice.uploadError'));
-      }
-    } catch (e) {
-      setError(t('settings.voice.uploadError'));
-    } finally {
-      setLoading(false);
-      e.target.value = "";
-    }
-  };
-
-  const handleReplaceAudio = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setLoading(true);
-    setError('');
-
-    // Poista vanha äänitiedosto ja lisää uusi
-    setAudioFiles([]);
-    
-    handleAddAudio(e);
+    e.target.value = "";
   };
 
   const openFileDialog = () => {
@@ -136,130 +43,83 @@ export default function VoiceSection({ companyId }) {
     }
   };
 
-  // Tarkista onko ääni löytynyt (placeholder tai oikea)
   const hasAudio = audioFiles.length > 0;
-  
+  const loading = isLoading || uploadMutation.isPending;
+  const error = fetchError ? t("settings.voice.fetchError") : uploadError;
+
   return (
     <div>
-      <h2 style={{ margin: '0 0 16px 0', fontSize: 16, fontWeight: 600, color: '#1f2937' }}>{t('settings.voice.title')}</h2>
+      <h2 className="m-0 mb-4 text-base font-semibold text-gray-800">
+        {t("settings.voice.title")}
+      </h2>
       {loading ? (
-        <div style={{ color: '#6b7280', fontSize: 14 }}>{t('settings.voice.loading')}</div>
-      ) : hasAudio ? (
-        // Ääni löytyi - näytä samanlainen laatikko kuin Avatar-kohdassa
-        <div style={{ 
-          padding: '32px', 
-          textAlign: 'center', 
-          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)', 
-          borderRadius: '12px',
-          border: '2px dashed #cbd5e1',
-          position: 'relative',
-          overflow: 'hidden',
-          minHeight: '200px',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center'
-        }}>
-          {/* Dekoratiivinen gradient */}
-          <div style={{
-            position: 'absolute',
-            top: '-50%',
-            right: '-50%',
-            width: '200%',
-            height: '200%',
-            background: 'radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)',
-            pointerEvents: 'none'
-          }} />
-          
-          {/* Sisältö */}
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            {/* Mikrofonikuvake */}
-            <svg 
-              width="48" 
-              height="48" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="#10b981" 
-              strokeWidth="2"
-              style={{ margin: '0 auto 16px', display: 'block' }}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-              />
-            </svg>
-            <div style={{
-              color: '#334155',
-              fontSize: '16px',
-              fontWeight: 600,
-              marginBottom: '8px'
-            }}>
-              {t('settings.voice.cloned')}
-            </div>
-            <div style={{
-              color: '#64748b',
-              fontSize: '13px',
-              lineHeight: '1.5'
-            }}>
-              {t('settings.voice.clonedDescription')}
-            </div>
+        <div className="text-gray-500 text-sm">
+          {t("settings.voice.loading")}
+        </div>
+      ) : hasAudio || pendingFile ? (
+        <div className="p-8 text-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border-2 border-dashed border-slate-300 relative overflow-hidden min-h-[200px] flex flex-col justify-center">
+          <div className="absolute -top-1/2 -right-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(16,185,129,0.05)_0%,transparent_70%)] pointer-events-none" />
+
+          <div className="relative z-[1]">
+            {pendingFile ? (
+              <>
+                <div className="w-6 h-6 mx-auto mb-4 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
+                <div className="text-slate-700 text-base font-semibold mb-2">
+                  {t("settings.voice.uploading")}
+                </div>
+                <div className="text-slate-500 text-[13px] leading-normal">
+                  {pendingFile.name}
+                </div>
+              </>
+            ) : (
+              <>
+                <svg
+                  width="48"
+                  height="48"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#10b981"
+                  strokeWidth="2"
+                  className="mx-auto mb-4 block"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                  />
+                </svg>
+                <div className="text-slate-700 text-base font-semibold mb-2">
+                  {t("settings.voice.cloned")}
+                </div>
+                <div className="text-slate-500 text-[13px] leading-normal">
+                  {t("settings.voice.clonedDescription")}
+                </div>
+              </>
+            )}
           </div>
         </div>
       ) : (
-        // Ääntä ei löydy - näytä "Lisää tiedosto" -laatikko
         <div
-          style={{
-            padding: '32px',
-            textAlign: 'center',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-            borderRadius: '12px',
-            border: '2px dashed #cbd5e1',
-            position: 'relative',
-            overflow: 'hidden',
-            cursor: 'pointer',
-            transition: 'all 0.2s',
-            minHeight: '200px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center'
-          }}
+          className="p-8 text-center bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border-2 border-dashed border-slate-300 relative overflow-hidden cursor-pointer transition-all duration-200 min-h-[200px] flex flex-col justify-center hover:border-blue-500 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-100"
           onClick={openFileDialog}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = '#3b82f6';
-            e.currentTarget.style.background = 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = '#cbd5e1';
-            e.currentTarget.style.background = 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)';
-          }}
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") openFileDialog();
           }}
           role="button"
-          aria-label={t('settings.voice.addNewAria')}
+          aria-label={t("settings.voice.addNewAria")}
         >
-          {/* Dekoratiivinen gradient */}
-          <div style={{
-            position: 'absolute',
-            top: '-50%',
-            right: '-50%',
-            width: '200%',
-            height: '200%',
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.05) 0%, transparent 70%)',
-            pointerEvents: 'none'
-          }} />
-          
-          {/* Sisältö */}
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <svg 
-              width="48" 
-              height="48" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="#9ca3af" 
+          <div className="absolute -top-1/2 -right-1/2 w-[200%] h-[200%] bg-[radial-gradient(circle,rgba(59,130,246,0.05)_0%,transparent_70%)] pointer-events-none" />
+
+          <div className="relative z-[1]">
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#9ca3af"
               strokeWidth="2"
-              style={{ margin: '0 auto 16px', display: 'block' }}
+              className="mx-auto mb-4 block"
             >
               <path
                 strokeLinecap="round"
@@ -267,40 +127,29 @@ export default function VoiceSection({ companyId }) {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            <div style={{
-              color: '#334155',
-              fontSize: '16px',
-              fontWeight: 600,
-              marginBottom: '8px'
-            }}>
-              {t('settings.voice.addAudioFile')}
+            <div className="text-slate-700 text-base font-semibold mb-2">
+              {t("settings.voice.addAudioFile")}
             </div>
-            <div style={{
-              color: '#64748b',
-              fontSize: '13px',
-              lineHeight: '1.5'
-            }}>
-              {t('settings.voice.dragOrSelect')}
+            <div className="text-slate-500 text-[13px] leading-normal">
+              {t("settings.voice.dragOrSelect")}
             </div>
           </div>
         </div>
       )}
-      {/* Piilotettu file input */}
       <input
         type="file"
         accept="audio/*"
-        style={{ display: 'none' }}
+        className="hidden"
         ref={fileInputRef}
         onChange={handleAddAudio}
         disabled={audioFiles.length >= 1}
       />
-      {/* Info-teksti - näytetään vain jos ei ole ääntä */}
-      {audioFiles.length === 0 && (
-        <div style={{ color: '#6b7280', fontSize: 11, marginTop: 8 }}>
-          {t('settings.voice.infoNone', { count: audioFiles.length })}
+      {audioFiles.length === 0 && !pendingFile && (
+        <div className="text-gray-500 text-[11px] mt-2">
+          {t("settings.voice.infoNone", { count: audioFiles.length })}
         </div>
       )}
-      {error && <div style={{ color: '#ef4444', fontSize: 11, marginTop: 6 }}>{error}</div>}
+      {error && <div className="text-red-500 text-[11px] mt-1.5">{error}</div>}
     </div>
   );
 }

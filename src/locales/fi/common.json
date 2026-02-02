@@ -217,7 +217,6 @@
     "passwordTooShort": "Salasanan tulee olla vähintään 6 merkkiä pitkä",
     "passwordUpdated": "Salasana päivitetty onnistuneesti!"
   },
-
   "aiDD": {
     "meta": {
       "title": "Tekoäly Due Diligence – RascalAI",
@@ -599,10 +598,22 @@
       "cancel": "Peruuta",
       "schedule": "Aikatauluta",
       "publishNow": "Julkaise heti",
+      "publishImmediatelyHint": "Jätä tyhjäksi julkaistaksesi heti",
       "slides": "Slaidit ({{count}})",
       "noMedia": "Ei mediaa",
       "noCaption": "Ei kuvausta",
-      "captionTooLong": "Postauksen pituus ylittää maksimin 2000 merkkiä"
+      "captionTooLong": "Postauksen pituus ylittää maksimin 2000 merkkiä",
+      "reviewModal": {
+        "title": "Tarkista postaus",
+        "subtitle": "Varmista tiedot ennen julkaisua",
+        "createdLabel": "Luotu",
+        "typeLabel": "Tyyppi",
+        "titleLabel": "Otsikko",
+        "captionLabel": "Kuvaus",
+        "statusLabel": "Status",
+        "close": "Sulje",
+        "publishNow": "Julkaise nyt"
+      }
     },
     "carouselsTab": {
       "title": "Karusellit",
@@ -620,14 +631,105 @@
         "approved": "Hyväksytty",
         "placeholder": "Segmentin teksti..."
       },
+      "editor": {
+        "backToList": "Takaisin listaan",
+        "editingTitle": "Muokataan Karusellia",
+        "workingPreview": "{{count}} Karusellia työn alla",
+        "themeLabel": "Karusellin teema",
+        "contextLabel": "Caption Konteksti",
+        "statusLabel": "Status",
+        "pagesLabel": "Sivuja",
+        "selectAnother": "Valitse toinen karuselli",
+        "untitled": "Nimetön Karuselli",
+        "segmentPlaceholder": "Sivun teksti...",
+        "ok": "OK",
+        "editing": "MUOKATAAN",
+        "noDescription": "Ei kuvausta"
+      },
+      "list": {
+        "badge": "Karuselli",
+        "untitled": "Nimetön Luonnos",
+        "noDescription": "Ei kuvausta...",
+        "pagesLabel": "Sivut"
+      },
+      "postCard": {
+        "noMedia": "Ei mediaa",
+        "untitled": "Nimetön postaus",
+        "noDescription": "Ei kuvausta saatavilla...",
+        "duplicate": "Monista",
+        "duplicateNew": "Monista uudeksi"
+      },
       "messages": {
         "noChanges": "Ei muutoksia tallennettavaksi",
         "saved": "Tallennettu {{count}} muutosta",
         "saveFailed": "Tallennus epäonnistui",
         "segmentUpdateFailed": "Segmentin {{id}} päivitys epäonnistui",
         "noAuth": "Ei autentikointia",
-        "userIdNotFound": "Käyttäjän ID ei löytynyt"
+        "userIdNotFound": "Käyttäjän ID ei löytynyt",
+        "fetchError": "Virhe haettaessa julkaisuja"
       }
+    },
+    "imageBank": {
+      "title": "Kuvapankki",
+      "upload": "Lisää kuvia",
+      "uploading": "Ladataan...",
+      "dropHint": "Vedä kuvat tähän tai klikkaa",
+      "empty": "Ei kuvia vielä. Lataa ensimmäinen kuva!",
+      "deleteConfirm": "Haluatko varmasti poistaa tämän kuvan?",
+      "deleteTitle": "Poista kuva",
+      "selectTitle": "Valitse kuva kuvapankista",
+      "noImagesSelector": "Ei kuvia kuvapankissa. Lisää kuvia hallintapaneelista.",
+      "error": {
+        "fetch": "Virhe kuvien haussa",
+        "upload": "Virhe kuvan latauksessa",
+        "delete": "Virhe kuvan poistossa",
+        "idNotFound": "Käyttäjän ID ei löytynyt",
+        "notImage": "Tiedosto {{name}} ei ole kuva",
+        "tooLarge": "Kuva {{name}} on liian suuri (max 10MB)"
+      },
+      "close": "Sulje"
+    },
+    "ugcTab": {
+      "title": "Uusi UGC-sisältö",
+      "contentType": "Sisällön tyyppi",
+      "image": "Kuva",
+      "video": "Video",
+      "productImage": "Tuotekuva *",
+      "removeImage": "Poista kuva",
+      "selectProductImage": "Valitse tuotekuva",
+      "imageHint": "JPG, PNG tai GIF (max 10MB)",
+      "productName": "Tuotteen nimi",
+      "productNamePlaceholder": "Esim. Aurinkolasit 2024",
+      "productDetails": "Tuotteen tiedot",
+      "productDetailsPlaceholder": "Mitä haluat tuotteesta kerrottavan?",
+      "style": "Tyyli",
+      "format": "Muoto",
+      "select": "Valitse...",
+      "styles": {
+        "studio": "Studio",
+        "lifestyle": "Lifestyle",
+        "premium": "Premium",
+        "nature": "Luonto",
+        "urban": "Urbaani"
+      },
+      "formats": {
+        "story": "9:16 Story",
+        "square": "1:1 Neliö",
+        "landscape": "16:9 Vaaka"
+      },
+      "generate": "Generoi sisältö",
+      "sending": "Lähetetään...",
+      "empty": "UGC-sisällöt tulevat tänne.",
+      "processing": "Käsittelee...",
+      "ready": "Valmis",
+      "viewDetails": "Katso tiedot",
+      "untitled": "Generointi käynnissä",
+      "loading": "Valmistelemme sisältöäsi...",
+      "formError": "Täytä kaikki pakolliset kentät",
+      "uploadError": "Virhe kuvan uploadissa",
+      "requestSuccess": "UGC-sisältö pyyntö lähetetty onnistuneesti!",
+      "requestError": "Virhe UGC-sisällön pyynnön lähettämisessä",
+      "userIdNotFound": "Käyttäjän ID ei löytynyt"
     },
     "schedule": {
       "prompt": "Syötä ajastuspäivä (YYYY-MM-DD HH:MM):"
@@ -664,7 +766,10 @@
       "allStatuses": "Kaikki statukset",
       "allTypes": "Kaikki sisältötyypit"
     },
-    "types": { "blog": "Blog-artikkelit", "newsletter": "Newsletterit" },
+    "types": {
+      "blog": "Blog-artikkelit",
+      "newsletter": "Newsletterit"
+    },
     "status": {
       "Luonnos": "Luonnos",
       "Kesken": "Kesken",
@@ -688,7 +793,9 @@
       "saveChanges": "Tallenna muutokset",
       "archive": "Arkistoi"
     },
-    "loading": { "loadingContent": "Ladataan sisältöä..." },
+    "loading": {
+      "loadingContent": "Ladataan sisältöä..."
+    },
     "empty": {
       "title": "Ei sisältöä vielä",
       "description": "Aloita luomalla uusi blog-artikkeli tai newsletter",
@@ -704,7 +811,11 @@
     },
     "createModal": {
       "title": "Luo sisältö",
-      "fields": { "title": "Otsikko", "type": "Tyyppi", "content": "Sisältö" },
+      "fields": {
+        "title": "Otsikko",
+        "type": "Tyyppi",
+        "content": "Sisältö"
+      },
       "placeholders": {
         "title": "Syötä sisällön otsikko...",
         "content": "Kirjoita sisältö..."
@@ -766,7 +877,9 @@
       "empty": "Ei tavoitteita vielä",
       "create": "Luo tavoitteet"
     },
-    "list": { "title": "Sisältöstrategiat" },
+    "list": {
+      "title": "Sisältöstrategiat"
+    },
     "strategyCard": {
       "placeholder": "Kirjoita kuukauden sisältöstrategia tähän..."
     },
@@ -961,6 +1074,7 @@
         "searchPlaceholder": "Matti Meikäläinen, +358... tai matt@example.com",
         "statusLabel": "Tila",
         "typeLabel": "Puhelun tyyppi",
+        "wantsContactLabel": "Yhteydenotto",
         "dateFrom": "Päivämäärä alkaen",
         "dateTo": "Päivämäärä asti",
         "searchButton": "Hae",
@@ -970,8 +1084,13 @@
           "success": "Vastatut",
           "successful": "Onnistuneet",
           "failed": "Epäonnistuneet",
+          "voiceMail": "Vastaaja",
           "pending": "Aikataulutettu",
           "inProgress": "Jonossa"
+        },
+        "wantsContactOptions": {
+          "yes": "Kyllä",
+          "no": "Ei"
         }
       }
     },
@@ -1009,7 +1128,10 @@
       "inbound": {
         "header": "Inbound-asetukset",
         "editLarge": "Muokkaa isossa ikkunassa",
-        "voice": { "label": "Ääni", "test": "Testaa" },
+        "voice": {
+          "label": "Ääni",
+          "test": "Testaa"
+        },
         "welcome": {
           "label": "Aloitusviesti",
           "placeholder": "Kirjoita aloitusviesti...",
@@ -1023,36 +1145,11 @@
         "save": "Tallenna asetukset"
       }
     },
-    "logsTab": {
-      "buttons": { "refresh": "Päivitä", "refreshing": "Päivitetään..." },
-      "filters": {
-        "title": "Filtterit ja haku",
-        "searchLabel": "Hae nimeä, numeroa tai sähköpostia",
-        "searchPlaceholder": "Matti Meikäläinen, +358... tai matt@example.com",
-        "statusLabel": "Tila",
-        "typeLabel": "Puhelun tyyppi",
-        "wantsContactLabel": "Yhteydenotto",
-        "dateFrom": "Päivämäärä alkaen",
-        "dateTo": "Päivämäärä asti",
-        "searchButton": "Hae",
-        "clearButton": "Tyhjennä filtterit",
-        "all": "Kaikki",
-        "statusOptions": {
-          "success": "Vastatut",
-          "successful": "Onnistuneet",
-          "failed": "Epäonnistuneet",
-          "voiceMail": "Vastaaja",
-          "pending": "Aikataulutettu",
-          "inProgress": "Jonossa"
-        },
-        "wantsContactOptions": {
-          "yes": "Kyllä",
-          "no": "Ei"
-        }
-      }
-    },
     "messagesTab": {
-      "buttons": { "refresh": "Päivitä", "refreshing": "Päivitetään..." },
+      "buttons": {
+        "refresh": "Päivitä",
+        "refreshing": "Päivitetään..."
+      },
       "loading": "Ladataan viestilokia...",
       "empty": "Ei viestejä löytynyt",
       "history": {
@@ -1068,7 +1165,10 @@
         "customerText": "Asiakkaan vastaus",
         "date": "Päivämäärä"
       },
-      "direction": { "outbound": "Lähtevät", "inbound": "Saapuvat" },
+      "direction": {
+        "outbound": "Lähtevät",
+        "inbound": "Saapuvat"
+      },
       "status": {
         "sent": "Lähetetty",
         "delivered": "Toimitettu",
@@ -1131,7 +1231,10 @@
     },
     "textMessagesTab": {
       "header": "Tekstiviestit",
-      "buttons": { "refresh": "Päivitä", "refreshing": "Päivitetään..." },
+      "buttons": {
+        "refresh": "Päivitä",
+        "refreshing": "Päivitetään..."
+      },
       "sectionTitle": "Ensimmäinen tekstiviesti",
       "showingCount": "Näytetään {count} puhelutyyppiä",
       "loadingTypes": "Ladataan puhelutyyppejä...",
@@ -1248,13 +1351,20 @@
         "step2": {
           "title": "Vaihe 2: Puhelun asetukset",
           "desc": "Valitse kampanja (valinnainen segmentti), puhelun tyyppi ja ääni.",
-          "campaign": { "label": "Kampanja *", "select": "Valitse kampanja" },
+          "campaign": {
+            "label": "Kampanja *",
+            "select": "Valitse kampanja"
+          },
           "segment": {
             "label": "Segmentti (valinnainen)",
             "none": "Ei segmenttiä"
           },
-          "type": { "label": "Puhelun tyyppi" },
-          "voice": { "label": "Ääni" },
+          "type": {
+            "label": "Puhelun tyyppi"
+          },
+          "voice": {
+            "label": "Ääni"
+          },
           "sms": {
             "title": "Tekstiviestit",
             "before": "Ennen puhelua",
@@ -1304,13 +1414,18 @@
             "label": "Puhelun tyyppi",
             "placeholder": "Valitse puhelun tyyppi..."
           },
-          "voice": { "label": "Ääni" },
+          "voice": {
+            "label": "Ääni"
+          },
           "cancel": "Peruuta",
           "next": "Jatka →"
         },
         "step2": {
           "title": "Vaihe 2: Asiakkaan tiedot",
-          "name": { "label": "Nimi", "placeholder": "Matti Meikäläinen" },
+          "name": {
+            "label": "Nimi",
+            "placeholder": "Matti Meikäläinen"
+          },
           "phone": {
             "label": "Puhelinnumero",
             "placeholder": "040 123 4567 tai +358401234567"
@@ -1325,7 +1440,10 @@
             "missing": "Lisää ensin SMS teksti puhelutyypille"
           },
           "back": "← Takaisin",
-          "call": { "label": "Soita", "calling": "Soittaa…" }
+          "call": {
+            "label": "Soita",
+            "calling": "Soittaa…"
+          }
         }
       },
       "inbound": {
@@ -1417,11 +1535,9 @@
           "version": "v1.0",
           "agentName": "",
           "targetAudience": "Yritysten talouspäättäjät, Kaupan vastaavat, LVI-yritysten yrittäjät",
-          "callGoals": "Kysy kiinnostusta, pyydä varmistus, kerro tapahtumasta ja varmista osallistuminen",
-          "toneStyle": "Ystävällinen, asiallinen ja rauhallinen. Ei smalltalkia.",
-          "agentPersona": "Olet Sarah, ystävällinen myyntikonsultti TechCorpissa. Autat yritysjohtajia virtaviivaistamaan toimintaansa ohjelmistoratkaisuillamme.",
-          "toneStyle": "Ammattimainen mutta lämminsydämminen. Käytä selkeää, ammattislangitonta kieltä. Pidä lauseet lyhyinä ja pausoi luonnollisesti vastauksia varten.",
+          "agentPersona": "Olet Sarah, ystävällinen myyntikonsultti TechCorpissa. Autat yritysjohtajia virtaviivaistamaan toimintaansa ohjelmistoratkaisuillamme. Ammattimainen mutta lämminsydämminen. Käytä selkeää, ammattislangitonta kieltä. Pidä lauseet lyhyinä ja pausoi luonnollisesti vastauksia varten.",
           "callGoals": "1. Kvalifioi budjetti ja aikataulu\n2. Tunnista keskeiset kipukohdat\n3. Määritä päätöksentekoprosessi\n4. Varaa demo kvalifioiduille liideille",
+          "toneStyle": "Ystävällinen, asiallinen ja rauhallinen. Ei smalltalkia.",
           "guidelines": "Vahvista aina ymmärtäminen ennen eteenpäin siirtymistä. Jos asiakas kysyy aiheen ulkopuolisia kysymyksiä, tunnusta lyhyesti ja ohjaa takaisin aiheeseen. Älä koskaan keskeytä; anna heidän lopettaa puhuminen kokonaan.",
           "greeting": "Hei, tämä on Sarah TechCorpista!",
           "purposeIntro": "Otan yhteyttä koska latasit äsken hintalistamme. Halusin nähdä onko sinulla kysymyksiä ja kertoa miten olemme auttaneet vastaavia yrityksiä vähentämään kustannuksia 30%.",
@@ -1583,12 +1699,22 @@
       }
     },
     "manageTab": {
-      "header": { "title": "Puhelun tyyppien hallinta" },
-      "cta": { "addNew": "Lisää uusi tyyppi" },
-      "existing": { "title": "Olemassa olevat puhelun tyypit" },
+      "header": {
+        "title": "Puhelun tyyppien hallinta"
+      },
+      "cta": {
+        "addNew": "Lisää uusi tyyppi"
+      },
+      "existing": {
+        "title": "Olemassa olevat puhelun tyypit"
+      },
       "loading": "Ladataan puhelun tyyppejä...",
       "empty": "Ei puhelun tyyppejä vielä lisätty",
-      "sort": { "label": "Järjestä:", "byStatus": "Status", "byName": "Nimi" },
+      "sort": {
+        "label": "Järjestä:",
+        "byStatus": "Status",
+        "byName": "Nimi"
+      },
       "item": {
         "identifier": "Tunniste:",
         "statusActive": "Aktiivinen",
@@ -1603,7 +1729,10 @@
   },
   "assistant": {
     "loadingUser": "Ladataan käyttäjän tietoja...",
-    "tabs": { "chat": "Keskustelu", "files": "Tietokanta" },
+    "tabs": {
+      "chat": "Keskustelu",
+      "files": "Tietokanta"
+    },
     "typing": "Kirjoittaa…",
     "inputPlaceholder": "Kirjoita viestisi...",
     "send": "Lähetä",
@@ -1924,6 +2053,7 @@
     "voice": {
       "title": "Ääniklooni",
       "loading": "Ladataan äänitiedostoa...",
+      "uploading": "Lähetetään...",
       "addNewAria": "Lisää uusi äänitiedosto",
       "add": "Lisää",
       "processing": "Käsitellään...",
@@ -2289,6 +2419,10 @@
       "imageFromKuvapankkiFailed": "Kuvan lisäys kuvapankista epäonnistui: {{message}}",
       "captionTooLong": "Postauksen pituus ylittää maksimin 2000 merkkiä",
       "saveFailed": "Tietojen tallentaminen epäonnistui"
+    },
+    "mediaSource": {
+      "selectFromImageBank": "Valitse kuvapankista",
+      "selectFromDevice": "Valitse koneelta"
     }
   },
   "ticket": {
@@ -2608,9 +2742,44 @@
     "crmConnected": "CRM yhdistetty"
   },
   "calendar": {
+    "title": "Julkaisukalenteri",
+    "today": "Tänään",
     "view": {
       "month": "Kuukausi",
-      "week": "Viikko"
+      "week": "Viikko",
+      "day": "Päivä"
+    },
+    "modals": {
+      "selectPost": {
+        "title": "Valitse julkaisu",
+        "subtitle": "Valmiit luonnokset",
+        "empty": "Ei valmiita julkaisuja"
+      },
+      "schedule": {
+        "title": "Aikataulutus",
+        "preview": "Esikatselu",
+        "timeLabel": "Julkaisuaika",
+        "channelsLabel": "Valitse Kanavat",
+        "confirm": "Vahvista Aikataulu"
+      },
+      "scheduledDetail": {
+        "title": "Ajastettu julkaisu",
+        "draftTitle": "Julkaisuluonnos",
+        "subtitle": "Hallinnoi ja muokkaa ajastettua sisältöä",
+        "createdLabel": "Luotu",
+        "mediaLabel": "Media",
+        "statusLabel": "Status",
+        "scheduledAtLabel": "Ajastettu julkaisu",
+        "dateLabel": "Julkaisupäivä",
+        "timeLabel": "Julkaisuaika",
+        "contentLabel": "Pääteksti",
+        "contentPlaceholder": "Kirjoita postauksen teksti...",
+        "perChannelLabel": "Teksti per kanava",
+        "noMedia": "Ei mediaa",
+        "unknown": "Ei tiedossa",
+        "noDateTime": "Ei ajankohtaa",
+        "successUpdate": "Postaus päivitetty onnistuneesti!"
+      }
     }
   },
   "monitoring": {

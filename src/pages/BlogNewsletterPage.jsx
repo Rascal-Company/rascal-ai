@@ -1,272 +1,46 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { createPortal } from "react-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { getUserOrgId } from "../lib/getUserOrgId";
 import { useMonthlyLimit } from "../hooks/useMonthlyLimit";
 import { useNextMonthQuota } from "../hooks/useNextMonthQuota";
-import Button from "../components/Button";
-import ReactMarkdown from "react-markdown";
 import axios from "axios";
 
-// Data muunnos funktio Supabase datasta
-const transformSupabaseData = (supabaseData, t) => {
-  if (!supabaseData || !Array.isArray(supabaseData)) {
-    return [];
-  }
-
-  const transformed = supabaseData.map((item) => {
-    // Muunnetaan Supabase status käännöksillä
-    const statusMap = {
-      Draft: t("status.draft"),
-      "In Progress": t("status.inProgress"),
-      "Under Review": t("status.underReview"),
-      Scheduled: t("status.scheduled"),
-      Done: t("status.done"),
-      Published: t("status.published"),
-      Deleted: t("status.deleted"),
-      Archived: t("status.archived"),
-    };
-
-    let status = statusMap[item.status] || t("status.draft");
-
-    // Jos status on "Done" mutta publish_date on tulevaisuudessa, se on "Aikataulutettu"
-    const now = new Date();
-    const publishDate = item.publish_date ? new Date(item.publish_date) : null;
-
-    if (publishDate && publishDate > now && status === t("status.published")) {
-      status = t("status.scheduled");
-    }
-
-    // Käytetään placeholder-kuvaa jos media_urls ei ole saatavilla tai on tyhjä
-    const thumbnail =
-      item.media_urls && item.media_urls.length > 0 && item.media_urls[0]
-        ? item.media_urls[0]
-        : "/placeholder.png";
-
-    const transformedItem = {
-      id: item.id,
-      title: item.idea || item.caption || t("general.untitledContent"),
-      status: status,
-      thumbnail: thumbnail,
-      caption: item.caption || item.idea || t("general.noDescription"),
-      type: item.type || t("general.blog"),
-      idea: item.idea || "",
-      blog_post: item.blog_post || "",
-      meta_description: item.meta_description || "",
-      createdAt: item.created_at
-        ? new Date(item.created_at).toISOString().split("T")[0]
-        : null,
-      scheduledDate:
-        item.publish_date && publishDate > now
-          ? new Date(item.publish_date).toISOString().split("T")[0]
-          : null,
-      publishedAt:
-        item.publish_date && publishDate <= now
-          ? new Date(item.publish_date).toISOString().split("T")[0]
-          : null,
-      publishDate: item.publish_date
-        ? new Date(item.publish_date).toISOString().slice(0, 16)
-        : null,
-      mediaUrls: item.media_urls || [],
-      hashtags: item.hashtags || [],
-      voiceover: item.voiceover || "",
-      voiceoverReady: item.voiceover_ready || false,
-      originalData: item,
-      source: "supabase",
-    };
-
-    return transformedItem;
-  });
-
-  return transformed;
-};
-
-function ContentCard({
-  content,
-  onView,
-  onPublish,
-  onArchive,
-  onDownload,
-  onEdit,
-  publishingId,
-}) {
-  const { t } = useTranslation("common");
-  const isPublishing = publishingId === content.id;
-  return (
-    <div className="content-card">
-      <div className="content-card-content">
-        <div className="content-thumbnail">
-          {content.thumbnail && content.thumbnail !== "/placeholder.png" ? (
-            <>
-              <img
-                src={content.thumbnail}
-                alt="thumbnail"
-                onError={(e) => {
-                  e.target.src = "/placeholder.png";
-                }}
-              />
-              <button
-                className="download-button"
-                onClick={() => onDownload(content.thumbnail, content.title)}
-                title={t("blogNewsletter.actions.download")}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7,10 12,15 17,10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              </button>
-            </>
-          ) : (
-            <div className="placeholder-content">
-              <img
-                src="/placeholder.png"
-                alt={t("blogNewsletter.placeholders.noMedia")}
-                className="placeholder-image"
-                onError={(e) => {
-                  e.target.style.display = "none";
-                  e.target.nextSibling.style.display = "flex";
-                }}
-              />
-              <div className="placeholder-fallback hidden">
-                <div className="placeholder-icon">📄</div>
-                <div className="placeholder-text">
-                  {t("blogNewsletter.placeholders.noImage")}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        <div className="content-info">
-          <div className="content-header">
-            <h3 className="content-title">
-              {content.title.includes(".")
-                ? content.title.split(".")[0] + "."
-                : content.title}
-            </h3>
-            <div className="content-badges">
-              <span className="content-type">
-                {content.type === "Blog"
-                  ? t("general.blog")
-                  : content.type === "Newsletter"
-                    ? t("general.newsletter")
-                    : content.type}
-              </span>
-              <span
-                className={`content-status ${content.status.toLowerCase().replace(" ", "-")}`}
-              >
-                {content.status}
-              </span>
-            </div>
-          </div>
-          <p className="content-caption">
-            {content.meta_description
-              ? content.meta_description.includes(".")
-                ? content.meta_description.split(".")[0] + "."
-                : content.meta_description
-              : content.caption.includes(".")
-                ? content.caption.split(".")[0] + "."
-                : content.caption}
-          </p>
-          <div className="content-footer">
-            <span className="content-date">
-              {content.scheduledDate
-                ? content.scheduledDate
-                : content.createdAt || content.publishedAt}
-            </span>
-            <div className="content-actions">
-              <Button
-                variant="secondary"
-                onClick={() => onView(content)}
-                className="text-[11px] py-1.5 px-2.5"
-              >
-                {t("blogNewsletter.actions.view")}
-              </Button>
-              {content.status !== "Valmis" &&
-                content.status !== "Done" &&
-                content.status !== "Julkaistu" &&
-                content.status !== "Published" &&
-                content.status !== "Arkistoitu" &&
-                content.status !== "Archived" && (
-                  <Button
-                    variant="secondary"
-                    onClick={() => onEdit(content)}
-                    className="text-[11px] py-1.5 px-2.5"
-                  >
-                    {t("blogNewsletter.actions.edit")}
-                  </Button>
-                )}
-              {/* Julkaisu-nappi jos ei ole jo julkaistu tai arkistoitu */}
-              {content.status !== "Valmis" &&
-                content.status !== "Done" &&
-                content.status !== "Julkaistu" &&
-                content.status !== "Published" &&
-                content.status !== "Arkistoitu" &&
-                content.status !== "Archived" && (
-                  <Button
-                    variant="primary"
-                    onClick={() => onPublish(content)}
-                    disabled={isPublishing}
-                    className="bg-green-500 text-[11px] py-1.5 px-2.5"
-                  >
-                    {isPublishing
-                      ? t("blogNewsletter.actions.publishing")
-                      : t("blogNewsletter.actions.publish")}
-                  </Button>
-                )}
-              {/* Arkistoi-nappi kaikille muille paitsi jo arkistoiduille */}
-              {content.status !== "Arkistoitu" && (
-                <Button
-                  variant="secondary"
-                  onClick={() => onArchive(content)}
-                  className="bg-gray-200 text-[11px] py-1.5 px-2.5"
-                >
-                  {t("blogNewsletter.actions.archive")}
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+import {
+  ContentCard,
+  CreateContentModal,
+  ViewContentModal,
+  EditContentModal,
+  transformSupabaseData,
+} from "../components/blog-newsletter";
 
 export default function BlogNewsletterPage() {
-  const { t, i18n } = useTranslation("common");
+  const { t } = useTranslation("common");
   const { user } = useAuth();
   const toast = useToast();
   const monthlyLimit = useMonthlyLimit();
   const nextMonthQuota = useNextMonthQuota();
+
   const [contents, setContents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
-  const [activeTab, setActiveTab] = useState("main"); // 'main' | 'archive'
+  const [activeTab, setActiveTab] = useState("main");
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [viewingContent, setViewingContent] = useState(null);
   const [editingContent, setEditingContent] = useState(null);
-  const [socialAccounts, setSocialAccounts] = useState([]);
-  const [loadingAccounts, setLoadingAccounts] = useState(false);
   const [publishingId, setPublishingId] = useState(null);
 
   const hasInitialized = useRef(false);
 
-  // Data haku Supabasesta
+  // Fetch data from Supabase
   const fetchContents = async () => {
     if (!user) return;
 
@@ -274,17 +48,15 @@ export default function BlogNewsletterPage() {
       setLoading(true);
       setError(null);
 
-      // Hae organisaation ID (public.users.id)
       const orgId = await getUserOrgId(user.id);
       if (!orgId) {
         throw new Error(t("alerts.error.organizationIdNotFound"));
       }
 
-      // Haetaan organisaation Blog ja Newsletter sisältö
       const { data, error } = await supabase
         .from("content")
         .select("*")
-        .eq("user_id", orgId) // Käytetään organisaation ID:tä
+        .eq("user_id", orgId)
         .in("type", ["Blog", "Newsletter"])
         .order("created_at", { ascending: false });
 
@@ -302,94 +74,43 @@ export default function BlogNewsletterPage() {
     }
   };
 
-  // Hae somekanavat Supabasesta
-  const fetchSocialAccounts = async () => {
-    if (!user) return [];
-
-    try {
-      setLoadingAccounts(true);
-
-      // Hae organisaation ID (public.users.id)
-      const orgId = await getUserOrgId(user.id);
-      if (!orgId) {
-        console.error("Organisaation ID ei löytynyt");
-        setSocialAccounts([]);
-        return [];
-      }
-
-      // Haetaan yhdistetyt sometilit käyttäen organisaation ID:tä
-      const { data: accountsData, error: accountsError } = await supabase
-        .from("user_social_accounts")
-        .select(
-          "mixpost_account_uuid, provider, account_name, profile_image_url, username",
-        )
-        .eq("user_id", orgId) // Käytetään organisaation ID:tä
-        .eq("is_authorized", true)
-        .order("last_synced_at", { ascending: false });
-
-      if (accountsError) {
-        console.error("Error fetching social accounts:", accountsError);
-        setSocialAccounts([]);
-        return [];
-      }
-      setSocialAccounts(accountsData || []);
-      return accountsData || [];
-    } catch (error) {
-      console.error("Error fetching social accounts:", error);
-      setSocialAccounts([]);
-      return [];
-    } finally {
-      setLoadingAccounts(false);
-    }
-  };
-
   useEffect(() => {
     if (!user || hasInitialized.current) return;
-
     hasInitialized.current = true;
     fetchContents();
-    // Somekanavat haetaan vain jos niitä tarvitaan
   }, [user]);
 
-  // Filtteröidään sisältö
+  // Filter contents
   const filteredContents = contents
-    // Tab-kohtainen perussuodatus
     .filter((content) =>
       activeTab === "archive"
         ? content.status === "Arkistoitu"
         : content.status !== "Arkistoitu",
     )
-    // Hakusana, status ja tyyppi
     .filter((content) => {
       const matchesSearch =
-        (content.title?.toLowerCase() || "").includes(
-          searchTerm.toLowerCase(),
-        ) ||
-        (content.caption?.toLowerCase() || "").includes(
-          searchTerm.toLowerCase(),
-        );
-      const matchesStatus =
-        statusFilter === "" || content.status === statusFilter;
+        (content.title?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (content.caption?.toLowerCase() || "").includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "" || content.status === statusFilter;
       const matchesType = typeFilter === "" || content.type === typeFilter;
       return matchesSearch && matchesStatus && matchesType;
     });
 
+  // Handlers
   const handleCreateContent = async (contentData) => {
     try {
-      // Estä luonti jos kuukausiraja täynnä
       if (!monthlyLimit.canCreate) {
         setShowCreateModal(false);
         toast.warning(t("errors.monthlyLimitReached"));
         return;
       }
-      // Hae organisaation ID (public.users.id)
+
       const orgId = await getUserOrgId(user.id);
       if (!orgId) {
         throw new Error("Organisaation ID ei löytynyt");
       }
 
-      // Hae myös company_id jos tarvitaan
-      const { data: userData, error: userError } = await supabase
+      const { data: userData } = await supabase
         .from("users")
         .select("company_id")
         .eq("id", orgId)
@@ -397,13 +118,10 @@ export default function BlogNewsletterPage() {
 
       const companyId = userData?.company_id || null;
 
-      // Lähetetään idea-generation kutsu N8N:lle
       try {
         const response = await fetch("/api/ai/generate-ideas", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             idea: contentData.title,
             content: contentData.content,
@@ -414,8 +132,6 @@ export default function BlogNewsletterPage() {
 
         if (!response.ok) {
           console.error("Idea generation failed:", response.status);
-        } else {
-          const result = await response.json();
         }
       } catch (webhookError) {
         console.error("Idea generation webhook error:", webhookError);
@@ -442,13 +158,11 @@ export default function BlogNewsletterPage() {
 
   const handleUpdateContent = async (contentData) => {
     try {
-      // Hae organisaation ID (public.users.id)
       const orgId = await getUserOrgId(user.id);
       if (!orgId) {
         throw new Error("Organisaation ID ei löytynyt");
       }
 
-      // Päivitetään content Supabase:sta
       const { error } = await supabase
         .from("content")
         .update({
@@ -458,13 +172,12 @@ export default function BlogNewsletterPage() {
           updated_at: new Date().toISOString(),
         })
         .eq("id", contentData.id)
-        .eq("user_id", orgId); // Käytetään organisaation ID:tä
+        .eq("user_id", orgId);
 
       if (error) {
         throw error;
       }
 
-      // Päivitetään UI
       await fetchContents();
       setShowEditModal(false);
       setEditingContent(null);
@@ -475,116 +188,46 @@ export default function BlogNewsletterPage() {
     }
   };
 
-  const handleImageUpload = async (event, contentId) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    try {
-      // Hae organisaation ID (public.users.id)
-      const orgId = await getUserOrgId(user.id);
-      if (!orgId) {
-        throw new Error("Organisaation ID ei löytynyt");
-      }
-
-      const formData = new FormData();
-      formData.append("image", file);
-      formData.append("contentId", contentId);
-      formData.append("userId", orgId); // Käytetään organisaation ID:tä
-      formData.append("replaceMode", "true");
-
-      const response = await fetch("/api/content/media-management", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || "Kuvan lataus epäonnistui");
-      }
-
-      // Päivitetään UI
-      await fetchContents();
-      toast.success("Kuva päivitetty");
-    } catch (error) {
-      console.error("Image upload error:", error);
-
-      let errorMessage = "Kuvan lataus epäonnistui: " + error.message;
-
-      // Jos network error, anna selkeämpi viesti
-      if (
-        error.message.includes("Failed to fetch") ||
-        error.message.includes("NetworkError")
-      ) {
-        errorMessage =
-          "Verkkoyhteys ongelma. Tarkista internetyhteytesi ja kokeile uudelleen.";
-      }
-
-      // Näytä toast käyttäjälle
-      toast.error(t("errors.imageUploadError", { error: errorMessage }));
-    }
-  };
-
   const handlePublishContent = async (content) => {
     try {
       setPublishingId(content.id);
 
-      // Estä julkaisu, jos blogiteksti puuttuu
-      if (
-        !content?.blog_post ||
-        String(content.blog_post).trim().length === 0
-      ) {
+      if (!content?.blog_post || String(content.blog_post).trim().length === 0) {
         setPublishingId(null);
         toast.warning(t("blogNewsletter.alerts.addBlogTextFirst"));
         return;
       }
 
-      // Haetaan media-data suoraan Supabase:sta
       let mediaUrls = [];
-      let segments = [];
       let mixpostConfig = null;
 
-      // Hae organisaation ID (public.users.id)
       const orgId = await getUserOrgId(user.id);
       if (!orgId) {
         throw new Error("Organisaation ID ei löytynyt");
       }
 
-      // Haetaan Mixpost config data käyttäen organisaation ID:tä
       const { data: mixpostConfigData, error: mixpostError } = await supabase
         .from("user_mixpost_config")
         .select("mixpost_api_token, mixpost_workspace_uuid")
-        .eq("user_id", orgId) // Käytetään organisaation ID:tä
+        .eq("user_id", orgId)
         .eq("is_active", true)
         .single();
 
-      if (mixpostError) {
-        console.error("Error fetching Mixpost config:", mixpostError);
-      } else {
+      if (!mixpostError) {
         mixpostConfig = mixpostConfigData;
       }
 
-      // Haetaan content data
       const { data: contentData, error: contentError } = await supabase
         .from("content")
         .select("*")
         .eq("id", content.id)
-        .eq("user_id", orgId) // Käytetään organisaation ID:tä
+        .eq("user_id", orgId)
         .single();
 
-      if (contentError) {
-        console.error("Error fetching content:", contentError);
-      } else {
+      if (!contentError) {
         mediaUrls = contentData.media_urls || [];
       }
 
-      // Blogit ja newsletterit eivät vaadi sometilejä julkaisuun
-      // Sometilit tarvitaan vain jos ne halutaan jakaa sosiaalisessa mediassa
-      let selectedAccountIds = [];
-
-      // Lähetetään data backend:iin, joka hoitaa Supabase-kyselyt
       const publishData = {
         post_id: content.id,
         user_id: user.id,
@@ -593,40 +236,29 @@ export default function BlogNewsletterPage() {
         media_urls: mediaUrls,
         scheduled_date: content.scheduledDate || null,
         publish_date: content.publishDate || null,
-        post_type: content.type === "Newsletter" ? "post" : "post", // Blog ja Newsletter ovat 'post' tyyppiä
+        post_type: "post",
         action: "publish",
-        selected_accounts: selectedAccountIds, // Lisätään valitut somekanavat
+        selected_accounts: [],
       };
 
-      // Lisää Mixpost config data jos saatavilla
       if (mixpostConfig) {
         publishData.mixpost_api_token = mixpostConfig.mixpost_api_token;
-        publishData.mixpost_workspace_uuid =
-          mixpostConfig.mixpost_workspace_uuid;
+        publishData.mixpost_workspace_uuid = mixpostConfig.mixpost_workspace_uuid;
       }
 
-      // Hae access token
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
         throw new Error("Käyttäjä ei ole kirjautunut");
       }
 
-      // Blogien julkaisu käyttää erillistä endpointia
-      const response = await axios.post(
-        "/api/content/blog/publish",
-        publishData,
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
+      const response = await axios.post("/api/content/blog/publish", publishData, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
         },
-      );
+      });
 
       if (response.status === 200 && response.data?.success) {
-        // Päivitetään UI
         await fetchContents();
         toast.success(response.data.message || "Julkaistu");
       } else {
@@ -635,32 +267,22 @@ export default function BlogNewsletterPage() {
     } catch (error) {
       console.error("Publish error:", error);
 
-      // Käsittele axios-virheet erikseen
       let errorMessage = "Julkaisu epäonnistui";
 
       if (error.response) {
-        // Serveri vastasi virhekoodilla
-        const status = error.response.status;
         const data = error.response.data;
-
         if (data?.error) {
           errorMessage = data.error;
-          if (data?.details) {
-            errorMessage += `: ${data.details}`;
-          }
-          if (data?.hint) {
-            errorMessage += `\n\nVihje: ${data.hint}`;
-          }
+          if (data?.details) errorMessage += `: ${data.details}`;
+          if (data?.hint) errorMessage += `\n\nVihje: ${data.hint}`;
         } else if (data?.message) {
           errorMessage = data.message;
         } else {
-          errorMessage = `HTTP ${status}: ${error.response.statusText || "Tuntematon virhe"}`;
+          errorMessage = `HTTP ${error.response.status}: ${error.response.statusText || "Tuntematon virhe"}`;
         }
       } else if (error.request) {
-        // Pyyntö lähetettiin mutta vastausta ei saatu
         errorMessage = "Ei vastausta palvelimelta. Tarkista verkkoyhteys.";
       } else {
-        // Jokin muu virhe
         errorMessage = error.message || "Tuntematon virhe";
       }
 
@@ -672,7 +294,6 @@ export default function BlogNewsletterPage() {
 
   const handleArchiveContent = async (content) => {
     try {
-      // Hae organisaation ID (public.users.id)
       const orgId = await getUserOrgId(user.id);
       if (!orgId) {
         throw new Error("Organisaation ID ei löytynyt");
@@ -682,7 +303,7 @@ export default function BlogNewsletterPage() {
         .from("content")
         .update({ status: "Archived" })
         .eq("id", content.id)
-        .eq("user_id", orgId); // Käytetään organisaation ID:tä
+        .eq("user_id", orgId);
 
       if (error) throw error;
 
@@ -696,24 +317,21 @@ export default function BlogNewsletterPage() {
 
   const handleDeleteContent = async (contentId) => {
     try {
-      // Hae organisaation ID (public.users.id)
       const orgId = await getUserOrgId(user.id);
       if (!orgId) {
         throw new Error("Organisaation ID ei löytynyt");
       }
 
-      // Poistetaan sisältö Supabase:sta
       const { error } = await supabase
         .from("content")
         .delete()
         .eq("id", contentId)
-        .eq("user_id", orgId); // Käytetään organisaation ID:tä
+        .eq("user_id", orgId);
 
       if (error) {
         throw error;
       }
 
-      // Päivitetään UI
       await fetchContents();
       toast.success("Poistettu");
     } catch (error) {
@@ -724,21 +342,15 @@ export default function BlogNewsletterPage() {
 
   const handleDownloadImage = async (imageUrl, title) => {
     try {
-      // Luodaan turvallinen tiedostonimi
-      const safeTitle = title
-        .replace(/[^a-zA-Z0-9\s]/g, "")
-        .replace(/\s+/g, "_");
+      const safeTitle = title.replace(/[^a-zA-Z0-9\s]/g, "").replace(/\s+/g, "_");
       const fileName = `${safeTitle}_image.jpg`;
 
-      // Haetaan kuva
       const response = await fetch(imageUrl);
       if (!response.ok) {
         throw new Error("Kuvan lataus epäonnistui");
       }
 
       const blob = await response.blob();
-
-      // Luodaan latauslinkki
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
@@ -746,7 +358,6 @@ export default function BlogNewsletterPage() {
       document.body.appendChild(link);
       link.click();
 
-      // Siivotaan
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
@@ -757,13 +368,11 @@ export default function BlogNewsletterPage() {
     }
   };
 
-  // ESC-näppäimellä sulkeutuminen
+  // ESC key to close modals
   useEffect(() => {
     const handleEscKey = (event) => {
       if (event.key === "Escape") {
-        if (showCreateModal) {
-          setShowCreateModal(false);
-        }
+        if (showCreateModal) setShowCreateModal(false);
         if (showViewModal) {
           setShowViewModal(false);
           setViewingContent(null);
@@ -782,185 +391,219 @@ export default function BlogNewsletterPage() {
   }, [showCreateModal, showViewModal, showEditModal]);
 
   return (
-    <div className="blog-newsletter-container">
+    <div className="p-4 sm:p-8 lg:p-12 max-w-[1700px] mx-auto min-h-screen space-y-12">
       {/* Page Header */}
-      <div className="blog-newsletter-header">
-        <h2>{t("blogNewsletter.header")}</h2>
-        <div className="quota-indicators">
-          {monthlyLimit.loading ? (
-            <div className="monthly-limit-indicator loading">
-              {t("monthlyLimit.loading")}
-            </div>
-          ) : (
-            <div
-              className={`monthly-limit-indicator ${!monthlyLimit.isUnlimited && monthlyLimit.remaining <= 5 ? "warning" : "normal"}`}
-            >
-              <span className="limit-text">
-                {monthlyLimit.currentCount}/
-                {monthlyLimit.isUnlimited ? "∞" : monthlyLimit.monthlyLimit}{" "}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+        <div className="space-y-2">
+          <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">{t("blogNewsletter.header")}</h1>
+          <p className="text-gray-400 text-lg font-medium">{t("blogNewsletter.subtitle") || "Hallinnoi blogeja ja uutiskirjeitä"}</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
+          {/* Quota Indicator: This Month */}
+          <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-blue-100 transition-all duration-500 min-w-0">
+            <div className="flex justify-between items-start mb-4">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors truncate pr-2">
                 {t("monthlyLimit.generatedThisMonth")}
               </span>
-              {!monthlyLimit.isUnlimited &&
-                monthlyLimit.remaining <= 5 &&
-                monthlyLimit.remaining > 0 && (
-                  <span className="warning-text">
-                    {t("monthlyLimit.onlyRemaining", {
-                      count: monthlyLimit.remaining,
-                    })}
-                  </span>
-                )}
-              {!monthlyLimit.isUnlimited && monthlyLimit.remaining === 0 && (
-                <span className="limit-reached">
-                  {t("monthlyLimit.quotaFull")}
-                </span>
+              {monthlyLimit.loading ? (
+                <div className="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin flex-shrink-0" />
+              ) : (
+                <div className={`flex-shrink-0 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${monthlyLimit.remaining <= 5 ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'}`}>
+                  {monthlyLimit.remaining} {t("monthlyLimit.remaining") || "jäljellä"}
+                </div>
               )}
             </div>
-          )}
-
-          {nextMonthQuota.loading ? (
-            <div className="monthly-limit-indicator loading">
-              {t("monthlyLimit.loadingNextMonth")}
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-gray-900 leading-none">
+                {monthlyLimit.currentCount}
+              </span>
+              <span className="text-sm font-bold text-gray-300">
+                / {monthlyLimit.isUnlimited ? "∞" : monthlyLimit.monthlyLimit}
+              </span>
             </div>
-          ) : (
-            <div
-              className={`monthly-limit-indicator ${!nextMonthQuota.isUnlimited && nextMonthQuota.nextMonthRemaining <= 5 ? "warning" : "normal"}`}
-            >
-              <span className="limit-text">
-                {nextMonthQuota.nextMonthCount}/
-                {nextMonthQuota.isUnlimited
-                  ? "∞"
-                  : nextMonthQuota.nextMonthLimit}{" "}
+            <div className="mt-5 h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
+              <div
+                className={`h-full rounded-full transition-all duration-1000 ease-out ${monthlyLimit.remaining <= 5 ? 'bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]' : 'bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.4)]'}`}
+                style={{ width: `${Math.min(100, (monthlyLimit.currentCount / (monthlyLimit.isUnlimited ? 100 : monthlyLimit.monthlyLimit)) * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Quota Indicator: Next Month */}
+          <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 min-w-0">
+            <div className="flex justify-between items-start mb-4">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors truncate pr-2">
                 {t("monthlyLimit.generatedNextMonth")}
               </span>
-              {!nextMonthQuota.isUnlimited &&
-                nextMonthQuota.nextMonthRemaining <= 5 &&
-                nextMonthQuota.nextMonthRemaining > 0 && (
-                  <span className="warning-text">
-                    {t("monthlyLimit.onlyRemaining", {
-                      count: nextMonthQuota.nextMonthRemaining,
-                    })}
-                  </span>
-                )}
-              {!nextMonthQuota.isUnlimited &&
-                nextMonthQuota.nextMonthRemaining === 0 && (
-                  <span className="limit-reached">
-                    {t("monthlyLimit.nextMonthQuotaFull")}
-                  </span>
-                )}
+              {nextMonthQuota.loading ? (
+                <div className="w-4 h-4 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin flex-shrink-0" />
+              ) : (
+                <div className="flex-shrink-0 px-3 py-1 rounded-full bg-gray-50 text-gray-500 text-[9px] font-black uppercase tracking-widest">
+                  Saldossa
+                </div>
+              )}
             </div>
-          )}
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-black text-gray-900 leading-none">
+                {nextMonthQuota.nextMonthCount}
+              </span>
+              <span className="text-sm font-bold text-gray-300">
+                / {nextMonthQuota.isUnlimited ? "∞" : nextMonthQuota.nextMonthLimit}
+              </span>
+            </div>
+            <div className="mt-5 h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
+              <div
+                className="h-full rounded-full bg-indigo-400 shadow-[0_0_12px_rgba(129,140,248,0.4)] transition-all duration-1000 ease-out"
+                style={{ width: `${Math.min(100, (nextMonthQuota.nextMonthCount / (nextMonthQuota.isUnlimited ? 100 : nextMonthQuota.nextMonthLimit)) * 100)}%` }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tab Navigation & Action Bar */}
+      <div className="bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-row gap-2 sm:gap-6 justify-between items-center sticky top-4 z-40 transition-all hover:shadow-2xl overflow-hidden">
+        <div className="flex p-1 sm:p-1.5 bg-gray-50/80 rounded-[24px] overflow-x-auto no-scrollbar gap-1 border border-gray-100 flex-1 sm:flex-none">
+          {[
+            { id: 'main', label: t("blogNewsletter.tabs.content"), icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg> },
+            { id: 'archive', label: t("blogNewsletter.tabs.archive"), icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg> },
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 text-[10px] sm:text-xs font-bold rounded-[18px] transition-all duration-300 whitespace-nowrap ${activeTab === tab.id
+                ? 'bg-white text-gray-900 shadow-lg shadow-gray-200/50'
+                : 'text-gray-400 hover:text-gray-900 hover:bg-white/50'
+              }`}
+            >
+              {tab.icon}
+              <span className="uppercase tracking-widest hidden md:inline">{tab.label}</span>
+            </button>
+          ))}
+        </div>
 
-      {/* Tabs */}
-      <div className="tabs">
-        <button
-          className={`tab-button ${activeTab === "main" ? "active" : ""}`}
-          onClick={() => setActiveTab("main")}
-        >
-          {t("blogNewsletter.tabs.content")}
-        </button>
-        <button
-          className={`tab-button ${activeTab === "archive" ? "active" : ""}`}
-          onClick={() => setActiveTab("archive")}
-        >
-          {t("blogNewsletter.tabs.archive")}
-        </button>
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <button
+            onClick={() => {
+              if (monthlyLimit.canCreate) {
+                setShowCreateModal(true);
+              } else {
+                toast.warning("Kuukausiraja täynnä");
+              }
+            }}
+            disabled={!monthlyLimit.canCreate}
+            className="px-4 sm:px-8 py-2 sm:py-3 bg-gray-900 hover:bg-black text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-gray-900/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            <span className="sm:hidden">+ Luo</span>
+            <span className="hidden sm:inline">{t("blogNewsletter.actions.createNew")}</span>
+          </button>
+        </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="search-filters">
-        <input
-          type="text"
-          placeholder={t("blogNewsletter.searchPlaceholder")}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="status-filter"
-        >
-          <option value="">{t("blogNewsletter.filters.allStatuses")}</option>
-          <option value="Tarkistuksessa">
-            {t("blogNewsletter.status.Tarkistuksessa")}
-          </option>
-          <option value="Valmis">{t("blogNewsletter.status.Valmis")}</option>
-        </select>
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          className="type-filter"
-        >
-          <option value="">{t("blogNewsletter.filters.allTypes")}</option>
-          <option value="Blog">{t("blogNewsletter.types.blog")}</option>
-          <option value="Newsletter">
-            {t("blogNewsletter.types.newsletter")}
-          </option>
-        </select>
-        <Button
-          variant="primary"
-          onClick={() => {
-            if (monthlyLimit.canCreate) {
-              setShowCreateModal(true);
-            } else {
-              toast.warning("Kuukausiraja täynnä");
-            }
-          }}
-          disabled={!monthlyLimit.canCreate}
-        >
-          {t("blogNewsletter.actions.createNew")}
-        </Button>
+      {/* Search and Filters Bar */}
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="relative flex-1 group">
+          <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-gray-300 group-focus-within:text-blue-500 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </div>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder={t("blogNewsletter.searchPlaceholder")}
+            className="w-full pl-16 pr-8 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 font-medium text-sm"
+          />
+        </div>
+
+        <div className="flex gap-4 min-w-[300px]">
+          <div className="relative flex-1">
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
+            >
+              <option value="">{t("blogNewsletter.filters.allTypes")}</option>
+              <option value="Blog">{t("blogNewsletter.types.blog")}</option>
+              <option value="Newsletter">{t("blogNewsletter.types.newsletter")}</option>
+            </select>
+            <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+
+          <div className="relative flex-1">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
+            >
+              <option value="">{t("blogNewsletter.filters.allStatuses")}</option>
+              <option value="Tarkistuksessa">{t("blogNewsletter.status.Tarkistuksessa")}</option>
+              <option value="Valmis">{t("blogNewsletter.status.Valmis")}</option>
+            </select>
+            <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Error State */}
       {error && (
-        <div className="error-state">
-          <p>❌ {error}</p>
-          <Button
-            variant="secondary"
-            onClick={() => {
-              window.location.reload();
-            }}
+        <div className="bg-red-50/50 border border-red-100 rounded-[40px] p-12 text-center animate-in zoom-in-95 duration-500">
+          <div className="w-20 h-20 bg-white rounded-3xl shadow-xl shadow-red-200/50 flex items-center justify-center mx-auto mb-6">
+            <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">{t("blogNewsletter.errors.error") || "Virhe"}</h3>
+          <p className="text-red-600 font-medium mb-8 max-w-md mx-auto">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-red-200 transition-all hover:scale-105 active:scale-95"
           >
             {t("blogNewsletter.actions.retry")}
-          </Button>
+          </button>
         </div>
       )}
 
-      {/* Content Grid */}
-      {!error && (
-        <div className="content-grid">
-          {loading ? (
-            <div className="loading-state">
-              <div className="loading-spinner"></div>
-              <p>{t("blogNewsletter.loading.loadingContent")}</p>
+      {/* Content Views */}
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        {!error && loading && (
+          <div className="flex flex-col items-center justify-center py-24">
+            <div className="w-16 h-16 rounded-full border-4 border-gray-100 border-t-blue-500 animate-spin mb-6" />
+            <p className="text-gray-400 font-medium">{t("blogNewsletter.loading.loadingContent")}</p>
+          </div>
+        )}
+
+        {!error && !loading && filteredContents.length === 0 && (
+          activeTab === "archive" ? (
+            <div className="bg-gray-50/50 rounded-[40px] p-16 text-center">
+              <div className="w-24 h-24 bg-white rounded-3xl shadow-xl shadow-gray-200/50 flex items-center justify-center mx-auto mb-8">
+                <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">{t("blogNewsletter.empty.archiveTitle")}</h3>
+              <p className="text-gray-400 font-medium max-w-md mx-auto">{t("blogNewsletter.empty.archiveDescription")}</p>
             </div>
-          ) : filteredContents.length === 0 ? (
-            activeTab === "archive" ? (
-              <div className="empty-state">
-                <div className="empty-icon"></div>
-                <h3>{t("blogNewsletter.empty.archiveTitle")}</h3>
-                <p>{t("blogNewsletter.empty.archiveDescription")}</p>
-              </div>
-            ) : (
-              <div className="empty-state">
-                <div className="empty-icon"></div>
-                <h3>{t("blogNewsletter.empty.title")}</h3>
-                <p>{t("blogNewsletter.empty.description")}</p>
-                <Button
-                  variant="primary"
-                  onClick={() => setShowCreateModal(true)}
-                >
-                  {t("blogNewsletter.empty.createFirst")}
-                </Button>
-              </div>
-            )
           ) : (
-            filteredContents.map((content) => (
+            <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-[40px] p-16 text-center">
+              <div className="w-24 h-24 bg-white rounded-3xl shadow-xl shadow-blue-200/50 flex items-center justify-center mx-auto mb-8">
+                <svg className="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">{t("blogNewsletter.empty.title")}</h3>
+              <p className="text-gray-400 font-medium max-w-md mx-auto mb-8">{t("blogNewsletter.empty.description")}</p>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-8 py-4 bg-gray-900 hover:bg-black text-white text-xs font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-gray-900/20 transition-all hover:scale-105 active:scale-95"
+              >
+                {t("blogNewsletter.empty.createFirst")}
+              </button>
+            </div>
+          )
+        )}
+
+        {!error && !loading && filteredContents.length > 0 && (
+          <div className="content-cards-grid">
+            {filteredContents.map((content) => (
               <ContentCard
                 key={content.id}
                 content={content}
@@ -971,416 +614,39 @@ export default function BlogNewsletterPage() {
                 onEdit={handleEditContent}
                 publishingId={publishingId}
               />
-            ))
-          )}
-        </div>
-      )}
-
-      {/* Create Modal */}
-      {showCreateModal &&
-        createPortal(
-          <div
-            className="modal-overlay modal-overlay--light"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowCreateModal(false);
-              }
-            }}
-          >
-            <div className="modal-container max-w-[900px] h-[80vh]">
-              <div className="modal-header">
-                <h2 className="modal-title">
-                  {t("blogNewsletter.createModal.title")}
-                </h2>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="modal-close-btn"
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="modal-content">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    handleCreateContent({
-                      title: formData.get("title"),
-                      content: formData.get("content"),
-                      type: formData.get("type"),
-                    });
-                  }}
-                >
-                  <div className="form-group">
-                    <label className="form-label">
-                      {t("blogNewsletter.createModal.fields.title")}
-                    </label>
-                    <input
-                      name="title"
-                      type="text"
-                      required
-                      className="form-input"
-                      placeholder={t(
-                        "blogNewsletter.createModal.placeholders.title",
-                      )}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      {t("blogNewsletter.createModal.fields.type")}
-                    </label>
-                    <select name="type" required className="form-select">
-                      <option value="blog">Blog</option>
-                      <option value="newsletter">Newsletter</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">
-                      {t("blogNewsletter.createModal.fields.content")}
-                    </label>
-                    <textarea
-                      name="content"
-                      rows={12}
-                      required
-                      className="form-textarea"
-                      placeholder={t(
-                        "blogNewsletter.createModal.placeholders.content",
-                      )}
-                    />
-                  </div>
-                  <div className="modal-actions">
-                    <div className="modal-actions-left">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setShowCreateModal(false)}
-                      >
-                        {t("blogNewsletter.actions.cancel")}
-                      </Button>
-                    </div>
-                    <div className="modal-actions-right">
-                      <Button type="submit" variant="primary">
-                        {t("blogNewsletter.createModal.create")}
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>,
-          document.body,
+            ))}
+          </div>
         )}
+      </div>
 
-      {/* View Modal */}
-      {showViewModal &&
-        viewingContent &&
-        createPortal(
-          <div
-            className="modal-overlay modal-overlay--light"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowViewModal(false);
-              }
-            }}
-          >
-            <div className="modal-container max-w-[900px] h-[80vh]">
-              <div className="modal-header">
-                <h2 className="modal-title">{viewingContent.title}</h2>
-                <button
-                  onClick={() => setShowViewModal(false)}
-                  className="modal-close-btn"
-                >
-                  X
-                </button>
-              </div>
-              <div className="modal-content">
-                <div className="content-view">
-                  {/* Näytä thumbnail kuva jos saatavilla */}
-                  {viewingContent.thumbnail &&
-                  viewingContent.thumbnail !== "/placeholder.png" ? (
-                    <div className="view-thumbnail">
-                      <img
-                        src={viewingContent.thumbnail}
-                        alt="Thumbnail"
-                        className="view-thumbnail-image"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                          e.target.nextSibling.style.display = "flex";
-                        }}
-                      />
-                      <div className="view-thumbnail-placeholder hidden">
-                        <img
-                          src="/placeholder.png"
-                          alt="Placeholder"
-                          className="w-full h-full object-cover rounded-xl"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="view-thumbnail">
-                      <img
-                        src="/placeholder.png"
-                        alt="Placeholder"
-                        className="w-full h-full object-cover rounded-xl"
-                      />
-                    </div>
-                  )}
+      {/* Modals */}
+      <CreateContentModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={handleCreateContent}
+      />
 
-                  <div className="content-meta">
-                    <span className="content-type">
-                      {viewingContent.type === "Blog"
-                        ? t("general.blog")
-                        : t("general.newsletter")}
-                    </span>
-                    <span className="content-date">
-                      {viewingContent.createdAt
-                        ? new Date(viewingContent.createdAt).toLocaleDateString(
-                            i18n.language === "fi" ? "fi-FI" : "en-US",
-                          )
-                        : t("blogNewsletter.placeholders.noDate")}
-                    </span>
-                  </div>
-                  <div className="content-body">
-                    {/* Näytä blog_post jos se on olemassa, muuten caption */}
-                    {viewingContent.blog_post ? (
-                      <ReactMarkdown>{viewingContent.blog_post}</ReactMarkdown>
-                    ) : viewingContent.caption ? (
-                      <ReactMarkdown>{viewingContent.caption}</ReactMarkdown>
-                    ) : (
-                      <p className="text-gray-500 italic">
-                        {t("blogNewsletter.placeholders.noContent")}
-                      </p>
-                    )}
-                  </div>
+      <ViewContentModal
+        isOpen={showViewModal}
+        content={viewingContent}
+        onClose={() => {
+          setShowViewModal(false);
+          setViewingContent(null);
+        }}
+        onPublish={handlePublishContent}
+        onDelete={handleDeleteContent}
+        publishingId={publishingId}
+      />
 
-                  {/* Näytä lisätietoja jos saatavilla */}
-                  {viewingContent.idea &&
-                    viewingContent.idea !== viewingContent.title && (
-                      <div className="mt-5 p-4 bg-gray-50 rounded-lg">
-                        <h4 className="m-0 mb-2 text-sm text-gray-500">
-                          {t("blogNewsletter.viewModal.originalIdea")}
-                        </h4>
-                        <p className="m-0 text-sm">
-                          {viewingContent.idea}
-                        </p>
-                      </div>
-                    )}
-
-                  {/* Näytä status */}
-                  <div className="mt-4 p-3 bg-slate-100 rounded-md">
-                    <span className="text-xs font-semibold text-slate-600">
-                      {t("blogNewsletter.viewModal.status")}{" "}
-                      {viewingContent.status}
-                    </span>
-                  </div>
-                </div>
-                <div className="modal-actions">
-                  <div className="modal-actions-left">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => setShowViewModal(false)}
-                    >
-                      {t("blogNewsletter.actions.close")}
-                    </Button>
-                  </div>
-                  <div className="modal-actions-right">
-                    {viewingContent.status !== "Valmis" &&
-                      viewingContent.status !== "Done" &&
-                      viewingContent.status !== "Julkaistu" &&
-                      viewingContent.status !== "Published" &&
-                      viewingContent.status !== "Arkistoitu" &&
-                      viewingContent.status !== "Archived" && (
-                        <Button
-                          type="button"
-                          variant="primary"
-                          onClick={() => {
-                            handlePublishContent(viewingContent);
-                          }}
-                          disabled={publishingId === viewingContent.id}
-                          className="mr-2 bg-green-500 border-green-600"
-                        >
-                          {publishingId === viewingContent.id
-                            ? t("blogNewsletter.actions.publishing")
-                            : t("blogNewsletter.actions.publish")}
-                        </Button>
-                      )}
-                    <Button
-                      type="button"
-                      variant="danger"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            t("blogNewsletter.alerts.deleteConfirm"),
-                          )
-                        ) {
-                          handleDeleteContent(viewingContent.id);
-                          setShowViewModal(false);
-                        }
-                      }}
-                    >
-                      {t("blogNewsletter.actions.delete")}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
-
-      {/* Edit Modal */}
-      {showEditModal &&
-        editingContent &&
-        createPortal(
-          <div
-            className="modal-overlay modal-overlay--light"
-            onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setShowEditModal(false);
-                setEditingContent(null);
-              }
-            }}
-          >
-            <div className="modal-container max-w-[900px] h-[80vh]">
-              <div className="modal-header">
-                <h2 className="modal-title">{editingContent.title}</h2>
-                <button
-                  onClick={() => {
-                    setShowEditModal(false);
-                    setEditingContent(null);
-                  }}
-                  className="modal-close-btn"
-                >
-                  X
-                </button>
-              </div>
-              <div className="modal-content">
-                {/* Yhtenäistetty esikatseluosio kuten katselumodaalissa */}
-                <div className="content-view">
-                  {editingContent.thumbnail &&
-                  editingContent.thumbnail !== "/placeholder.png" ? (
-                    <div className="view-thumbnail">
-                      <img
-                        src={editingContent.thumbnail}
-                        alt="Thumbnail"
-                        className="view-thumbnail-image"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                          e.target.nextSibling.style.display = "flex";
-                        }}
-                      />
-                      <div className="view-thumbnail-placeholder hidden">
-                        <img
-                          src="/placeholder.png"
-                          alt="Placeholder"
-                          className="w-full h-full object-cover rounded-xl"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="view-thumbnail">
-                      <img
-                        src="/placeholder.png"
-                        alt="Placeholder"
-                        className="w-full h-full object-cover rounded-xl"
-                      />
-                    </div>
-                  )}
-                  <div className="content-meta">
-                    <span className="content-type">
-                      {editingContent.type === "Blog" ? "Blog" : "Newsletter"}
-                    </span>
-                    <span className="content-date">
-                      {editingContent.createdAt || ""}
-                    </span>
-                  </div>
-                </div>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    handleUpdateContent({
-                      id: editingContent.id,
-                      title: formData.get("title"),
-                      caption: editingContent.caption,
-                      blog_post: formData.get("blog_post"),
-                    });
-                  }}
-                >
-                  <div className="form-group">
-                    <label className="form-label hidden">
-                      Otsikko
-                    </label>
-                    <input
-                      name="title"
-                      type="text"
-                      required
-                      className="form-input border-none outline-none bg-transparent p-0 text-xl font-semibold mb-2"
-                      defaultValue={editingContent.title}
-                      placeholder={t("placeholders.contentTitle")}
-                    />
-                  </div>
-                  {/* Tyyppi näkyvissä (read-only) */}
-                  <div className="form-group">
-                    <label className="form-label">Tyyppi</label>
-                    <div className="form-input pointer-events-none opacity-80">
-                      {editingContent.type === "Blog" ? "Blog" : "Newsletter"}
-                    </div>
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Blogiteksti</label>
-                    <textarea
-                      name="blog_post"
-                      rows={14}
-                      className="form-textarea"
-                      defaultValue={editingContent.blog_post || ""}
-                      placeholder="Blogiteksti markdownina"
-                    />
-                  </div>
-                  <div className="form-group mt-2">
-                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-600">
-                      <strong>Markdown-vinkit:</strong>
-                      <div className="mt-1.5">
-                        <code># Otsikko 1</code>, <code>## Otsikko 2</code>,{" "}
-                        <code>### Otsikko 3</code>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Meta description vain luettavana */}
-                  {editingContent.meta_description && (
-                    <div className="form-group">
-                      <label className="form-label">Meta Description</label>
-                      <div className="form-textarea pointer-events-none opacity-80">
-                        {editingContent.meta_description}
-                      </div>
-                    </div>
-                  )}
-                  <div className="modal-actions">
-                    <div className="modal-actions-left">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => {
-                          setShowEditModal(false);
-                          setEditingContent(null);
-                        }}
-                      >
-                        {t("blogNewsletter.actions.cancel")}
-                      </Button>
-                    </div>
-                    <div className="modal-actions-right">
-                      <Button type="submit" variant="primary">
-                        {t("blogNewsletter.actions.saveChanges")}
-                      </Button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
+      <EditContentModal
+        isOpen={showEditModal}
+        content={editingContent}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingContent(null);
+        }}
+        onSubmit={handleUpdateContent}
+      />
     </div>
   );
 }

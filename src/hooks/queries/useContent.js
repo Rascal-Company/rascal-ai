@@ -74,6 +74,7 @@ export function useContentMutations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['content', orgId] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.monthlyLimit.current(orgId) })
     },
   })
 
@@ -88,6 +89,7 @@ export function useContentMutations() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['content', orgId] })
+      queryClient.invalidateQueries({ queryKey: queryKeys.monthlyLimit.current(orgId) })
     },
   })
 

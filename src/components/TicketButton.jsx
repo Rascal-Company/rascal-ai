@@ -20,14 +20,10 @@ const TicketButton = () => {
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className="btn btn-primary fixed top-1/2 right-2.5 -translate-y-1/2 z-[9999] rounded-[50px] px-4 py-3 text-sm font-semibold flex items-center gap-2 min-w-auto"
+        className="fixed top-1/2 right-0 -translate-y-1/2 z-[9999] bg-orange-500 hover:bg-orange-600 text-white shadow-2xl shadow-orange-500/40 rounded-l-[24px] px-3 py-8 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 min-w-auto [writing-mode:vertical-rl] [text-orientation:mixed] transition-all duration-300 hover:pl-4 active:scale-95 border-y border-l border-white/20 backdrop-blur-sm group"
         title={t("ticket.buttonTitle")}
-        style={{
-          writingMode: "vertical-rl",
-          textOrientation: "mixed",
-        }}
       >
-        <span>{t("ticket.buttonLabel")}</span>
+        <span className="group-hover:scale-110 transition-transform duration-300">{t("ticket.buttonLabel")}</span>
       </button>
 
       {isModalOpen &&

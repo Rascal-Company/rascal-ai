@@ -3,7 +3,6 @@ import axios from "axios";
 import { useTranslation } from "react-i18next";
 import { createPortal } from "react-dom";
 import { supabase } from "../lib/supabase";
-import { getCurrentUser } from "../utils/userApi";
 import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { useMonthlyLimit } from "../hooks/useMonthlyLimit";
@@ -26,6 +25,7 @@ import CarouselsTab from "../components/CarouselsTab";
 import KanbanTab from "../components/KanbanTab";
 import PostCard from "../components/PostCard/PostCard";
 import KuvapankkiSelector from "../components/KuvapankkiSelector";
+import ImageBankModal from "../components/ImageBankModal";
 import CarouselSegmentsEditor from "../components/CarouselSegmentsEditor";
 
 // Dummy data
@@ -144,6 +144,7 @@ export default function ManagePostsPage() {
   const [refreshingCalendar, setRefreshingCalendar] = useState(false);
   const [userAccountType, setUserAccountType] = useState(null);
   const [showKuvapankkiSelector, setShowKuvapankkiSelector] = useState(false);
+  const [showImageBankModal, setShowImageBankModal] = useState(false);
 
   // Refs for character counting
   const textareaRef = useRef(null);
@@ -169,10 +170,14 @@ export default function ManagePostsPage() {
         setAvatarLoading(true);
         setAvatarError("");
 
-        // Hae käyttäjätiedot API:n kautta
-        const userData = await getCurrentUser();
+        // Hae company_id suoraan Supabasesta
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("company_id")
+          .eq("id", orgId)
+          .single();
 
-        if (!userData?.company_id) {
+        if (userError || !userData?.company_id) {
           setAvatarImages([]);
           setAvatarError("company_id puuttuu");
           return;
@@ -1184,10 +1189,10 @@ export default function ManagePostsPage() {
         prev.map((p) =>
           p.id === publishingPost.id
             ? {
-                ...p,
-                status: newStatus,
-                publishDate: publishDate || p.publishDate,
-              }
+              ...p,
+              status: newStatus,
+              publishDate: publishDate || p.publishDate,
+            }
             : p,
         ),
       );
@@ -1197,10 +1202,10 @@ export default function ManagePostsPage() {
           prev.map((p) =>
             p.id === publishingPost.id
               ? {
-                  ...p,
-                  status: newStatus,
-                  publishDate: publishDate || p.publishDate,
-                }
+                ...p,
+                status: newStatus,
+                publishDate: publishDate || p.publishDate,
+              }
               : p,
           ),
         );
@@ -1684,149 +1689,119 @@ export default function ManagePostsPage() {
 
   return (
     <>
-      <div className="posts-container">
-        {/* Tabs + Search and Filters */}
-
+      <div className="p-4 sm:p-8 lg:p-12 max-w-[1700px] mx-auto min-h-screen space-y-12">
         {/* Page Header */}
-        <div className="posts-header">
-          <h2>{t("posts.header")}</h2>
-          <div className="quota-indicators">
-            {monthlyLimit.loading ? (
-              <div className="monthly-limit-indicator loading">
-                {t("monthlyLimit.loading")}
-              </div>
-            ) : (
-              <div
-                className={`monthly-limit-indicator ${!monthlyLimit.isUnlimited && monthlyLimit.remaining <= 5 ? "warning" : "normal"}`}
-              >
-                <span className="limit-text">
-                  {monthlyLimit.currentCount}/
-                  {monthlyLimit.isUnlimited ? "∞" : monthlyLimit.monthlyLimit}{" "}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">{t("posts.header")}</h1>
+            <p className="text-gray-400 text-lg font-medium">{t("posts.subtitle") || "Hallitse ja aikatauluta somesisältöjäsi"}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
+            {/* Quota Indicator: This Month */}
+            <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-blue-100 transition-all duration-500 min-w-0">
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors truncate pr-2">
                   {t("monthlyLimit.generatedThisMonth")}
                 </span>
-                {!monthlyLimit.isUnlimited &&
-                  monthlyLimit.remaining <= 5 &&
-                  monthlyLimit.remaining > 0 && (
-                    <span className="warning-text">
-                      {t("monthlyLimit.onlyRemaining", {
-                        count: monthlyLimit.remaining,
-                      })}
-                    </span>
-                  )}
-                {!monthlyLimit.isUnlimited && monthlyLimit.remaining === 0 && (
-                  <span className="limit-reached">
-                    {t("monthlyLimit.quotaFull")}
-                  </span>
+                {monthlyLimit.loading ? (
+                  <div className="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin flex-shrink-0" />
+                ) : (
+                  <div className={`flex-shrink-0 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${monthlyLimit.remaining <= 5 ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'}`}>
+                    {monthlyLimit.remaining} {t("monthlyLimit.remaining") || "jäljellä"}
+                  </div>
                 )}
               </div>
-            )}
-
-            {nextMonthQuota.loading ? (
-              <div className="monthly-limit-indicator loading">
-                {t("monthlyLimit.loadingNextMonth")}
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-gray-900 leading-none">
+                  {monthlyLimit.currentCount}
+                </span>
+                <span className="text-sm font-bold text-gray-300">
+                  / {monthlyLimit.isUnlimited ? "∞" : monthlyLimit.monthlyLimit}
+                </span>
               </div>
-            ) : (
-              <div
-                className={`monthly-limit-indicator ${!nextMonthQuota.isUnlimited && nextMonthQuota.nextMonthRemaining <= 5 ? "warning" : "normal"}`}
-              >
-                <span className="limit-text">
-                  {nextMonthQuota.nextMonthCount}/
-                  {nextMonthQuota.isUnlimited
-                    ? "∞"
-                    : nextMonthQuota.nextMonthLimit}{" "}
+              <div className="mt-5 h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
+                <div
+                  className={`h-full rounded-full transition-all duration-1000 ease-out ${monthlyLimit.remaining <= 5 ? 'bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]' : 'bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.4)]'}`}
+                  style={{ width: `${Math.min(100, (monthlyLimit.currentCount / (monthlyLimit.isUnlimited ? 100 : monthlyLimit.monthlyLimit)) * 100)}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Quota Indicator: Next Month */}
+            <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 min-w-0">
+              <div className="flex justify-between items-start mb-4">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors truncate pr-2">
                   {t("monthlyLimit.generatedNextMonth")}
                 </span>
-                {!nextMonthQuota.isUnlimited &&
-                  nextMonthQuota.nextMonthRemaining <= 5 &&
-                  nextMonthQuota.nextMonthRemaining > 0 && (
-                    <span className="warning-text">
-                      {t("monthlyLimit.onlyRemaining", {
-                        count: nextMonthQuota.nextMonthRemaining,
-                      })}
-                    </span>
-                  )}
-                {!nextMonthQuota.isUnlimited &&
-                  nextMonthQuota.nextMonthRemaining === 0 && (
-                    <span className="limit-reached">
-                      {t("monthlyLimit.nextMonthQuotaFull")}
-                    </span>
-                  )}
+                {nextMonthQuota.loading ? (
+                  <div className="w-4 h-4 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin flex-shrink-0" />
+                ) : (
+                  <div className="flex-shrink-0 px-3 py-1 rounded-full bg-gray-50 text-gray-500 text-[9px] font-black uppercase tracking-widest">
+                    Saldossa
+                  </div>
+                )}
               </div>
-            )}
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-gray-900 leading-none">
+                  {nextMonthQuota.nextMonthCount}
+                </span>
+                <span className="text-sm font-bold text-gray-300">
+                  / {nextMonthQuota.isUnlimited ? "∞" : nextMonthQuota.nextMonthLimit}
+                </span>
+              </div>
+              <div className="mt-5 h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
+                <div
+                  className="h-full rounded-full bg-indigo-400 shadow-[0_0_12px_rgba(129,140,248,0.4)] transition-all duration-1000 ease-out"
+                  style={{ width: `${Math.min(100, (nextMonthQuota.nextMonthCount / (nextMonthQuota.isUnlimited ? 100 : nextMonthQuota.nextMonthLimit)) * 100)}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Tabs (moved below quotas, above search) */}
-        <div className="tabs-container">
-          <div className="tabs">
-            <button
-              className={`tab-button ${activeTab === "kanban" ? "active" : ""}`}
-              onClick={() => setActiveTab("kanban")}
-            >
-              {t("posts.tabs.posts")}
-            </button>
-            <button
-              className={`tab-button ${activeTab === "carousels" ? "active" : ""}`}
-              onClick={() => setActiveTab("carousels")}
-            >
-              {t("posts.tabs.carousels")}
-            </button>
-            <button
-              className={`tab-button ${activeTab === "calendar" ? "active" : ""}`}
-              onClick={() => setActiveTab("calendar")}
-            >
-              {t("posts.tabs.calendar")}
-            </button>
-            {user?.features &&
-              Array.isArray(user.features) &&
-              user.features.includes("UGC") && (
-                <button
-                  className={`tab-button ${activeTab === "ugc" ? "active" : ""}`}
-                  onClick={() => setActiveTab("ugc")}
-                >
-                  {t("posts.tabs.ugc")}
-                </button>
-              )}
-          </div>
-          {userAccountType === "personal_brand" && (
-            <button
-              className="tab-button"
-              onClick={() => navigate("/posts/kuvapankki")}
-              style={{ marginLeft: "auto" }}
-            >
-              {t("posts.tabs.imageBank")}
-            </button>
-          )}
-        </div>
-
-        {/* Search and Filters - Piilotettu UGC-tabilta */}
-        {activeTab !== "ugc" && (
-          <div className="search-filters">
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="status-filter"
-            >
-              <option value="">{t("posts.filters.allTypes")}</option>
-              <option value="Photo">{t("posts.typeOptions.photo")}</option>
-              <option value="Carousel">
-                {t("posts.typeOptions.carousel")}
-              </option>
-              <option value="Reels">{t("posts.typeOptions.reels")}</option>
-              <option value="LinkedIn">
-                {t("posts.typeOptions.linkedin")}
-              </option>
-              <option value="Video">{t("posts.typeOptions.video")}</option>
-            </select>
-            <div className="button-group">
-              <Button
-                variant="secondary"
-                onClick={() => setShowUploadModal(true)}
+        {/* Tab Navigation & Action Bar Container */}
+        <div className="bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-row gap-2 sm:gap-6 justify-between items-center sticky top-4 z-40 transition-all hover:shadow-2xl overflow-hidden">
+          <div className="flex p-1 sm:p-1.5 bg-gray-50/80 rounded-[24px] overflow-x-auto no-scrollbar gap-1 border border-gray-100 flex-1 sm:flex-none">
+            {[
+              { id: 'kanban', label: t("posts.tabs.posts"), icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg> },
+              { id: 'carousels', label: t("posts.tabs.carousels"), icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg> },
+              { id: 'calendar', label: t("posts.tabs.calendar"), icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg> },
+              { id: 'ugc', label: t("posts.tabs.ugc"), feature: 'UGC', icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> }
+            ].filter(tab => !tab.feature || (user?.features?.includes(tab.feature))).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 text-[10px] sm:text-xs font-bold rounded-[18px] transition-all duration-300 whitespace-nowrap ${activeTab === tab.id
+                  ? 'bg-white text-gray-900 shadow-lg shadow-gray-200/50'
+                  : 'text-gray-400 hover:text-gray-900 hover:bg-white/50'
+                  }`}
               >
-                {t("posts.buttons.importPost")}
-              </Button>
-              <Button
-                variant="primary"
+                {tab.icon}
+                <span className="uppercase tracking-widest hidden md:inline">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0">
+            {userAccountType === "personal_brand" && (
+              <button
+                onClick={() => setShowImageBankModal(true)}
+                className="hidden lg:flex text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors py-2"
+              >
+                {t("posts.tabs.imageBank")}
+              </button>
+            )}
+            <div className="h-4 w-px bg-gray-200 hidden lg:block" />
+            <div className="flex gap-2 sm:gap-3">
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="px-3 sm:px-6 py-2 sm:py-3 bg-white hover:bg-gray-50 text-gray-900 text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-2xl border border-gray-100 shadow-lg shadow-gray-200/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
+              >
+                <span className="sm:hidden">+</span>
+                <span className="hidden sm:inline">{t("posts.buttons.importPost")}</span>
+              </button>
+              <button
                 onClick={() => {
                   if (monthlyLimit.canCreate) {
                     setCreateModalCount(1);
@@ -1836,279 +1811,270 @@ export default function ManagePostsPage() {
                   }
                 }}
                 disabled={!monthlyLimit.canCreate}
+                className="px-4 sm:px-8 py-2 sm:py-3 bg-gray-900 hover:bg-black text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-gray-900/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
               >
-                {t("posts.buttons.generateNew")}
-              </Button>
+                <span className="sm:hidden">Luo</span>
+                <span className="hidden sm:inline">{t("posts.buttons.generateNew")}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Search and Filters Bar */}
+        {activeTab !== "ugc" && (
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="relative flex-1 group">
+              <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-gray-300 group-focus-within:text-blue-500 transition-colors">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              </div>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder={t("posts.filters.searchPlaceholder") || "Hae julkaisuja..."}
+                className="w-full pl-16 pr-8 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 font-medium text-sm"
+              />
+            </div>
+
+            <div className="flex gap-4 min-w-[300px]">
+              <div className="relative flex-1">
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
+                >
+                  <option value="">{t("posts.filters.allTypes")}</option>
+                  <option value="Photo">{t("posts.typeOptions.photo")}</option>
+                  <option value="Carousel">{t("posts.typeOptions.carousel")}</option>
+                  <option value="Reels">{t("posts.typeOptions.reels")}</option>
+                  <option value="LinkedIn">{t("posts.typeOptions.linkedin")}</option>
+                  <option value="Video">{t("posts.typeOptions.video")}</option>
+                </select>
+                <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
+
+              <div className="relative flex-1">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
+                >
+                  <option value="">{t("posts.filters.allStatuses") || "Kaikki tilat"}</option>
+                  <option value="Kesken">{t("posts.statuses.draft") || "Kesken"}</option>
+                  <option value="Tarkistuksessa">{t("posts.statuses.pending") || "Tarkistuksessa"}</option>
+                  <option value="Aikataulutettu">{t("posts.statuses.scheduled") || "Ajastettu"}</option>
+                  <option value="Julkaistu">{t("posts.statuses.published") || "Julkaistu"}</option>
+                </select>
+                <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Error State */}
         {currentError && (
-          <div className="error-state">
-            <p>
-              {t("posts.errors.error")}: {currentError}
-            </p>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                window.location.reload();
-              }}
+          <div className="bg-red-50/50 border border-red-100 rounded-[40px] p-12 text-center animate-in zoom-in-95 duration-500">
+            <div className="w-20 h-20 bg-white rounded-3xl shadow-xl shadow-red-200/50 flex items-center justify-center mx-auto mb-6">
+              <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{t("posts.errors.error")}</h3>
+            <p className="text-red-600 font-medium mb-8 max-w-md mx-auto">{currentError}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-8 py-3 bg-red-600 hover:bg-red-700 text-white text-xs font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-red-200 transition-all hover:scale-105 active:scale-95"
             >
               {t("posts.actions.retry")}
-            </Button>
+            </button>
           </div>
         )}
 
-        {/* Kanban Board */}
-        {!currentError && !currentLoading && activeTab === "kanban" && (
-          <KanbanTab
-            posts={filteredPosts}
-            onEdit={handleEditPost}
-            onDelete={handleDeletePost}
-            onDuplicate={handleDuplicatePost}
-            onPublish={handlePublishPost}
-            onSchedule={handleSchedulePost}
-            onMoveToNext={handleMoveToNext}
-            t={t}
-            onDeleteMixpostPost={deleteMixpostPost}
-            onRefreshPosts={async () => {
-              await fetchPosts();
-              await fetchReelsPosts();
-              await fetchMixpostPosts();
-            }}
-          />
-        )}
-
-        {/* Carousels View */}
-        {activeTab === "carousels" && (
-          <CarouselsTab
-            posts={filteredPosts}
-            onEdit={handleEditPost}
-            onDelete={handleDeletePost}
-            onPublish={handlePublishPost}
-            onSchedule={handleSchedulePost}
-            onMoveToNext={handleMoveToNext}
-            t={t}
-          />
-        )}
-
-        {/* Calendar View */}
-        {activeTab === "calendar" && (
-          <div className="calendar-wrapper">
-            <PostsCalendar
-              items={calendarItems}
-              readyPosts={readyPosts}
-              onSchedulePost={handleSchedulePost}
-              socialAccounts={socialAccounts}
-              selectedAccounts={selectedAccounts}
-              setSelectedAccounts={setSelectedAccounts}
-              loadingAccounts={loadingAccounts}
-              onFetchSocialAccounts={fetchSocialAccounts}
-              onRefresh={async () => {
-                setRefreshingCalendar(true);
-                try {
-                  await fetchPosts();
-                  await fetchReelsPosts();
-                  await fetchMixpostPosts();
-                } catch (error) {
-                  console.error("Error refreshing calendar:", error);
-                } finally {
-                  setRefreshingCalendar(false);
-                }
-              }}
-              refreshing={refreshingCalendar}
-              onEventClick={(ev) => {
-                // Etsi vastaava postaus kaikista nykyisistä posteista
-                const post = allPosts.find((p) => p.id === ev.id);
-                if (post) {
-                  handleEditPost(post);
-                }
+        {/* Content Views */}
+        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+          {/* Kanban Board */}
+          {!currentError && !currentLoading && activeTab === "kanban" && (
+            <KanbanTab
+              posts={filteredPosts}
+              onEdit={handleEditPost}
+              onDelete={handleDeletePost}
+              onDuplicate={handleDuplicatePost}
+              onPublish={handlePublishPost}
+              onSchedule={handleSchedulePost}
+              onMoveToNext={handleMoveToNext}
+              t={t}
+              onDeleteMixpostPost={deleteMixpostPost}
+              onRefreshPosts={async () => {
+                await fetchPosts();
+                await fetchReelsPosts();
+                await fetchMixpostPosts();
               }}
             />
-          </div>
-        )}
+          )}
 
-        {/* UGC View */}
-        {activeTab === "ugc" && <UgcTab />}
+          {/* Carousels View */}
+          {activeTab === "carousels" && (
+            <CarouselsTab
+              posts={filteredPosts}
+              onEdit={handleEditPost}
+              onDelete={handleDeletePost}
+              onPublish={handlePublishPost}
+              onSchedule={handleSchedulePost}
+              onMoveToNext={handleMoveToNext}
+              t={t}
+            />
+          )}
+
+          {/* Calendar View */}
+          {activeTab === "calendar" && (
+            <div className="calendar-wrapper">
+              <PostsCalendar
+                items={calendarItems}
+                readyPosts={readyPosts}
+                onSchedulePost={handleSchedulePost}
+                socialAccounts={socialAccounts}
+                selectedAccounts={selectedAccounts}
+                setSelectedAccounts={setSelectedAccounts}
+                loadingAccounts={loadingAccounts}
+                onFetchSocialAccounts={fetchSocialAccounts}
+                onRefresh={async () => {
+                  setRefreshingCalendar(true);
+                  try {
+                    await fetchPosts();
+                    await fetchReelsPosts();
+                    await fetchMixpostPosts();
+                  } catch (error) {
+                    console.error("Error refreshing calendar:", error);
+                  } finally {
+                    setRefreshingCalendar(false);
+                  }
+                }}
+                refreshing={refreshingCalendar}
+                onEventClick={(ev) => {
+                  // Etsi vastaava postaus kaikista nykyisistä posteista
+                  const post = allPosts.find((p) => p.id === ev.id);
+                  if (post) {
+                    handleEditPost(post);
+                  }
+                }}
+              />
+            </div>
+          )}
+
+          {/* UGC View */}
+          {activeTab === "ugc" && <UgcTab />}
+
+        </div>
 
         {/* Create Modal */}
         {showCreateModal &&
           createPortal(
-            <div
-              className="modal-overlay modal-overlay--light"
-              onClick={(e) => {
-                if (e.target === e.currentTarget) {
-                  setShowCreateModal(false);
-                }
-              }}
-            >
-              <div className="modal-container modal-container--create">
-                <div className="modal-header">
-                  <h2 className="modal-title">Generoi uusi julkaisu</h2>
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="modal-close-btn"
-                  >
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <div
+                className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300"
+                onClick={() => setShowCreateModal(false)}
+              />
+              <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl shadow-blue-500/10 border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="px-6 py-6 border-b border-gray-50 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">Generoi uusi julkaisu</h2>
+                      <p className="text-xs text-gray-500 font-medium">Luo tekoälyllä uutta sisältöä</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-900 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                   </button>
                 </div>
-                <div className="modal-content">
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const formData = new FormData(e.target);
-                      const title = formData.get("title")?.trim() || "";
-                      // Varmista että count on validi numero
-                      const countValue =
-                        typeof createModalCount === "number"
-                          ? createModalCount
-                          : parseInt(createModalCount, 10);
-                      const count =
-                        countValue && !isNaN(countValue)
-                          ? Math.min(Math.max(countValue, 1), 10)
-                          : 1;
-                      const type = formData.get("type") || "";
 
-                      // Validoi: otsikko vaaditaan vain jos lukumäärä on 1
-                      if (count === 1 && !title) {
-                        toast.warning(t("errors.titleRequired"));
-                        return;
-                      }
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const title = formData.get("title")?.trim() || "";
+                    const countValue = parseInt(createModalCount, 10);
+                    const count = !isNaN(countValue) ? Math.min(Math.max(countValue, 1), 10) : 1;
+                    const type = formData.get("type") || "";
 
-                      // Validoi: tyyppi vaaditaan vain jos lukumäärä on 1
-                      if (count === 1 && !type) {
-                        toast.warning(t("errors.typeRequired"));
-                        return;
-                      }
+                    if (count === 1 && !title) { toast.warning(t("errors.titleRequired")); return; }
+                    if (count === 1 && !type) { toast.warning(t("errors.typeRequired")); return; }
 
-                      handleCreatePost({
-                        title: title,
-                        type: count === 1 ? type : null,
-                        caption: formData.get("caption"),
-                        count: count,
-                      });
-                    }}
-                    noValidate
-                  >
-                    <div className="form-group">
-                      <label className="form-label">
-                        Otsikko{" "}
-                        {createModalCount === 1 && (
-                          <span className="form-required">*</span>
-                        )}
+                    handleCreatePost({
+                      title: title,
+                      type: type,
+                      caption: formData.get("caption"),
+                      count: count,
+                    });
+                  }}
+                  className="p-6 space-y-6"
+                >
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">
+                        Otsikko {createModalCount === 1 && <span className="text-red-500">*</span>}
                       </label>
-                      <input
-                        name="title"
-                        type="text"
-                        className="form-input"
-                        placeholder="Anna julkaisulle otsikko..."
-                      />
-                      {createModalCount > 1 && (
-                        <p className="form-hint">
-                          Otsikko on valinnainen useamman julkaisun luonnissa
-                        </p>
-                      )}
+                      <input name="title" type="text" className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-medium" placeholder="Esim. Kesäkampanja 2024" />
+                      {createModalCount > 1 && <p className="text-[10px] text-gray-400 px-1 italic">Otsikko on valinnainen useamman julkaisun luonnissa</p>}
                     </div>
-                    {createModalCount === 1 && (
-                      <div className="form-group">
-                        <label className="form-label">
-                          Tyyppi <span className="form-required">*</span>
-                        </label>
-                        <select
-                          name="type"
-                          className="form-select"
-                          defaultValue="Photo"
-                        >
-                          <option value="Photo">Photo</option>
-                          <option value="Carousel">Carousel</option>
-                          <option value="Reels">Reels</option>
-                          <option value="LinkedIn">LinkedIn</option>
-                        </select>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">Tyyppi {createModalCount === 1 ? <span className="text-red-500">*</span> : ''}</label>
+                          <select name="type" className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all text-sm font-medium appearance-none cursor-pointer" defaultValue="Photo">
+                            <option value="All">Kaikki</option>
+                            <option value="Photo">Photo</option>
+                            <option value="Carousel">Carousel</option>
+                            <option value="Reels">Reels</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                          </select>
+                        </div>
+                      <div className={`space-y-2 ${createModalCount === 1 ? "" : "col-span-2"}`}>
+                        <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">Lukumäärä</label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            name="count"
+                            type="number"
+                            min="1"
+                            max="10"
+                            value={createModalCount}
+                            onChange={(e) => {
+                              const v = e.target.value;
+                              if (v === "") { setCreateModalCount(""); return; }
+                              const n = parseInt(v, 10);
+                              if (!isNaN(n)) setCreateModalCount(Math.min(Math.max(n, 1), 10));
+                            }}
+                            onBlur={(e) => { if (e.target.value === "" || isNaN(parseInt(e.target.value, 10))) setCreateModalCount(1); }}
+                            className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all text-sm font-bold"
+                          />
+                        </div>
                       </div>
-                    )}
-                    <div className="form-group">
-                      <label className="form-label">Lukumäärä</label>
-                      <input
-                        name="count"
-                        type="number"
-                        min="1"
-                        max="10"
-                        value={createModalCount}
-                        onChange={(e) => {
-                          const inputValue = e.target.value;
-                          // Salli tyhjä arvo kirjoittamisen aikana
-                          if (inputValue === "") {
-                            setCreateModalCount("");
-                            return;
-                          }
-                          const newValue = parseInt(inputValue, 10);
-                          // Jos arvo on validi numero, rajoita se 1-10 välille
-                          if (!isNaN(newValue)) {
-                            const clampedValue = Math.min(
-                              Math.max(newValue, 1),
-                              10,
-                            );
-                            setCreateModalCount(clampedValue);
-                          }
-                        }}
-                        onBlur={(e) => {
-                          // Kun käyttäjä poistuu kentästä, varmista että arvo on validi
-                          const inputValue = e.target.value;
-                          if (
-                            inputValue === "" ||
-                            isNaN(parseInt(inputValue, 10))
-                          ) {
-                            setCreateModalCount(1);
-                          }
-                        }}
-                        required
-                        className="form-input form-input-full"
-                        placeholder="Kuinka monta postausta generoidaan?"
-                      />
-                      <p className="form-hint">
-                        Valitse kuinka monta postausta haluat generoida (1-10)
-                      </p>
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">Kuvaus (valinnainen)</label>
+
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">Kuvaus (valinnainen)</label>
                       <textarea
                         name="caption"
                         rows={4}
-                        className="form-textarea"
+                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all text-sm font-medium resize-none"
                         placeholder={t("placeholders.addDescription")}
                       />
                     </div>
-                    <div className="modal-actions">
-                      <div className="modal-actions-left">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => setShowCreateModal(false)}
-                        >
-                          {t("posts.buttons.cancel")}
-                        </Button>
-                      </div>
-                      <div className="modal-actions-right">
-                        <Button type="submit" variant="primary">
-                          {t("posts.buttons.generate")}
-                        </Button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <button type="button" onClick={() => setShowCreateModal(false)} className="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
+                      Peruuta
+                    </button>
+                    <button type="submit" className="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]">
+                      Generoi julkaisut
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>,
             document.body,
@@ -2117,239 +2083,107 @@ export default function ManagePostsPage() {
         {/* Upload Modal */}
         {showUploadModal &&
           createPortal(
-            <div
-              className="modal-overlay modal-overlay--light"
-              onClick={(e) => {
-                if (e.target === e.currentTarget) {
-                  setShowUploadModal(false);
-                }
-              }}
-            >
-              <div className="modal-container modal-container--create">
-                <div className="modal-header">
-                  <h2 className="modal-title">
-                    {t("posts.importModal.title")}
-                  </h2>
-                  <button
-                    onClick={() => setShowUploadModal(false)}
-                    className="modal-close-btn"
-                  >
-                    <svg
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <div
+                className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300"
+                onClick={() => setShowUploadModal(false)}
+              />
+              <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl shadow-emerald-500/10 border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="px-6 py-6 border-b border-gray-50 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">{t("posts.importModal.title")}</h2>
+                      <p className="text-xs text-gray-500 font-medium">Tuo omaa mediatiedostoa</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setShowUploadModal(false)} className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-900 transition-colors">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                   </button>
                 </div>
-                <div className="modal-content">
-                  <form
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      const formData = new FormData(e.target);
-                      const file = formData.get("file");
-                      const type = formData.get("type");
-                      const title = formData.get("title");
-                      const caption = formData.get("caption");
 
-                      try {
-                        setUploadLoading(true);
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    try {
+                      setUploadLoading(true);
+                      const { data: sessionData } = await supabase.auth.getSession();
+                      if (!sessionData?.session?.access_token) throw new Error(t("posts.errors.loginRequired"));
 
-                        // Hae session token
-                        const { data: sessionData, error: sessionError } =
-                          await supabase.auth.getSession();
-                        if (
-                          sessionError ||
-                          !sessionData?.session?.access_token
-                        ) {
-                          throw new Error(t("posts.errors.loginRequired"));
-                        }
+                      const response = await axios.post("/api/content/import-post", formData, {
+                        headers: { Authorization: `Bearer ${sessionData.session.access_token}`, "Content-Type": "multipart/form-data" },
+                        timeout: 60000,
+                      });
 
-                        // Valmistele FormData API-kutsuun
-                        const uploadFormData = new FormData();
-                        // Lähetä tiedosto vain jos se on olemassa (media on valinnainen)
-                        if (file) {
-                          console.log("Upload: File details", {
-                            name: file.name,
-                            type: file.type,
-                            size: file.size,
-                          });
-                          // Käytä File-objektin oikeaa nimeä ja type-ominaisuutta
-                          uploadFormData.append("file", file, file.name);
-                          // Lähetä myös MIME-tyyppi erikseen, jotta backend voi käyttää sitä
-                          if (file.type) {
-                            uploadFormData.append("fileType", file.type);
-                            console.log(
-                              "Upload: Added fileType to FormData:",
-                              file.type,
-                            );
-                          } else {
-                            console.warn("Upload: File.type is missing!", file);
-                          }
-                        }
-                        uploadFormData.append("type", type);
-                        if (title) uploadFormData.append("title", title);
-                        if (caption) uploadFormData.append("caption", caption);
-
-                        // Lähetä backend API:in kautta
-                        const response = await axios.post(
-                          "/api/content/import-post",
-                          uploadFormData,
-                          {
-                            headers: {
-                              Authorization: `Bearer ${sessionData.session.access_token}`,
-                              "Content-Type": "multipart/form-data",
-                            },
-                            timeout: 60000, // 60s timeout
-                          },
-                        );
-
-                        if (response.data.success) {
-                          setShowUploadModal(false);
-                          setUploadPreviewUrl(null); // Tyhjennä preview
-                          toast.success(t("posts.errors.importSuccess"));
-                          await fetchPosts(); // Päivitä lista
-                        } else {
-                          throw new Error(
-                            response.data.error ||
-                              t("posts.errors.importFailed"),
-                          );
-                        }
-                      } catch (error) {
-                        console.error("Upload error:", error);
-                        console.error("Error response:", error.response?.data);
-                        const errorMessage =
-                          error.response?.data?.error ||
-                          error.response?.data?.details ||
-                          error.message ||
-                          t("posts.errors.importFailed");
-                        toast.error(errorMessage);
-                        setErrorMessage(errorMessage);
-                      } finally {
-                        setUploadLoading(false);
-                      }
-                    }}
-                  >
-                    <div className="form-group">
-                      <label className="form-label">
-                        {t("posts.importModal.fields.type")}
-                      </label>
-                      <select name="type" required className="form-select">
-                        <option value="Photo">
-                          {t("posts.typeOptions.photo")}
-                        </option>
-                        <option value="Reels">
-                          {t("posts.typeOptions.reels")}
-                        </option>
-                        <option value="LinkedIn">
-                          {t("posts.typeOptions.linkedin")}
-                        </option>
+                      if (response.data.success) {
+                        setShowUploadModal(false);
+                        setUploadPreviewUrl(null);
+                        toast.success(t("posts.errors.importSuccess"));
+                        await fetchPosts();
+                      } else throw new Error(response.data.error || t("posts.errors.importFailed"));
+                    } catch (error) {
+                      toast.error(error.response?.data?.error || error.message);
+                      setErrorMessage(error.message);
+                    } finally { setUploadLoading(false); }
+                  }}
+                  className="p-6 space-y-6"
+                >
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t("posts.importModal.fields.type")}</label>
+                      <select name="type" required className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 outline-none transition-all text-sm font-medium appearance-none cursor-pointer">
+                        <option value="Photo">{t("posts.typeOptions.photo")}</option>
+                        <option value="Reels">{t("posts.typeOptions.reels")}</option>
+                        <option value="LinkedIn">{t("posts.typeOptions.linkedin")}</option>
                       </select>
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">
-                        {t("posts.importModal.fields.media")}
-                      </label>
+
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t("posts.importModal.fields.media")}</label>
                       <div
-                        className={`upload-dropzone ${uploadDragActive ? "drag-active" : ""}`}
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setUploadDragActive(true);
-                        }}
-                        onDragLeave={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setUploadDragActive(false);
-                        }}
+                        className={`relative aspect-video rounded-2xl border-2 border-dashed transition-all cursor-pointer overflow-hidden flex flex-col items-center justify-center p-4 ${uploadDragActive ? "border-emerald-500 bg-emerald-50/50" : "border-gray-200 hover:border-gray-300 bg-gray-50/30"
+                          }`}
+                        onDragOver={(e) => { e.preventDefault(); setUploadDragActive(true); }}
+                        onDragLeave={() => setUploadDragActive(false)}
                         onDrop={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setUploadDragActive(false);
-
-                          const files = e.dataTransfer.files;
-                          if (files && files[0]) {
-                            const file = files[0];
+                          e.preventDefault(); setUploadDragActive(false);
+                          const file = e.dataTransfer.files?.[0];
+                          if (file) {
                             if (fileInputRef.current) {
-                              const dataTransfer = new DataTransfer();
-                              dataTransfer.items.add(file);
-                              fileInputRef.current.files = dataTransfer.files;
+                              const dt = new DataTransfer(); dt.items.add(file); fileInputRef.current.files = dt.files;
                             }
-
-                            // Preview
                             if (file.type.startsWith("image/")) {
-                              const reader = new FileReader();
-                              reader.onload = (e) =>
-                                setUploadPreviewUrl(e.target.result);
-                              reader.readAsDataURL(file);
-                            } else if (file.type.startsWith("video/")) {
-                              setUploadPreviewUrl(URL.createObjectURL(file));
-                            }
+                              const r = new FileReader(); r.onload = (e) => setUploadPreviewUrl(e.target.result); r.readAsDataURL(file);
+                            } else if (file.type.startsWith("video/")) setUploadPreviewUrl(URL.createObjectURL(file));
                           }
                         }}
                         onClick={() => fileInputRef.current?.click()}
                       >
                         {uploadPreviewUrl ? (
-                          <div className="upload-preview">
-                            {uploadPreviewUrl.startsWith("blob:") ? (
-                              <video
-                                src={uploadPreviewUrl}
-                                className="upload-preview-video"
-                                controls
-                              />
-                            ) : (
-                              <img
-                                src={uploadPreviewUrl}
-                                alt="Preview"
-                                className="upload-preview-image"
-                              />
-                            )}
+                          <div className="absolute inset-0 group">
+                            {uploadPreviewUrl.startsWith("blob:")
+                              ? <video src={uploadPreviewUrl} className="w-full h-full object-cover" controls />
+                              : <img src={uploadPreviewUrl} alt="Preview" className="w-full h-full object-cover" />
+                            }
                             <button
                               type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setUploadPreviewUrl(null);
-                                if (fileInputRef.current) {
-                                  fileInputRef.current.value = "";
-                                }
-                              }}
-                              className="upload-remove-btn"
+                              onClick={(e) => { e.stopPropagation(); setUploadPreviewUrl(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}
+                              className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center backdrop-blur-sm transition-colors"
                             >
                               ✕
                             </button>
                           </div>
                         ) : (
-                          <>
-                            <svg
-                              width="48"
-                              height="48"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              className="upload-icon"
-                            >
-                              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                              <polyline points="17 8 12 3 7 8"></polyline>
-                              <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            <p className="upload-title">
-                              {t("posts.upload.dropzone")}
-                            </p>
-                            <p className="upload-subtitle">
-                              {t("posts.upload.clickToSelect")}
-                            </p>
-                            <p className="upload-hint">
-                              {t("posts.upload.hint")}
-                            </p>
-                          </>
+                          <div className="text-center">
+                            <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center mx-auto mb-3">
+                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                            </div>
+                            <p className="text-xs font-bold text-gray-900 mb-1">{t("posts.upload.dropzone")}</p>
+                            <p className="text-[10px] text-gray-400">{t("posts.upload.hint")}</p>
+                          </div>
                         )}
                       </div>
                       <input
@@ -2357,68 +2191,43 @@ export default function ManagePostsPage() {
                         name="file"
                         type="file"
                         accept="image/*,video/*"
-                        className="file-input-hidden"
+                        className="hidden"
                         onChange={(e) => {
-                          const file = e.target.files[0];
+                          const file = e.target.files?.[0];
                           if (file) {
                             if (file.type.startsWith("image/")) {
-                              const reader = new FileReader();
-                              reader.onload = (e) =>
-                                setUploadPreviewUrl(e.target.result);
-                              reader.readAsDataURL(file);
-                            } else if (file.type.startsWith("video/")) {
-                              setUploadPreviewUrl(URL.createObjectURL(file));
-                            }
+                              const reader = new FileReader(); reader.onload = (ev) => setUploadPreviewUrl(ev.target.result); reader.readAsDataURL(file);
+                            } else if (file.type.startsWith("video/")) setUploadPreviewUrl(URL.createObjectURL(file));
                           }
                         }}
                       />
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">
-                        {t("posts.importModal.fields.title")}
-                      </label>
-                      <input
-                        name="title"
-                        type="text"
-                        className="form-input"
-                        placeholder={t("posts.importModal.placeholders.title")}
-                      />
+
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t("posts.importModal.fields.title")}</label>
+                      <input name="title" type="text" className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 text-sm font-medium outline-none transition-all" placeholder={t("posts.importModal.placeholders.title")} />
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">
-                        {t("posts.importModal.fields.caption")}
-                      </label>
-                      <textarea
-                        name="caption"
-                        rows={4}
-                        className="form-textarea"
-                        placeholder={t("placeholders.writeContent")}
-                      />
+
+                    <div className="space-y-2">
+                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t("posts.importModal.fields.caption")}</label>
+                      <textarea name="caption" rows={4} className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-emerald-500 text-sm font-medium outline-none transition-all resize-none" placeholder={t("placeholders.writeContent")} />
                     </div>
-                    <div className="modal-actions">
-                      <div className="modal-actions-left">
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => setShowUploadModal(false)}
-                        >
-                          {t("posts.buttons.cancel")}
-                        </Button>
-                      </div>
-                      <div className="modal-actions-right">
-                        <Button
-                          type="submit"
-                          variant="primary"
-                          disabled={uploadLoading}
-                        >
-                          {uploadLoading
-                            ? t("posts.buttons.importing")
-                            : t("posts.buttons.import")}
-                        </Button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <button type="button" onClick={() => setShowUploadModal(false)} className="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors">
+                      Peruuta
+                    </button>
+                    <button type="submit" disabled={uploadLoading} className="flex-[2] py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl font-bold text-sm shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                      {uploadLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          Tuodaan...
+                        </>
+                      ) : t("posts.buttons.import")}
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>,
             document.body,
@@ -2626,14 +2435,7 @@ export default function ManagePostsPage() {
                       </div>
                     )}
                   {/* Debug: Näytä status */}
-                  <div
-                    className="status-info"
-                    style={{
-                      fontSize: "12px",
-                      color: "#6b7280",
-                      marginBottom: "8px",
-                    }}
-                  >
+                  <div className="status-info text-xs text-gray-500 mb-2">
                     Status: {editingPost.status} | Source: {editingPost.source}{" "}
                     | Type: {editingPost.type} | Segments:{" "}
                     {editingPost.segments?.length || 0}
@@ -2758,7 +2560,7 @@ export default function ManagePostsPage() {
                                               editingPost.currentSlide || 0;
                                             const newSlide =
                                               currentSlide <
-                                              slidesWithMedia.length - 1
+                                                slidesWithMedia.length - 1
                                                 ? currentSlide + 1
                                                 : 0;
                                             setEditingPost((prev) => ({
@@ -2944,10 +2746,7 @@ export default function ManagePostsPage() {
                                             }
                                           }}
                                         />
-                                        <div
-                                          className="video-fallback"
-                                          style={{ display: "none" }}
-                                        >
+                                        <div className="video-fallback hidden">
                                           <div className="placeholder-icon">
                                             🖼️
                                           </div>
@@ -3027,22 +2826,18 @@ export default function ManagePostsPage() {
                                             </label>
                                             {userAccountType ===
                                               "personal_brand" && (
-                                              <button
-                                                type="button"
-                                                className="upload-button"
-                                                onClick={() =>
-                                                  setShowKuvapankkiSelector(
-                                                    true,
-                                                  )
-                                                }
-                                                style={{
-                                                  marginTop: "8px",
-                                                  background: "#8b5cf6",
-                                                }}
-                                              >
-                                                Valitse kuvapankista
-                                              </button>
-                                            )}
+                                                <button
+                                                  type="button"
+                                                  className="upload-button mt-2 bg-violet-500"
+                                                  onClick={() =>
+                                                    setShowKuvapankkiSelector(
+                                                      true,
+                                                    )
+                                                  }
+                                                >
+                                                  Valitse kuvapankista
+                                                </button>
+                                              )}
                                           </div>
                                         </div>
                                       </div>
@@ -3116,15 +2911,10 @@ export default function ManagePostsPage() {
                                       {userAccountType === "personal_brand" && (
                                         <button
                                           type="button"
-                                          className="upload-button"
+                                          className="upload-button mt-3 bg-violet-500 w-full"
                                           onClick={() =>
                                             setShowKuvapankkiSelector(true)
                                           }
-                                          style={{
-                                            marginTop: "12px",
-                                            background: "#8b5cf6",
-                                            width: "100%",
-                                          }}
                                         >
                                           {t("posts.buttons.addFromImageBank")}
                                         </button>
@@ -3276,54 +3066,54 @@ export default function ManagePostsPage() {
                             {(editingPost.status === "Tarkistuksessa" ||
                               editingPost.status === "Under Review" ||
                               editingPost.originalData?.status ===
-                                "Under Review") && (
-                              <>
-                                <div className="form-group">
-                                  <label className="form-label">
-                                    Kuvaus
-                                    <span
-                                      ref={charCountRef}
-                                      className="char-count char-count-inline"
-                                    ></span>
-                                  </label>
-                                  <textarea
-                                    ref={textareaRef}
-                                    name="caption"
-                                    rows={6}
-                                    className="form-textarea form-input-disabled"
-                                    defaultValue={editingPost.caption || ""}
-                                    placeholder="Kuvaus (vain luku)"
-                                    readOnly
-                                  />
-                                </div>
-
-                                {/* Voiceover näkyy vain jos kyseessä on Reels tai Avatar */}
-                                {(editingPost.source === "reels" ||
-                                  editingPost.type === "Reels" ||
-                                  editingPost.type === "Avatar") && (
+                              "Under Review") && (
+                                <>
                                   <div className="form-group">
                                     <label className="form-label">
-                                      Voiceover (vain luku)
+                                      Kuvaus
+                                      <span
+                                        ref={charCountRef}
+                                        className="char-count char-count-inline"
+                                      ></span>
                                     </label>
                                     <textarea
-                                      name="voiceover"
-                                      rows={4}
+                                      ref={textareaRef}
+                                      name="caption"
+                                      rows={6}
                                       className="form-textarea form-input-disabled"
-                                      defaultValue={editingPost.voiceover || ""}
-                                      placeholder="Voiceover-teksti..."
+                                      defaultValue={editingPost.caption || ""}
+                                      placeholder="Kuvaus (vain luku)"
                                       readOnly
                                     />
                                   </div>
-                                )}
-                              </>
-                            )}
+
+                                  {/* Voiceover näkyy vain jos kyseessä on Reels tai Avatar */}
+                                  {(editingPost.source === "reels" ||
+                                    editingPost.type === "Reels" ||
+                                    editingPost.type === "Avatar") && (
+                                      <div className="form-group">
+                                        <label className="form-label">
+                                          Voiceover (vain luku)
+                                        </label>
+                                        <textarea
+                                          name="voiceover"
+                                          rows={4}
+                                          className="form-textarea form-input-disabled"
+                                          defaultValue={editingPost.voiceover || ""}
+                                          placeholder="Voiceover-teksti..."
+                                          readOnly
+                                        />
+                                      </div>
+                                    )}
+                                </>
+                              )}
 
                             {/* Muissa sarakkeissa: Perusmuokkaus */}
                             {editingPost.status !== "Kesken" &&
                               editingPost.status !== "Tarkistuksessa" &&
                               editingPost.status !== "Under Review" &&
                               editingPost.originalData?.status !==
-                                "Under Review" && (
+                              "Under Review" && (
                                 <div className="form-group">
                                   <label className="form-label">Kuvaus</label>
                                   <textarea
@@ -3360,9 +3150,9 @@ export default function ManagePostsPage() {
                                     style={
                                       editingPost.status === "Tarkistuksessa"
                                         ? {
-                                            backgroundColor: "#f8f9fa",
-                                            color: "#6c757d",
-                                          }
+                                          backgroundColor: "#f8f9fa",
+                                          color: "#6c757d",
+                                        }
                                         : undefined
                                     }
                                   />
@@ -3389,13 +3179,7 @@ export default function ManagePostsPage() {
                               }
 
                               return shouldShow ? (
-                                <div
-                                  style={{
-                                    marginTop: "24px",
-                                    borderTop: "2px solid #e5e7eb",
-                                    paddingTop: "24px",
-                                  }}
-                                >
+                                <div className="mt-6 border-t-2 border-gray-200 pt-6">
                                   <CarouselSegmentsEditor
                                     segments={editingPost.segments}
                                     contentId={editingPost.id}
@@ -3465,9 +3249,9 @@ export default function ManagePostsPage() {
                                   }
                                 >
                                   {editingPost.status === "Kesken" &&
-                                  (editingPost.source === "reels" ||
-                                    editingPost.type === "Avatar") &&
-                                  editModalStep === 1
+                                    (editingPost.source === "reels" ||
+                                      editingPost.type === "Avatar") &&
+                                    editModalStep === 1
                                     ? t("posts.messages.next")
                                     : t("posts.buttons.saveChanges")}
                                 </Button>
@@ -3475,49 +3259,49 @@ export default function ManagePostsPage() {
                               {/* Julkaisu-nappi vain jos status on "Valmiina julkaisuun" (Tarkistuksessa) tai "Aikataulutettu" */}
                               {(editingPost.status === "Tarkistuksessa" ||
                                 editingPost.status === "Aikataulutettu") && (
-                                <Button
-                                  type="button"
-                                  variant="primary"
-                                  onClick={() => {
-                                    // Päivitä editingPost modaalissa muokatuilla tiedoilla
-                                    if (!editFormRef.current) return;
-                                    const formData = new FormData(
-                                      editFormRef.current,
-                                    );
+                                  <Button
+                                    type="button"
+                                    variant="primary"
+                                    onClick={() => {
+                                      // Päivitä editingPost modaalissa muokatuilla tiedoilla
+                                      if (!editFormRef.current) return;
+                                      const formData = new FormData(
+                                        editFormRef.current,
+                                      );
 
-                                    let updatedPost = { ...editingPost };
+                                      let updatedPost = { ...editingPost };
 
-                                    // Päivitä caption jos se on muokattu
-                                    if (formData.get("caption")) {
-                                      updatedPost.caption =
-                                        formData.get("caption");
-                                    }
+                                      // Päivitä caption jos se on muokattu
+                                      if (formData.get("caption")) {
+                                        updatedPost.caption =
+                                          formData.get("caption");
+                                      }
 
-                                    // Päivitä scheduledDate jos publishDate on muokattu
-                                    const publishDate =
-                                      formData.get("publishDate");
-                                    if (
-                                      publishDate &&
-                                      publishDate.trim() !== ""
-                                    ) {
-                                      const dateTime = new Date(publishDate);
-                                      updatedPost.scheduledDate = dateTime
-                                        .toISOString()
-                                        .split("T")[0];
-                                      // Lisää myös alkuperäinen publishDate ajan käsittelyä varten
-                                      updatedPost.publishDate = publishDate;
-                                    }
+                                      // Päivitä scheduledDate jos publishDate on muokattu
+                                      const publishDate =
+                                        formData.get("publishDate");
+                                      if (
+                                        publishDate &&
+                                        publishDate.trim() !== ""
+                                      ) {
+                                        const dateTime = new Date(publishDate);
+                                        updatedPost.scheduledDate = dateTime
+                                          .toISOString()
+                                          .split("T")[0];
+                                        // Lisää myös alkuperäinen publishDate ajan käsittelyä varten
+                                        updatedPost.publishDate = publishDate;
+                                      }
 
-                                    // Sulje modaali ja avaa julkaisu-modaali
-                                    setShowEditModal(false);
-                                    setEditingPost(null);
-                                    handlePublishPost(updatedPost);
-                                  }}
-                                  className="button-success-inline"
-                                >
-                                  {t("posts.buttons.publish")}
-                                </Button>
-                              )}
+                                      // Sulje modaali ja avaa julkaisu-modaali
+                                      setShowEditModal(false);
+                                      setEditingPost(null);
+                                      handlePublishPost(updatedPost);
+                                    }}
+                                    className="button-success-inline"
+                                  >
+                                    {t("posts.buttons.publish")}
+                                  </Button>
+                                )}
                             </div>
                           </div>
                         </div>
@@ -3759,6 +3543,12 @@ export default function ManagePostsPage() {
           </div>
         )}
 
+        {/* Image Bank Modal */}
+        <ImageBankModal
+          show={showImageBankModal}
+          onClose={() => setShowImageBankModal(false)}
+        />
+
         {/* Kuvapankki Selector Modal */}
         {showKuvapankkiSelector &&
           editingPost &&
@@ -3771,14 +3561,7 @@ export default function ManagePostsPage() {
                 }
               }}
             >
-              <div
-                className="modal-container"
-                style={{
-                  maxWidth: "800px",
-                  maxHeight: "90vh",
-                  overflow: "auto",
-                }}
-              >
+              <div className="modal-container max-w-[800px] max-h-[90vh] overflow-auto">
                 <KuvapankkiSelector
                   onSelectImage={(imageUrl) =>
                     handleAddImageFromKuvapankki(imageUrl, editingPost.id)

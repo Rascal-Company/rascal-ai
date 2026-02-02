@@ -49,43 +49,33 @@ export default function CarouselTemplateSelector() {
   };
 
     return (
-    <div style={{ maxWidth: 900, margin: '0 auto', padding: 24 }}>
-      <h2 style={{ marginBottom: 24 }}>Valitse karusellin ulkoasu</h2>
-      <div style={{ display: 'flex', gap: 32, marginBottom: 32, justifyContent: 'center', flexWrap: 'wrap' }}>
+    <div className="max-w-[900px] mx-auto p-6">
+      <h2 className="mb-6">Valitse karusellin ulkoasu</h2>
+      <div className="flex gap-8 mb-8 justify-center flex-wrap">
         {templates.map((tpl) => (
           <div
             key={tpl.id}
             onClick={() => handleSelect(tpl.id)}
-            style={{
-              border: selected === tpl.id ? '3px solid #3b82f6' : '1px solid #e5e7eb',
-              borderRadius: 16,
-              padding: 16,
-              cursor: 'pointer',
-              background: selected === tpl.id ? '#eff6ff' : '#fff',
-              transition: 'all 0.2s',
-              textAlign: 'center',
-              width: 270,
-              boxSizing: 'border-box',
-              boxShadow: selected === tpl.id ? '0 4px 24px rgba(59,130,246,0.10)' : '0 2px 8px rgba(0,0,0,0.07)',
-              marginBottom: 16
-            }}
+            className={`rounded-2xl p-4 cursor-pointer transition-all duration-200 text-center w-[270px] box-border mb-4 ${
+              selected === tpl.id
+                ? 'border-[3px] border-blue-500 bg-blue-50 shadow-[0_4px_24px_rgba(59,130,246,0.10)]'
+                : 'border border-gray-200 bg-white shadow-[0_2px_8px_rgba(0,0,0,0.07)]'
+            }`}
           >
-            <img src={tpl.image} alt={tpl.name} style={{ width: 270, height: 338, objectFit: 'cover', borderRadius: 12, marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }} />
-            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 4 }}>{tpl.name}</div>
+            <img src={tpl.image} alt={tpl.name} className="w-[270px] h-[338px] object-cover rounded-xl mb-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)]" />
+            <div className="font-semibold text-lg mb-1">{tpl.name}</div>
           </div>
         ))}
       </div>
       <Button
         onClick={handleSubmit}
         disabled={loading}
-        style={{
-          marginBottom: 16
-        }}
+        className="mb-4"
       >
         {loading ? 'Lähetetään...' : 'Valitse'}
       </Button>
-      {success && <div style={{ color: 'green', marginTop: 8 }}>Valinta lähetetty!</div>}
-      {error && <div style={{ color: 'red', marginTop: 8 }}>{error}</div>}
+      {success && <div className="text-green-600 mt-2">Valinta lähetetty!</div>}
+      {error && <div className="text-red-600 mt-2">{error}</div>}
     </div>
   );
 } 

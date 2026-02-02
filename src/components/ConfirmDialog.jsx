@@ -25,7 +25,7 @@ const ConfirmDialog = ({
         }
       }}
     >
-      <div className="modal-container" style={{ maxWidth: '400px' }}>
+      <div className="modal-container max-w-[400px]">
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
           {!loading && (
@@ -39,7 +39,7 @@ const ConfirmDialog = ({
           )}
         </div>
         <div className="modal-content">
-          <p style={{ marginBottom: 0 }}>{message}</p>
+          <p className="mb-0">{message}</p>
         </div>
         <div className="modal-actions">
           <div className="modal-actions-left">

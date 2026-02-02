@@ -29,26 +29,26 @@ export default function ForgotPassword({ onClose }) {
     }
   }
 
+  const isError = message.toLowerCase().includes('virhe') || message.toLowerCase().includes('error')
+
   return (
-    <div style={{ background: '#23262B', color: '#fff', borderRadius: 16, boxShadow: '0 8px 32px rgba(0,0,0,0.25)', padding: 32, position: 'relative', maxWidth: 400, width: '100%' }}>
+    <div className="bg-[#23262B] text-white rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.25)] p-8 relative max-w-[400px] w-full">
       {onClose && (
         <button
           onClick={onClose}
-          style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', fontSize: 28, color: '#cbd5e1', cursor: 'pointer', transition: 'color 0.2s' }}
+          className="absolute top-4 right-4 bg-transparent border-none text-[28px] text-slate-300 cursor-pointer transition-colors duration-200 hover:text-green-400"
           aria-label={t('auth.close')}
-          onMouseOver={e => e.currentTarget.style.color = '#4ADE80'}
-          onMouseOut={e => e.currentTarget.style.color = '#cbd5e1'}
         >
           ×
         </button>
       )}
-      <h2 style={{ fontSize: 26, fontWeight: 700, marginBottom: 18, textAlign: 'center', color: '#fff' }}>{t('auth.sendReset')}</h2>
-      <p style={{ color: '#cbd5e1', textAlign: 'center', marginBottom: 18, fontSize: 15 }}>
+      <h2 className="text-[26px] font-bold mb-[18px] text-center text-white">{t('auth.sendReset')}</h2>
+      <p className="text-slate-300 text-center mb-[18px] text-[15px]">
         {t('auth.resetDesc') || 'Syötä sähköpostiosoitteesi, niin lähetämme sinulle linkin salasanan palautusta varten.'}
       </p>
-      <form onSubmit={handleResetPassword} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <form onSubmit={handleResetPassword} className="flex flex-col gap-[18px]">
         <div>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: 6, fontWeight: 500, color: '#cbd5e1' }}>
+          <label htmlFor="email" className="block mb-1.5 font-medium text-slate-300">
             {t('auth.email')}
           </label>
           <input
@@ -57,17 +57,7 @@ export default function ForgotPassword({ onClose }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              border: '1px solid #374151',
-              borderRadius: 8,
-              background: '#181B20',
-              color: '#fff',
-              fontSize: 15,
-              outline: 'none',
-              marginBottom: 2
-            }}
+            className="w-full py-3 px-3.5 border border-gray-700 rounded-lg bg-[#181B20] text-white text-[15px] outline-none mb-0.5"
             placeholder={t('auth.emailPlaceholder')}
             autoComplete="email"
           />
@@ -75,40 +65,26 @@ export default function ForgotPassword({ onClose }) {
         <button
           type="submit"
           disabled={loading}
-          style={{
-            width: '100%',
-            padding: '12px 0',
-            border: 'none',
-            borderRadius: 8,
-            background: loading ? '#fbbf24cc' : '#fbbf24',
-            color: '#181B20',
-            fontWeight: 700,
-            fontSize: 16,
-            cursor: loading ? 'not-allowed' : 'pointer',
-            transition: 'background 0.2s',
-            marginTop: 4
-          }}
+          className={`w-full py-3 border-none rounded-lg bg-amber-400 text-[#181B20] font-bold text-base transition-colors duration-200 mt-1 ${
+            loading ? 'opacity-80 cursor-not-allowed' : 'cursor-pointer hover:bg-amber-300'
+          }`}
         >
           {loading ? t('auth.sendingReset') : t('auth.sendReset')}
         </button>
         {message && (
-          <div style={{
-            padding: 10,
-            background: message.toLowerCase().includes('virhe') || message.toLowerCase().includes('error') ? '#3b1d1d' : '#1e3a1e',
-            border: message.toLowerCase().includes('virhe') || message.toLowerCase().includes('error') ? '1px solid #dc2626' : '1px solid #22c55e',
-            borderRadius: 8,
-            color: message.toLowerCase().includes('virhe') || message.toLowerCase().includes('error') ? '#f87171' : '#22c55e',
-            fontSize: 14,
-            marginTop: 2
-          }}>
+          <div className={`p-2.5 rounded-lg text-sm mt-0.5 ${
+            isError
+              ? 'bg-[#3b1d1d] border border-red-600 text-red-400'
+              : 'bg-[#1e3a1e] border border-green-500 text-green-500'
+          }`}>
             {message}
           </div>
         )}
       </form>
-      <div style={{ marginTop: 18, textAlign: 'center' }}>
-        <p style={{ fontSize: 15, color: '#cbd5e1' }}>
+      <div className="mt-[18px] text-center">
+        <p className="text-[15px] text-slate-300">
           {t('auth.rememberPassword')}{' '}
-          <a href="#" style={{ color: '#4ADE80', textDecoration: 'underline' }} onClick={onClose}>
+          <a href="#" className="text-green-400 underline" onClick={onClose}>
             {t('auth.login')}
           </a>
         </p>

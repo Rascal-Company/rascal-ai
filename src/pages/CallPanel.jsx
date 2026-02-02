@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { getCurrentUser } from "../utils/userApi";
 import CallDetailModal from "../components/calls/CallDetailModal";
 import { supabase } from "../lib/supabase";
 import AddCallTypeModal from "../components/AddCallTypeModal";
@@ -247,8 +246,16 @@ export default function CallPanel() {
     const fetchUserVoiceId = async () => {
       if (!user?.id) return;
       try {
-        // Hae käyttäjätiedot API:n kautta
-        const data = await getCurrentUser();
+        const orgId = await getUserOrgId(user.id);
+        if (!orgId) return;
+
+        const { data, error } = await supabase
+          .from("users")
+          .select("voice_id")
+          .eq("id", orgId)
+          .single();
+
+        if (error) throw error;
 
         if (data?.voice_id) {
           setUserVoiceId(data.voice_id);
@@ -764,10 +771,20 @@ export default function CallPanel() {
       );
       const inboundVoiceId = inboundVoiceObj?.id;
 
-      // Hae käyttäjän tiedot API:n kautta
-      const userProfile = await getCurrentUser();
+      // Hae käyttäjän tiedot Supabasesta
+      const orgId = await getUserOrgId(user.id);
+      if (!orgId) {
+        setError("Käyttäjää ei löytynyt");
+        return;
+      }
 
-      if (!userProfile) {
+      const { data: userProfile, error: userError } = await supabase
+        .from("users")
+        .select("contact_email, contact_person, company_name, vapi_inbound_assistant_id")
+        .eq("id", orgId)
+        .single();
+
+      if (userError || !userProfile) {
         setError("Käyttäjää ei löytynyt");
         return;
       }
@@ -824,10 +841,20 @@ export default function CallPanel() {
       );
       const inboundVoiceId = inboundVoiceObj?.id;
 
-      // Hae käyttäjän tiedot API:n kautta
-      const userProfile = await getCurrentUser();
+      // Hae käyttäjän tiedot Supabasesta
+      const orgId = await getUserOrgId(user.id);
+      if (!orgId) {
+        setError("Käyttäjää ei löytynyt");
+        return;
+      }
 
-      if (!userProfile) {
+      const { data: userProfile, error: userError } = await supabase
+        .from("users")
+        .select("contact_email, contact_person, company_name, vapi_inbound_assistant_id")
+        .eq("id", orgId)
+        .single();
+
+      if (userError || !userProfile) {
         setError("Käyttäjää ei löytynyt");
         return;
       }

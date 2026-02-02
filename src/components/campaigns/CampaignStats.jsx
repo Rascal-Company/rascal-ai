@@ -34,13 +34,13 @@ export default function CampaignStats({ campaignId }) {
   }, [campaignId])
 
   if (loading) {
-    return <div style={{ height: 256, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{t('campaigns.details.loading')}</div>
+    return <div className="h-64 flex items-center justify-center">{t('campaigns.details.loading')}</div>
   }
 
   return (
-    <div style={{ display: 'grid', gap: 24 }}>
-      <div style={{ height: 256 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>{t('campaigns.charts.dailyCalls')}</h3>
+    <div className="grid gap-6">
+      <div className="h-64">
+        <h3 className="text-base font-semibold mb-3">{t('campaigns.charts.dailyCalls')}</h3>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -52,8 +52,8 @@ export default function CampaignStats({ campaignId }) {
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <div style={{ height: 256 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>{t('campaigns.charts.dailyAnswerRate')}</h3>
+      <div className="h-64">
+        <h3 className="text-base font-semibold mb-3">{t('campaigns.charts.dailyAnswerRate')}</h3>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data}>
             <CartesianGrid strokeDasharray="3 3" />

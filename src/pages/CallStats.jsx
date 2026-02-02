@@ -9,58 +9,24 @@ const STATUS_COLORS = {
 function StatusBadge({ tila }) {
   const color = STATUS_COLORS[tila] || '#a0aec0'
   return (
-    <span style={{
-      display: 'inline-block',
-      minWidth: 12,
-      height: 12,
-      borderRadius: 8,
-      background: color,
-      marginRight: 8,
-      verticalAlign: 'middle',
-      boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
-    }} />
+    <span
+      className="inline-block min-w-[12px] h-3 rounded-lg mr-2 align-middle shadow-[0_1px_4px_rgba(0,0,0,0.08)]"
+      style={{ background: color }}
+    />
   )
 }
 
 function InfoIconWithTooltip() {
   const [show, setShow] = useState(false)
   return (
-    <span style={{position: 'relative', display: 'inline-block', marginLeft: 6}}>
+    <span className="relative inline-block ml-1.5">
       <span
-        style={{
-          display: 'inline-block',
-          width: 16,
-          height: 16,
-          borderRadius: '50%',
-          background: '#e1e8ed',
-          color: '#2563eb',
-          fontWeight: 700,
-          fontSize: 13,
-          textAlign: 'center',
-          lineHeight: '16px',
-          cursor: 'pointer',
-          border: '1.5px solid #cfd8dc',
-        }}
+        className="inline-block w-4 h-4 rounded-full bg-gray-200 text-blue-600 font-bold text-[13px] text-center leading-4 cursor-pointer border-[1.5px] border-slate-300"
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
       >i</span>
       {show && (
-        <span style={{
-          position: 'absolute',
-          left: '110%',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          background: '#fff',
-          color: '#222',
-          border: '1.5px solid #e1e8ed',
-          borderRadius: 8,
-          padding: '8px 14px',
-          fontSize: 14,
-          fontWeight: 400,
-          whiteSpace: 'nowrap',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          zIndex: 10,
-        }}>
+        <span className="absolute left-[110%] top-1/2 -translate-y-1/2 bg-white text-gray-800 border-[1.5px] border-gray-200 rounded-lg py-2 px-3.5 text-sm font-normal whitespace-nowrap shadow-[0_2px_8px_rgba(0,0,0,0.08)] z-10">
           Todellinen laskutus tarkistetaan aina kauden lopussa
         </span>
       )}
@@ -85,21 +51,21 @@ export default function CallStats({ status, stats, calls }) {
         
         <div className="call-stat-card">
           <div className="call-stat-title">Soitettu</div>
-          <div className="call-stat-value" style={{ color: '#22c55e' }}>
+          <div className="call-stat-value text-green-500">
             {stats.calledCount}
           </div>
         </div>
-        
+
         <div className="call-stat-card">
           <div className="call-stat-title">Epäonnistui</div>
-          <div className="call-stat-value" style={{ color: '#ef4444' }}>
+          <div className="call-stat-value text-red-500">
             {stats.failedCount}
           </div>
         </div>
-        
+
         <div className="call-stat-card">
           <div className="call-stat-title">Jäljellä</div>
-          <div className="call-stat-value" style={{ color: '#2563eb' }}>
+          <div className="call-stat-value text-blue-600">
             {stats.totalCount - stats.calledCount - stats.failedCount}
           </div>
         </div>
@@ -137,7 +103,7 @@ export default function CallStats({ status, stats, calls }) {
         </div>
       )}
       
-      <div style={{ marginTop: 16, padding: '12px', background: '#f0f9ff', borderRadius: 8, fontSize: 14, color: '#0369a1' }}>
+      <div className="mt-4 p-3 bg-sky-50 rounded-lg text-sm text-sky-700">
         <strong>Huomio:</strong> Soittojen laskutus perustuu onnistuneisiin puheluihin.
         <InfoIconWithTooltip />
       </div>

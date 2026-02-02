@@ -5,7 +5,7 @@ export default function ReportsPage() {
   return (
     <>
       <PageHeader title="Puhelut" />
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 8px' }}>
+      <div className="max-w-[1100px] mx-auto py-8 px-2">
         <p>Tämä on raporttisivu. Lisää raporttien toiminnallisuus myöhemmin.</p>
       </div>
     </>

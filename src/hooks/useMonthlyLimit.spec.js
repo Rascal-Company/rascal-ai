@@ -96,9 +96,6 @@ describe("useMonthlyLimit", () => {
     });
 
     vi.mocked(strategyHelpers.calculateMonthlyLimit).mockReturnValue(100);
-    vi.mocked(strategyHelpers.findStrategyByMonthAndYear).mockResolvedValue(
-      null,
-    );
 
     renderHook(() => useMonthlyLimit());
 
@@ -202,9 +199,6 @@ describe("useMonthlyLimit", () => {
     });
 
     vi.mocked(strategyHelpers.calculateMonthlyLimit).mockReturnValue(30);
-    vi.mocked(strategyHelpers.findStrategyByMonthAndYear).mockResolvedValue(
-      null,
-    );
 
     const { result } = renderHook(() => useMonthlyLimit());
 
@@ -223,9 +217,6 @@ describe("useMonthlyLimit", () => {
     });
 
     vi.mocked(strategyHelpers.calculateMonthlyLimit).mockReturnValue(999999);
-    vi.mocked(strategyHelpers.findStrategyByMonthAndYear).mockResolvedValue(
-      null,
-    );
 
     const { result } = renderHook(() => useMonthlyLimit());
 

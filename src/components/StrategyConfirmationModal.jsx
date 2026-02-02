@@ -121,48 +121,16 @@ const StrategyConfirmationModal = ({
         </div>
 
         <div className="modal-content">
-          <div style={{ textAlign: "center" }}>
-            <p
-              style={{
-                margin: "0 0 20px 0",
-                fontSize: "16px",
-                color: "#374151",
-                lineHeight: "1.6",
-              }}
-            >
+          <div className="text-center">
+            <p className="mb-5 text-base text-gray-700 leading-relaxed">
               {t("strategyModal.description")}
             </p>
 
-            <div
-              style={{
-                backgroundColor: "#fef3c7",
-                padding: "20px",
-                borderRadius: "8px",
-                marginBottom: "20px",
-                border: "1px solid #fbbf24",
-                textAlign: "left",
-              }}
-            >
-              <h3
-                style={{
-                  margin: "0 0 12px 0",
-                  fontSize: "18px",
-                  fontWeight: "600",
-                  color: "#92400e",
-                  textAlign: "center",
-                }}
-              >
+            <div className="bg-amber-100 p-5 rounded-lg mb-5 border border-amber-400 text-left">
+              <h3 className="m-0 mb-3 text-lg font-semibold text-amber-800 text-center">
                 {t("strategyModal.whyImportant")}
               </h3>
-              <ul
-                style={{
-                  margin: 0,
-                  paddingLeft: "20px",
-                  color: "#92400e",
-                  lineHeight: "1.8",
-                  fontSize: "14px",
-                }}
-              >
+              <ul className="m-0 pl-5 text-amber-800 leading-loose text-sm">
                 <li>{t("strategyModal.reason1")}</li>
                 <li>{t("strategyModal.reason2")}</li>
                 <li>{t("strategyModal.reason3")}</li>
@@ -170,24 +138,11 @@ const StrategyConfirmationModal = ({
               </ul>
             </div>
 
-            <p
-              style={{
-                margin: "0 0 24px 0",
-                fontSize: "14px",
-                color: "#6b7280",
-                fontStyle: "italic",
-              }}
-            >
+            <p className="mb-6 text-sm text-gray-500 italic">
               {t("strategyModal.effectiveness")}
             </p>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "12px",
-              }}
-            >
+            <div className="flex justify-center gap-3">
               <Button
                 variant="primary"
                 onClick={onRequestUpdate}
@@ -201,27 +156,10 @@ const StrategyConfirmationModal = ({
           </div>
         </div>
 
-        <div
-          className="modal-actions"
-          style={{
-            justifyContent: "center",
-            borderTop: "1px solid #e5e7eb",
-            paddingTop: "16px",
-          }}
-        >
+        <div className="modal-actions justify-center border-t border-gray-200 pt-4">
           <button
-            className="btn-text"
+            className="btn-text bg-transparent text-gray-500 border-none py-2 px-4 text-sm font-medium cursor-pointer transition-colors duration-200 hover:text-gray-700"
             onClick={handleSkip}
-            style={{
-              background: "transparent",
-              color: "#6b7280",
-              border: "none",
-              padding: "8px 16px",
-              fontSize: "14px",
-              fontWeight: 500,
-              cursor: "pointer",
-              transition: "color 0.2s",
-            }}
           >
             {t("strategyModal.hideForNow")}
           </button>

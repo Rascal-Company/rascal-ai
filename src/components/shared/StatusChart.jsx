@@ -6,7 +6,7 @@ const COLORS = ['#10b981', '#f59e0b', '#ef4444', '#3b82f6']
 export default function StatusChart({ data }) {
   // odottaa [{ name: 'success', value: 10 }, ...]
   return (
-    <div style={{ height: 220 }}>
+    <div className="h-[220px]">
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie data={data} dataKey="value" nameKey="name" outerRadius={80} label>

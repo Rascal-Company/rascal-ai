@@ -191,10 +191,9 @@ const ExportCallLogsModal = ({ isOpen, onClose, callLogs, formatDuration, onSucc
         }
       }}
     >
-      <div 
-        className="modal-container export-modal"
+      <div
+        className="modal-container export-modal max-w-[800px] w-[90%]"
         onClick={(e) => e.stopPropagation()}
-        style={{ maxWidth: '800px', width: '90%' }}
       >
         <div className="modal-header">
           <h2 className="modal-title">Export CSV</h2>
@@ -205,12 +204,12 @@ const ExportCallLogsModal = ({ isOpen, onClose, callLogs, formatDuration, onSucc
             ✕
           </button>
         </div>
-        <div className="modal-content" style={{ padding: '24px 32px' }}>
+        <div className="modal-content py-6 px-8">
           <div className="export-info">
-            <p style={{ margin: '0 0 8px 0', color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+            <p className="m-0 mb-2 text-gray-700 text-sm font-medium">
               Valitse kentät, jotka halutaan sisällyttää CSV-tiedostoon
             </p>
-            <p style={{ margin: '0', color: '#6b7280', fontSize: '13px' }}>
+            <p className="m-0 text-gray-500 text-[13px]">
               Exportataan <strong>{callLogs.length}</strong> puhelua (filtteröidyt tulokset)
             </p>
           </div>
@@ -383,21 +382,15 @@ const ExportCallLogsModal = ({ isOpen, onClose, callLogs, formatDuration, onSucc
             </div>
           </div>
         </div>
-        <div className="modal-footer" style={{ 
-          padding: '20px 32px',
-          borderTop: '1px solid #e5e7eb',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          gap: '12px'
-        }}>
-          <Button 
+        <div className="modal-footer py-5 px-8 border-t border-gray-200 flex justify-end gap-3">
+          <Button
             variant="secondary"
             onClick={onClose}
           >
             Peruuta
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={exportToCSV}
           >
             Export CSV

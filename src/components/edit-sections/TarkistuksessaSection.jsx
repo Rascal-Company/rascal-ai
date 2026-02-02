@@ -8,7 +8,7 @@ export default function TarkistuksessaSection({ editingPost }) {
   return (
     <>
       {firstUrl && (
-        <div className="edit-modal-media" style={{ marginBottom: '12px' }}>
+        <div className="edit-modal-media mb-3">
           {isVideo ? (
             <video src={firstUrl} controls className="video-element" />
           ) : (
@@ -21,11 +21,10 @@ export default function TarkistuksessaSection({ editingPost }) {
         <textarea
           name="caption"
           rows={6}
-          className="form-textarea"
+          className="form-textarea bg-gray-50 text-gray-500"
           defaultValue={editingPost.caption || ""}
           placeholder="Kuvaus (vain luku)"
           readOnly
-          style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
         />
       </div>
       {(editingPost.source === 'reels' || editingPost.type === 'Reels' || editingPost.type === 'Avatar') && (
@@ -34,11 +33,10 @@ export default function TarkistuksessaSection({ editingPost }) {
           <textarea
             name="voiceover"
             rows={4}
-            className="form-textarea"
+            className="form-textarea bg-gray-50 text-gray-500"
             defaultValue={editingPost.voiceover || ""}
             placeholder="Voiceover-teksti..."
             readOnly
-            style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
           />
         </div>
       )}

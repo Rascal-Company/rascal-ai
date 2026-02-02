@@ -15,14 +15,12 @@ export default function AccountTypeSection({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  // Form data state
   const [formData, setFormData] = useState({
     account_type: "company",
     company_type: null,
     content_language: "Suomi",
   });
 
-  // Initialize form data from userProfile
   useEffect(() => {
     if (userProfile) {
       setFormData({
@@ -39,7 +37,6 @@ export default function AccountTypeSection({
     }
   }, [userProfile]);
 
-  // Save original values for cancel
   const [originalValues, setOriginalValues] = useState(null);
 
   const handleAccountTypeChange = (type) => {
@@ -102,7 +99,6 @@ export default function AccountTypeSection({
         setMessage(t("settings.accountSettings.saveSuccess"));
         setIsEditing(false);
 
-        // Fetch updated profile
         const { data: updatedProfile, error: fetchError } = await supabase
           .from("users")
           .select("*")
@@ -120,7 +116,6 @@ export default function AccountTypeSection({
     }
   };
 
-  // Get current selection summary
   const getCurrentSelection = () => {
     const accountTypeText =
       formData.account_type === "company"
@@ -145,10 +140,9 @@ export default function AccountTypeSection({
     return null;
   }
 
-  // Don't render if userProfile is not loaded yet
   if (!userProfile) {
     return (
-      <div className="settings-card p-4">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <div className="text-center py-10">
           <div className="text-base text-gray-500">
             {t("settings.accountSettings.loading")}
@@ -158,33 +152,33 @@ export default function AccountTypeSection({
     );
   }
 
-  // Get button classes based on state
   const getAccountTypeClass = (type) => {
     const isSelected = formData.account_type === type;
+    const baseClass = "py-2 px-4 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
     if (type === "company") {
-      return `settings-option-btn ${isSelected ? "active-blue" : ""}`;
+      return `${baseClass} ${isSelected ? "bg-blue-50 border-blue-500 text-blue-700" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`;
     }
-    return `settings-option-btn ${isSelected ? "active-purple" : ""}`;
+    return `${baseClass} ${isSelected ? "bg-purple-50 border-purple-500 text-purple-700" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`;
   };
 
   const getCompanyTypeClass = (type) => {
     const isSelected = formData.company_type === type;
+    const baseClass = "py-2 px-4 rounded-lg text-sm font-medium border transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
     if (type === null) {
-      return `settings-option-btn ${isSelected ? "active-gray" : ""}`;
+      return `${baseClass} ${isSelected ? "bg-gray-100 border-gray-400 text-gray-700" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`;
     }
-    return `settings-option-btn ${isSelected ? "active-green" : ""}`;
+    return `${baseClass} ${isSelected ? "bg-green-50 border-green-500 text-green-700" : "bg-white border-gray-300 text-gray-700 hover:border-gray-400"}`;
   };
 
   return (
-    <div className="settings-card p-4 min-h-0 self-start">
-      {/* Header with current selection when not editing */}
-      <div className="settings-section-header">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 min-h-0 self-start">
+      <div className="flex justify-between items-start mb-4">
         <div>
-          <h2 className="settings-section-title">
+          <h2 className="text-base font-semibold text-gray-800 m-0">
             {t("settings.accountSettings.title")}
           </h2>
           {!isEditing && (
-            <div className="settings-section-subtitle">
+            <div className="text-sm text-gray-500 mt-1">
               {getCurrentSelection()}
             </div>
           )}
@@ -192,7 +186,7 @@ export default function AccountTypeSection({
         {!isEditing ? (
           <button
             onClick={handleEdit}
-            className="settings-btn settings-btn-secondary"
+            className="py-1.5 px-3 rounded-lg text-xs font-medium bg-primary-100 text-primary-600 hover:bg-primary-200 transition-colors"
           >
             {t("settings.accountSettings.edit")}
           </button>
@@ -201,13 +195,13 @@ export default function AccountTypeSection({
             <button
               onClick={handleSave}
               disabled={loading}
-              className="settings-btn settings-btn-primary"
+              className="py-1.5 px-3 rounded-lg text-xs font-medium bg-primary-500 text-white hover:bg-primary-600 transition-colors disabled:opacity-50"
             >
               {loading ? t("ui.buttons.saving") : t("ui.buttons.save")}
             </button>
             <button
               onClick={handleCancel}
-              className="settings-btn settings-btn-neutral"
+              className="py-1.5 px-3 rounded-lg text-xs font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
             >
               {t("settings.accountSettings.cancel")}
             </button>
@@ -217,18 +211,17 @@ export default function AccountTypeSection({
 
       {message && (
         <div
-          className={`settings-message text-xs mb-3 ${message.includes("Virhe") ? "settings-message-error" : "settings-message-success"}`}
+          className={`text-xs mb-3 p-2 rounded-lg ${message.includes("Virhe") ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}
         >
           {message}
         </div>
       )}
 
-      {/* Sisällön ääni - Account Type Selector (2 columns grid) */}
       <div className="mb-4">
-        <label className="settings-label">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           {t("settings.accountSettings.contentVoice")}
         </label>
-        <div className="settings-option-grid-2">
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             onClick={() => handleAccountTypeChange("company")}
@@ -248,15 +241,14 @@ export default function AccountTypeSection({
         </div>
       </div>
 
-      {/* Kohderyhmätyyppi - Target Market Selector (4 columns grid) */}
       <div>
-        <label className="settings-label">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
           {t("settings.accountSettings.targetAudience")}{" "}
-          <span className="settings-label-optional">
+          <span className="text-gray-400 font-normal">
             {t("settings.accountSettings.optional")}
           </span>
         </label>
-        <div className="settings-option-grid-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {["B2B", "B2C", "Both"].map((type) => (
             <button
               key={type}
@@ -285,12 +277,11 @@ export default function AccountTypeSection({
         </div>
       </div>
 
-      {/* Sisällön kieli */}
       <div className="mt-4">
-        <label className="settings-label">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
           {t("settings.accountSettings.contentLanguage")}
         </label>
-        <p className="settings-description">
+        <p className="text-xs text-gray-500 mb-2">
           {t("settings.accountSettings.contentLanguageDescription")}
         </p>
         <input
@@ -299,13 +290,12 @@ export default function AccountTypeSection({
           onChange={handleContentLanguageChange}
           disabled={!isEditing}
           placeholder={t("settings.accountSettings.contentLanguagePlaceholder")}
-          className="settings-text-input"
+          className="w-full py-2.5 px-3 rounded-lg border border-gray-300 text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500"
         />
       </div>
 
-      {/* Sosiaalisen median yhdistäminen - vain owner/admin */}
       {organization?.role !== "member" && (
-        <div className="settings-social-connect-section">
+        <div className="mt-6 pt-4 border-t border-gray-200">
           <SimpleSocialConnect />
         </div>
       )}

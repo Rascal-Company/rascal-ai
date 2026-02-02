@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { queryKeys } from './queryKeys'
 
 async function fetchOrgId(authUserId) {
   if (!authUserId) {
@@ -47,7 +48,7 @@ export function useOrgId() {
   const hasOrgIdFromAuth = user?.organizationId != null
 
   const query = useQuery({
-    queryKey: ['orgId', user?.id],
+    queryKey: queryKeys.user.orgId(user?.id),
     queryFn: () => fetchOrgId(user?.id),
     enabled: !!user?.id && !hasOrgIdFromAuth && !authLoading,
     staleTime: 1000 * 60 * 30, // 30 min - org ID muuttuu harvoin

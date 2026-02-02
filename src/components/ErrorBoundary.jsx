@@ -18,10 +18,10 @@ export default class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div style={{ padding: 24 }}>
-          <h1 style={{ margin: 0, fontSize: 20 }}>Jokin meni pieleen</h1>
-          <p style={{ color: '#6b7280' }}>Yritä päivittää sivu. Jos virhe toistuu, ota ruutukaappaus konsolista.</p>
-          <pre style={{ whiteSpace: 'pre-wrap', background: '#f9fafb', padding: 12, borderRadius: 8, border: '1px solid #e5e7eb' }}>
+        <div className="p-6">
+          <h1 className="m-0 text-xl">Jokin meni pieleen</h1>
+          <p className="text-gray-500">Yritä päivittää sivu. Jos virhe toistuu, ota ruutukaappaus konsolista.</p>
+          <pre className="whitespace-pre-wrap bg-gray-50 p-3 rounded-lg border border-gray-200">
             {String(this.state.error?.message || this.state.error || 'Unknown error')}
           </pre>
         </div>

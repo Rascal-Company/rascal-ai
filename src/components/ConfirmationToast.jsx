@@ -13,52 +13,25 @@ const ConfirmationToast = ({
   if (!show) return null
 
   return createPortal(
-    <div style={{
-      position: 'fixed',
-      bottom: 24,
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex: 10001,
-      display: 'flex',
-      alignItems: 'center',
-      gap: 16,
-      background: '#1f2937',
-      color: '#fff',
-      padding: '12px 20px',
-      borderRadius: 10,
-      boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-      animation: 'slideUp 0.2s ease-out'
-    }}>
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[10001] flex items-center gap-4 bg-gray-800 text-white py-3 px-5 rounded-[10px] shadow-[0_10px_40px_rgba(0,0,0,0.3)] animate-[slideUp_0.2s_ease-out]">
       <style>{`
         @keyframes slideUp {
           from { opacity: 0; transform: translateX(-50%) translateY(20px); }
           to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
       `}</style>
-      <span style={{ fontSize: 14, fontWeight: 500 }}>{message}</span>
-      <div style={{ display: 'flex', gap: 8 }}>
+      <span className="text-sm font-medium">{message}</span>
+      <div className="flex gap-2">
         <Button
           onClick={onDiscard}
           variant="secondary"
-          style={{
-            padding: '6px 14px',
-            fontSize: 13,
-            background: '#374151',
-            border: '1px solid #4b5563',
-            color: '#fff'
-          }}
+          className="py-1.5 px-3.5 text-[13px] bg-gray-700 border border-gray-600 text-white"
         >
           {discardLabel}
         </Button>
         <Button
           onClick={onSave}
-          style={{
-            padding: '6px 14px',
-            fontSize: 13,
-            background: '#3b82f6',
-            border: 'none',
-            color: '#fff'
-          }}
+          className="py-1.5 px-3.5 text-[13px] bg-blue-500 border-none text-white"
         >
           {saveLabel}
         </Button>

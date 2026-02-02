@@ -26,11 +26,10 @@ export default function EditModalTarkistuksessa({ t, editingPost, onClose }) {
             <textarea
               name="caption"
               rows={6}
-              className="form-textarea"
+              className="form-textarea bg-gray-50 text-gray-500"
               defaultValue={editingPost?.caption || ''}
               placeholder={t('posts.placeholders.caption')}
               readOnly
-              style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
             />
           </div>
         </div>

@@ -1,125 +1,110 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import Button from './Button'
 
-const TarkistuksessaModal = ({ 
-  show, 
-  editingPost, 
-  onClose, 
-  onPublish,
-  t 
+const TarkistuksessaModal = ({
+  show,
+  editingPost,
+  onClose,
+  onPublish
 }) => {
+  const { t, i18n } = useTranslation('common')
   if (!show || !editingPost) return null
 
+  const isOverLimit = (editingPost.caption?.length || 0) > 2000
+
   return createPortal(
-    <div 
-      className="modal-overlay modal-overlay--light"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose()
-        }
-      }}
-    >
-      <div className="modal-container" style={{ maxWidth: '600px' }}>
-        <div className="modal-header">
-          <h2 className="modal-title">Tarkista postaus</h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 text-left">
+      <div
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl shadow-blue-500/10 border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="px-6 py-6 border-b border-gray-50 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">{t('posts.reviewModal.title')}</h2>
+              <p className="text-xs text-gray-400 font-medium">{t('posts.reviewModal.subtitle')}</p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="modal-close-btn"
+            className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-900 transition-colors"
           >
-            ✕
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
-        <div className="modal-content">
-          {/* Luontipäivämäärä */}
-          <div className="form-group" style={{ marginBottom: '16px' }}>
-            <label className="form-label">Luotu</label>
-            <p className="form-text" style={{ 
-              padding: '8px 12px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>
-              {editingPost.created_at ? new Date(editingPost.created_at).toLocaleString('fi-FI', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) : 'Ei tiedossa'}
-            </p>
+
+        <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('posts.reviewModal.createdLabel')}</label>
+              <div className="px-4 py-3 bg-gray-50/50 rounded-2xl border border-gray-100 text-xs font-medium text-gray-600">
+                {editingPost.created_at ? new Date(editingPost.created_at).toLocaleString(i18n.language === 'en' ? 'en-US' : 'fi-FI', {
+                  year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                }) : t('posts.placeholders.unknown')}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('posts.reviewModal.typeLabel')}</label>
+              <div className="px-4 py-3 bg-gray-50/50 rounded-2xl border border-gray-100 text-xs font-bold text-gray-900">
+                {editingPost.type || 'Photo'}
+              </div>
+            </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Otsikko</label>
-            <p className="form-text">{editingPost.title || 'Ei otsikkoa'}</p>
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('posts.reviewModal.titleLabel')}</label>
+            <div className="px-4 py-3 bg-gray-50/50 rounded-2xl border border-gray-100 text-sm font-bold text-gray-900">
+              {editingPost.title || t('posts.statuses.untitled')}
+            </div>
           </div>
 
-          <div className="form-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <label className="form-label" style={{ marginBottom: 0 }}>Kuvaus</label>
-              <span style={{ 
-                fontSize: '12px', 
-                color: (editingPost.caption?.length || 0) > 2000 ? '#ef4444' : '#6b7280',
-                fontWeight: (editingPost.caption?.length || 0) > 2000 ? '600' : '400'
-              }}>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center px-1">
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{t('posts.reviewModal.captionLabel')}</label>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isOverLimit ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-400'}`}>
                 {editingPost.caption?.length || 0} / 2000
               </span>
             </div>
-            <p className="form-text" style={{
-              border: (editingPost.caption?.length || 0) > 2000 ? '1px solid #ef4444' : undefined,
-              padding: '12px',
-              borderRadius: '6px',
-              backgroundColor: '#f8f9fa'
-            }}>
-              {editingPost.caption || 'Ei kuvausta'}
-            </p>
-            {(editingPost.caption?.length || 0) > 2000 && (
-              <p style={{ 
-                color: '#ef4444', 
-                fontSize: '12px', 
-                marginTop: '4px',
-                fontWeight: '500'
-              }}>
-                Postauksen pituus ylittää maksimin 2000 merkkiä
+            <div className={`px-5 py-4 bg-gray-50/50 rounded-2xl border text-sm font-medium text-gray-700 leading-relaxed ${isOverLimit ? 'border-red-100 ring-2 ring-red-50' : 'border-gray-100'}`}>
+              {editingPost.caption || t('posts.placeholders.noDescription')}
+            </div>
+            {isOverLimit && (
+              <p className="text-red-500 text-[10px] font-bold mt-1 px-1">
+                {t('posts.publishModal.captionTooLong')}
               </p>
             )}
           </div>
 
-          <div className="form-group">
-            <label className="form-label">Tyyppi</label>
-            <p className="form-text">{editingPost.type || 'Photo'}</p>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Status</label>
-            <p className="form-text">{editingPost.status}</p>
-          </div>
-
-          <div className="modal-actions">
-            <div className="modal-actions-left">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onClose}
-              >
-                Sulje
-              </Button>
-            </div>
-            <div className="modal-actions-right">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={onPublish}
-                style={{ backgroundColor: '#22c55e' }}
-                disabled={(editingPost.caption?.length || 0) > 2000}
-              >
-                Julkaise
-              </Button>
+          <div className="space-y-1">
+            <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('posts.reviewModal.statusLabel')}</label>
+            <div className="flex">
+              <span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-bold uppercase tracking-widest border border-blue-100">
+                {editingPost.status}
+              </span>
             </div>
           </div>
+        </div>
+
+        <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-6 py-3 rounded-2xl text-sm font-bold text-gray-500 hover:text-gray-900 hover:bg-white transition-all"
+          >
+            {t('posts.reviewModal.close')}
+          </button>
+          <button
+            onClick={onPublish}
+            disabled={isOverLimit}
+            className="px-8 py-3 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold text-sm shadow-xl shadow-gray-200 transition-all disabled:opacity-50 disabled:bg-gray-400 flex items-center justify-center gap-2"
+          >
+            {t('posts.reviewModal.publishNow')}
+          </button>
         </div>
       </div>
     </div>,

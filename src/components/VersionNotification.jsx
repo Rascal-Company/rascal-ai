@@ -11,110 +11,37 @@ const VersionNotification = () => {
   const currentVersion = import.meta.env.REACT_APP_VERSION || '1.67.0'
 
   return createPortal(
-    <div 
-      className="version-notification-overlay"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 9999
-      }}
-    >
-      <div 
-        className="version-notification-modal"
-        style={{
-          backgroundColor: 'white',
-          borderRadius: '12px',
-          padding: '24px',
-          maxWidth: '500px',
-          width: '90%',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-          position: 'relative'
-        }}
-      >
+    <div className="version-notification-overlay fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+      <div className="version-notification-modal bg-white rounded-xl p-6 max-w-[500px] w-[90%] shadow-xl relative">
         {/* Sulje-nappi */}
         <button
           onClick={markVersionAsSeen}
-          style={{
-            position: 'absolute',
-            top: '12px',
-            right: '12px',
-            background: 'none',
-            border: 'none',
-            fontSize: '20px',
-            cursor: 'pointer',
-            color: '#6b7280',
-            padding: '4px'
-          }}
+          className="absolute top-3 right-3 bg-transparent border-none text-xl cursor-pointer text-gray-500 p-1"
         >
           ✕
         </button>
 
         {/* Sisältö */}
-        <div style={{ paddingRight: '32px' }}>
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            marginBottom: '16px' 
-          }}>
-            <div style={{
-              width: '40px',
-              height: '40px',
-              backgroundColor: '#10b981',
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginRight: '12px'
-            }}>
-              <span style={{ color: 'white', fontSize: '20px', fontWeight: 'bold' }}>R</span>
+        <div className="pr-8">
+          <div className="flex items-center mb-4">
+            <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center mr-3">
+              <span className="text-white text-xl font-bold">R</span>
             </div>
-            <h2 style={{ 
-              margin: 0, 
-              fontSize: '24px', 
-              fontWeight: 'bold',
-              color: '#111827'
-            }}>
+            <h2 className="m-0 text-2xl font-bold text-gray-900">
               Hei! Rascal AI on saanut uuden päivityksen! 🎉
             </h2>
           </div>
 
-          <div style={{ marginBottom: '20px' }}>
-            <p style={{ 
-              margin: '0 0 12px 0', 
-              fontSize: '16px', 
-              color: '#374151',
-              lineHeight: '1.5'
-            }}>
+          <div className="mb-5">
+            <p className="m-0 mb-3 text-base text-gray-700 leading-normal">
               Tervetuloa takaisin! Olemme kehittäneet Rascal AI:ta eteenpäin ja nyt on valmis versio <strong>v{currentVersion}</strong>
             </p>
-            
-            <div style={{ 
-              backgroundColor: '#f3f4f6', 
-              padding: '16px', 
-              borderRadius: '8px',
-              marginBottom: '16px'
-            }}>
-              <h3 style={{ 
-                margin: '0 0 8px 0', 
-                fontSize: '18px', 
-                fontWeight: '600',
-                color: '#111827'
-              }}>
+
+            <div className="bg-gray-100 p-4 rounded-lg mb-4">
+              <h3 className="m-0 mb-2 text-lg font-semibold text-gray-900">
                 Mitä uutta tässä versiossa:
               </h3>
-              <ul style={{ 
-                margin: 0, 
-                paddingLeft: '20px', 
-                color: '#374151',
-                lineHeight: '1.6'
-              }}>
+              <ul className="m-0 pl-5 text-gray-700 leading-relaxed">
                 <li><strong>Strategian vahvistus:</strong> Nyt voit hyväksyä strategiat suoraan sovelluksesta! Ei tarvitse enää käydä erikseen tarkistamassa.</li>
                 <li><strong>Selkeä status:</strong> Näet heti mitkä strategiat on hyväksytty ja mitkä odottaa vielä vahvistusta.</li>
                 <li><strong>Automaattinen synkronointi:</strong> Sometilit yhdistyvät nyt automaattisesti - ei tarvitse tehdä mitään erikseen!</li>
@@ -123,21 +50,12 @@ const VersionNotification = () => {
               </ul>
             </div>
 
-            <p style={{ 
-              margin: 0, 
-              fontSize: '14px', 
-              color: '#6b7280',
-              fontStyle: 'italic'
-            }}>
+            <p className="m-0 text-sm text-gray-500 italic">
               Kiitos kun olet mukana! Ilman sinua tämä ei olisi mahdollista 🙏
             </p>
           </div>
 
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'flex-end',
-            gap: '12px'
-          }}>
+          <div className="flex justify-end gap-3">
             <Button
               variant="secondary"
               onClick={markVersionAsSeen}

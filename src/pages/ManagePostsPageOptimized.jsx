@@ -101,7 +101,7 @@ const PostCard = React.memo(({ post, onEdit, onDelete, onPublish, onSchedule, on
               <Button
                 onClick={handleEdit}
                 variant="secondary"
-                style={{ fontSize: 11, padding: '4px 8px' }}
+                className="text-[11px] py-1 px-2"
               >
                 {post.source === 'reels' ? 'Tarkista' : '✏️ Muokkaa'}
               </Button>
@@ -110,7 +110,7 @@ const PostCard = React.memo(({ post, onEdit, onDelete, onPublish, onSchedule, on
                 <Button
                   onClick={handleMoveToNext}
                   variant="primary"
-                  style={{ fontSize: 11, padding: '4px 8px' }}
+                  className="text-[11px] py-1 px-2"
                 >
                   ➡️ Seuraava
                 </Button>
@@ -121,14 +121,14 @@ const PostCard = React.memo(({ post, onEdit, onDelete, onPublish, onSchedule, on
                   <Button
                     onClick={handlePublish}
                     variant="primary"
-                    style={{ fontSize: 11, padding: '4px 8px' }}
+                    className="text-[11px] py-1 px-2"
                   >
                     📤 Julkaise
                   </Button>
                   <Button
                     onClick={handleSchedule}
                     variant="secondary"
-                    style={{ fontSize: 11, padding: '4px 8px' }}
+                    className="text-[11px] py-1 px-2"
                   >
                     ⏰ Ajasta
                   </Button>
@@ -138,12 +138,7 @@ const PostCard = React.memo(({ post, onEdit, onDelete, onPublish, onSchedule, on
               <Button
                 onClick={handleDelete}
                 variant="secondary"
-                style={{ 
-                  fontSize: 11, 
-                  padding: '4px 8px',
-                  background: '#ef4444',
-                  color: '#fff'
-                }}
+                className="text-[11px] py-1 px-2 bg-red-500 text-white"
               >
                 🗑️ Poista
               </Button>
@@ -179,12 +174,7 @@ const KanbanColumn = React.memo(({ title, posts, color, onEdit, onDelete, onPubl
         ))}
         
         {posts.length === 0 && (
-          <div style={{
-            textAlign: 'center',
-            padding: 40,
-            color: '#9ca3af',
-            fontSize: 14
-          }}>
+          <div className="text-center p-10 text-gray-400 text-sm">
             Ei julkaisuja tässä tilassa
           </div>
         )}
@@ -376,14 +366,7 @@ export default function ManagePostsPageOptimized() {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '50vh',
-        fontSize: 18,
-        color: '#6b7280'
-      }}>
+      <div className="flex justify-center items-center h-[50vh] text-lg text-gray-500">
         Ladataan julkaisuja...
       </div>
     )
@@ -391,14 +374,7 @@ export default function ManagePostsPageOptimized() {
 
   if (error) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '50vh',
-        fontSize: 18,
-        color: '#ef4444'
-      }}>
+      <div className="flex justify-center items-center h-[50vh] text-lg text-red-500">
         Virhe: {error}
       </div>
     )
@@ -408,14 +384,14 @@ export default function ManagePostsPageOptimized() {
     <div className="posts-container">
       {/* Header */}
       <div className="posts-header">
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, color: '#1f2937' }}>
+        <h1 className="m-0 text-[28px] font-bold text-gray-800">
           📝 Julkaisujen hallinta
         </h1>
-        
+
         <Button
           onClick={handleCreatePost}
           variant="primary"
-          style={{ padding: '12px 24px', fontSize: 14, fontWeight: 600 }}
+          className="py-3 px-6 text-sm font-semibold"
         >
           ➕ Luo uusi julkaisu
         </Button>
@@ -423,7 +399,7 @@ export default function ManagePostsPageOptimized() {
 
       {/* Search and Filters */}
       <div className="search-filters">
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flex: 1 }}>
+        <div className="flex gap-4 items-center flex-1">
           <input
             type="text"
             value={filters.searchTerm}
@@ -457,20 +433,18 @@ export default function ManagePostsPageOptimized() {
         </div>
         
         {/* Data source toggle */}
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           <Button
             onClick={() => handleDataSourceToggle('all')}
             variant={filters.dataSourceToggle === 'all' ? 'primary' : 'secondary'}
-            className="toggle-button"
-            style={{ fontSize: 12, padding: '6px 12px' }}
+            className="toggle-button text-xs py-1.5 px-3"
           >
             Kaikki ({posts.length})
           </Button>
           <Button
             onClick={() => handleDataSourceToggle('reels')}
             variant={filters.dataSourceToggle === 'reels' ? 'primary' : 'secondary'}
-            className="toggle-button"
-            style={{ fontSize: 12, padding: '6px 12px' }}
+            className="toggle-button text-xs py-1.5 px-3"
           >
             Reels ({posts.filter(p => p.type === 'Reel').length})
           </Button>
@@ -498,13 +472,8 @@ export default function ManagePostsPageOptimized() {
 
       {/* Published Posts */}
       {publishedPosts.length > 0 && (
-        <div style={{ marginTop: 32 }}>
-          <h2 style={{ 
-            margin: '0 0 16px 0', 
-            fontSize: 20, 
-            fontWeight: 600,
-            color: '#1f2937'
-          }}>
+        <div className="mt-8">
+          <h2 className="m-0 mb-4 text-xl font-semibold text-gray-800">
             📤 Julkaistut julkaisut ({publishedPosts.length})
           </h2>
           
@@ -528,25 +497,8 @@ export default function ManagePostsPageOptimized() {
 
       {/* Modals would go here - simplified for this example */}
       {modals.showCreateModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: '#fff',
-            padding: 24,
-            borderRadius: 12,
-            maxWidth: 500,
-            width: '90%'
-          }}>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000]">
+          <div className="bg-white p-6 rounded-xl max-w-[500px] w-[90%]">
             <h3>Luo uusi julkaisu</h3>
             <p>Modal sisältö tähän...</p>
             <Button

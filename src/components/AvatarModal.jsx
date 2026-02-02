@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { getCurrentUser } from '../utils/userApi'
 import { supabase } from '../lib/supabase'
 import { getUserOrgId } from '../lib/getUserOrgId'
+import { useAuth } from '../contexts/AuthContext'
 import Button from './Button'
 
 const AvatarModal = ({ 
@@ -38,15 +38,19 @@ const AvatarModal = ({
 
         // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
         const userId = await getUserOrgId(user.id)
-        
+
         if (!userId) {
           setAvatarImages([])
           setAvatarError('Käyttäjää ei löytynyt')
           return
         }
 
-        // Hae käyttäjätiedot API:n kautta
-        const userData = await getCurrentUser()
+        // Hae company_id suoraan Supabasesta
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('company_id')
+          .eq('id', userId)
+          .single()
 
         if (userError || !userData?.company_id) {
           setAvatarImages([])
@@ -100,8 +104,8 @@ const AvatarModal = ({
         }
       }}
     >
-      <div className="modal-container" style={{ maxWidth: '800px' }}>
-        <div className="modal-header" style={{ paddingTop: '0', paddingBottom: '0' }}>
+      <div className="modal-container max-w-[800px]">
+        <div className="modal-header pt-0 pb-0">
           <h2 className="modal-title">
             {editModalStep === 1 ? 'Voiceover-tarkistus' : 'Valitse avatar-kuva'}
           </h2>
@@ -169,52 +173,28 @@ const AvatarModal = ({
           {/* Vaihe 2: Avatar-valinta */}
           {editModalStep === 2 && (
             <div>
-              <div style={{ marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '18px', marginBottom: '12px' }}>Valitse avatar-kuva</h3>
-                <p style={{ color: '#666', fontSize: '14px' }}>
+              <div className="mb-5">
+                <h3 className="text-lg mb-3">Valitse avatar-kuva</h3>
+                <p className="text-gray-500 text-sm">
                   Valitse avatar-kuva, jota käytetään tässä postauksessa.
                 </p>
               </div>
 
               {avatarLoading ? (
-                <div style={{ textAlign: 'center', padding: '40px' }}>
+                <div className="text-center p-10">
                   <div className="loading-spinner"></div>
                   <p>Haetaan avatar-kuvia...</p>
                 </div>
               ) : avatarError ? (
-                <div style={{ 
-                  textAlign: 'center', 
-                  padding: '40px',
-                  color: '#ef4444',
-                  backgroundColor: '#fef2f2',
-                  borderRadius: '8px',
-                  border: '1px solid #fecaca'
-                }}>
+                <div className="text-center p-10 text-red-500 bg-red-50 rounded-lg border border-red-200">
                   <p>{avatarError}</p>
                 </div>
               ) : avatarImages.length === 0 ? (
-                <div style={{ 
-                  textAlign: 'center', 
-                  padding: '40px',
-                  color: '#666',
-                  backgroundColor: '#f9fafb',
-                  borderRadius: '8px',
-                  border: '1px solid #e5e7eb'
-                }}>
+                <div className="text-center p-10 text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
                   <p>Ei avatar-kuvia saatavilla</p>
                 </div>
               ) : (
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', 
-                  gap: '20px',
-                  maxHeight: '500px',
-                  overflowY: 'auto',
-                  padding: '24px',
-                  backgroundColor: '#f9fafb',
-                  borderRadius: '12px',
-                  border: '1px solid #e5e7eb'
-                }}>
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-5 max-h-[500px] overflow-y-auto p-6 bg-gray-50 rounded-xl border border-gray-200">
                   {avatarImages.map((img, idx) => {
                     // Käsittele eri data-muodot
                     let avatarId, imageUrl
@@ -241,34 +221,18 @@ const AvatarModal = ({
                           console.log('Avatar clicked:', { avatarId, img })
                           setSelectedAvatar(avatarId)
                         }}
-                        style={{
-                          border: isSelected ? '2px solid #3b82f6' : '2px solid #e5e7eb',
-                          borderRadius: '8px',
-                          overflow: 'hidden',
-                          position: 'relative',
-                          padding: 0,
-                          cursor: 'pointer',
-                          outline: 'none',
-                          background: 'transparent'
-                        }}
+                        className={`rounded-lg overflow-hidden relative p-0 cursor-pointer outline-none bg-transparent border-2 ${
+                          isSelected ? 'border-blue-500' : 'border-gray-200'
+                        }`}
                         aria-pressed={isSelected}
                       >
-                        <img 
+                        <img
                           src={imageUrl}
                           alt={`Avatar ${idx + 1}`}
-                          style={{ width: '100%', height: '140px', objectFit: 'cover', display: 'block' }}
+                          className="w-full h-[140px] object-cover block"
                         />
                         {isSelected && (
-                          <span style={{
-                            position: 'absolute',
-                            top: '8px',
-                            right: '8px',
-                            backgroundColor: '#3b82f6',
-                            color: '#fff',
-                            borderRadius: '9999px',
-                            padding: '4px 8px',
-                            fontSize: '12px'
-                          }}>
+                          <span className="absolute top-2 right-2 bg-blue-500 text-white rounded-full py-1 px-2 text-xs">
                             Valittu
                           </span>
                         )}
@@ -278,7 +242,7 @@ const AvatarModal = ({
                 </div>
               )}
 
-              <div className="modal-actions" style={{ margin: '0', padding: '16px 0 0 0' }}>
+              <div className="modal-actions m-0 pt-4 pb-0 px-0">
                 <div className="modal-actions-left">
                   <Button
                     type="button"

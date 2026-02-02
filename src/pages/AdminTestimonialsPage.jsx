@@ -105,10 +105,10 @@ export default function AdminTestimonialsPage({ embedded = false }) {
 
   const content = (
     <div className="admin-main">
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 20 }}>
-          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 20, padding: 20 }}>
-            <h2 style={{ marginTop: 0 }}> {form.id ? 'Muokkaa suositusta' : 'Lisää uusi suositus'} </h2>
-            <div className="article-form" style={{ padding: 0 }}>
+      <div className="grid grid-cols-[1fr_2fr] gap-5">
+          <div className="bg-white border border-gray-200 rounded-[20px] p-5">
+            <h2 className="mt-0"> {form.id ? 'Muokkaa suositusta' : 'Lisää uusi suositus'} </h2>
+            <div className="article-form p-0">
               <div className="form-group">
                 <label>Nimi</label>
                 <input placeholder="Nimi" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
@@ -193,7 +193,7 @@ export default function AdminTestimonialsPage({ embedded = false }) {
                     </div>
                   )}
                 </div>
-                <details className="manual-url-section" style={{ marginTop: 12 }}>
+                <details className="manual-url-section mt-3">
                   <summary>Tai syötä kuvan URL manuaalisesti</summary>
                   <input placeholder="https://..." value={form.avatar_url} onChange={e => setForm({ ...form, avatar_url: e.target.value })} className="manual-url-input" />
                 </details>
@@ -203,7 +203,7 @@ export default function AdminTestimonialsPage({ embedded = false }) {
                 <textarea placeholder="Lyhyt suositus" rows={5} value={form.quote} onChange={e => setForm({ ...form, quote: e.target.value })} />
               </div>
               <div className="form-group">
-                <label className="radio-label" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <label className="radio-label flex items-center gap-3">
                   <input type="checkbox" checked={!!form.published} onChange={e => setForm({ ...form, published: e.target.checked })} />
                   <span className="radio-text">Julkaistu</span>
                 </label>
@@ -286,27 +286,27 @@ export default function AdminTestimonialsPage({ embedded = false }) {
             </div>
           </div>
 
-        <div className="articles-list" style={{ background: '#fff', borderRadius: 20, padding: 20 }}>
-            <h2 style={{ marginTop: 0 }}>Lista</h2>
+        <div className="articles-list bg-white rounded-[20px] p-5">
+            <h2 className="mt-0">Lista</h2>
             {loading ? (
               <div className="loading-container">
                 <div className="loading-spinner"></div>
                 <p>Ladataan…</p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gap: 12 }}>
+              <div className="grid gap-3">
                 {items.map(item => (
-                  <div key={item.id} className="table-row" style={{ gridTemplateColumns: 'auto 2fr auto auto', alignItems: 'center', gap: 12 }}>
-                    <div className="cell" style={{ padding: 0 }}>
-                      <img src={item.avatar_url || '/placeholder.png'} alt="avatar" width={40} height={40} style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                  <div key={item.id} className="table-row grid grid-cols-[auto_2fr_auto_auto] items-center gap-3">
+                    <div className="cell p-0">
+                      <img src={item.avatar_url || '/placeholder.png'} alt="avatar" width={40} height={40} className="rounded-full object-cover" />
                     </div>
-                    <div className="cell" style={{ flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-                      <div style={{ fontWeight: 600 }}>{item.name}</div>
-                      <div style={{ fontSize: 12, color: '#6b7280' }}>{[item.title, item.company].filter(Boolean).join(', ')}</div>
-                      <div style={{ fontSize: 14, marginTop: 6, color: '#111827' }}>“{item.quote}”</div>
+                    <div className="cell flex-col items-start gap-1">
+                      <div className="font-semibold">{item.name}</div>
+                      <div className="text-xs text-gray-500">{[item.title, item.company].filter(Boolean).join(', ')}</div>
+                      <div className="text-sm mt-1.5 text-gray-900">"{item.quote}"</div>
                     </div>
-                    <div className="cell" style={{ gap: 8 }}>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
+                    <div className="cell gap-2">
+                      <label className="flex items-center gap-1.5 text-xs">
                         <input type="checkbox" checked={!!item.published} onChange={async e => { await save({ ...item, published: e.target.checked }) }} />
                         {item.published ? 'Julkaistu' : 'Piilotettu'}
                       </label>

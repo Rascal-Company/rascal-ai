@@ -26,16 +26,16 @@ export default function CampaignDetailPage() {
     return () => { mounted = false }
   }, [id])
 
-  if (loading) return <div style={{ padding: 24 }}>Ladataan...</div>
-  if (error) return <div style={{ padding: 24, color: '#dc2626' }}>{error}</div>
-  if (!campaign) return <div style={{ padding: 24 }}>Ei löydy</div>
+  if (loading) return <div className="p-6">Ladataan...</div>
+  if (error) return <div className="p-6 text-red-600">{error}</div>
+  if (!campaign) return <div className="p-6">Ei löydy</div>
 
   return (
-    <div style={{ padding: 24, display: 'grid', gap: 24 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+    <div className="p-6 grid gap-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 700, margin: 0 }}>{campaign.name}</h1>
-          {campaign.description && <p style={{ color: '#6b7280', marginTop: 8 }}>{campaign.description}</p>}
+          <h1 className="text-[28px] font-bold m-0">{campaign.name}</h1>
+          {campaign.description && <p className="text-gray-500 mt-2">{campaign.description}</p>}
         </div>
         <CampaignStatusBadge status={campaign.status} />
       </div>

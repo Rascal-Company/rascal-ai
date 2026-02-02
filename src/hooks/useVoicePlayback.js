@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { getCurrentUser } from '../utils/userApi'
+import { supabase } from '../lib/supabase'
+import { getUserOrgId } from '../lib/getUserOrgId'
 
 const DEFAULT_VOICE_OPTIONS = [
   { value: 'rascal-nainen-1', label: 'Aurora (Nainen, Lämmin ja Ammattimainen)', id: 'GGiK1UxbDRh5IRtHCTlK' },
@@ -24,7 +25,17 @@ export function useVoicePlayback(user, onUserVoiceLoaded) {
     const fetchUserVoiceId = async () => {
       if (!user?.id) return
       try {
-        const data = await getCurrentUser()
+        const orgId = await getUserOrgId(user.id)
+        if (!orgId) return
+
+        const { data, error } = await supabase
+          .from('users')
+          .select('voice_id')
+          .eq('id', orgId)
+          .single()
+
+        if (error) throw error
+
         if (data?.voice_id) {
           setUserVoiceId(data.voice_id)
           setUserVoiceLabel('Oma ääni')

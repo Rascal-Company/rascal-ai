@@ -5,36 +5,36 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import Button from './Button'
 
-const AikataulutettuModal = ({ 
+const AikataulutettuModal = ({
   show = true,  // Oletusarvo true, jotta Dashboard voi käyttää ilman show proppia
-  editingPost, 
-  onClose, 
+  editingPost,
+  onClose,
   onEdit,  // ManagePostsPage käyttää
   onSave,  // DashboardPage käyttää
-  t: tProp 
+  t: tProp
 }) => {
   const { t: tHook } = useTranslation('common')
   const t = tProp || tHook
   const { user } = useAuth()
-  
+
   // Funktio kanavan kentän renderöimiseen
   const renderChannelField = (accountId, accountData, index) => {
     // Etsi kanavan nimi Supabase-dataa käyttäen
     // Supabase-datassa mixpost_account_uuid on string, accountId on numero
-    const supabaseAccount = socialAccounts.find(acc => 
+    const supabaseAccount = socialAccounts.find(acc =>
       acc.mixpost_account_uuid === String(accountId)
     )
     // Käytä username:a jos se on saatavilla (@username), muuten account_name
-    const accountName = supabaseAccount?.username ? `@${supabaseAccount.username}` : 
-                      supabaseAccount?.account_name || 
-                      `Kanava ${accountId}`
+    const accountName = supabaseAccount?.username ? `@${supabaseAccount.username}` :
+      supabaseAccount?.account_name ||
+      `Kanava ${accountId}`
     const providerIcon = supabaseAccount?.provider
-    
+
     // Debug info removed
-    
+
     const currentContent = channelContents[accountId] || formData.content
     const charCount = currentContent.length
-    
+
     return (
       <div key={accountId} className="border rounded-lg p-4 bg-gray-50">
         <div className="flex justify-between items-center mb-2">
@@ -53,17 +53,17 @@ const AikataulutettuModal = ({
             ...channelContents,
             [accountId]: e.target.value
           })}
-          placeholder={`Teksti kanavalle ${accountName}...`}
+          placeholder={t('calendar.modals.scheduledDetail.contentPlaceholder')}
         />
         {charCount > 2000 && (
           <p className="text-red-500 text-xs mt-1 font-medium">
-            Postauksen pituus ylittää maksimin 2000 merkkiä
+            {t('posts.publishModal.captionTooLong')}
           </p>
         )}
       </div>
     )
   }
-  
+
   const [formData, setFormData] = useState({
     content: '',
     date: '',
@@ -83,19 +83,19 @@ const AikataulutettuModal = ({
   useEffect(() => {
     const fetchSocialAccounts = async () => {
       if (!user?.id) return
-      
+
       try {
         const { data, error } = await supabase
           .from('user_social_accounts')
           .select('mixpost_account_uuid, provider, account_name, username, profile_image_url')
           .eq('user_id', user.id)
           .eq('is_authorized', true)
-        
+
         if (error) {
           console.error('Error fetching social accounts:', error)
           return
         }
-        
+
         setSocialAccounts(data || [])
       } catch (error) {
         console.error('Error fetching social accounts:', error)
@@ -118,11 +118,11 @@ const AikataulutettuModal = ({
         hasVersions: !!editingPost.versions,
         versionsLength: editingPost.versions?.length
       })
-      
+
       let dateStr = ''
       let timeStr = ''
       let postBody = ''
-      
+
       // Parsitaan päivämäärä ja aika datasta (Supabase tai Mixpost)
       let dateTimeStr = null
       if (editingPost.source === 'supabase') {
@@ -130,14 +130,14 @@ const AikataulutettuModal = ({
       } else if (editingPost.source === 'mixpost') {
         dateTimeStr = editingPost.scheduled_at
       }
-      
+
       if (dateTimeStr) {
         try {
           // Mixpost tallentaa UTC-ajan ilman Z-merkintää
           // Lisätään Z jotta JavaScript tulkitsee sen UTC:nä
           const utcDateString = dateTimeStr.replace(' ', 'T') + 'Z'
           const date = new Date(utcDateString)
-          
+
           // Muunna Europe/Helsinki aikavyöhykkeeseen
           const formatter = new Intl.DateTimeFormat('fi-FI', {
             timeZone: 'Europe/Helsinki',
@@ -148,14 +148,14 @@ const AikataulutettuModal = ({
             minute: '2-digit',
             hour12: false
           })
-          
+
           const parts = formatter.formatToParts(date)
           const year = parts.find(p => p.type === 'year').value
           const month = parts.find(p => p.type === 'month').value
           const day = parts.find(p => p.type === 'day').value
           const hour = parts.find(p => p.type === 'hour').value
           const minute = parts.find(p => p.type === 'minute').value
-          
+
           dateStr = `${year}-${month}-${day}`
           timeStr = `${hour}:${minute}`
         } catch (e) {
@@ -185,7 +185,7 @@ const AikataulutettuModal = ({
 
       // Alusta channelContents jokaiselle kanavalle
       const channelContentsData = {}
-      
+
       // Jos versions löytyy, käytä sitä
       if (editingPost.versions && editingPost.versions.length > 0) {
         editingPost.versions.forEach(version => {
@@ -195,7 +195,7 @@ const AikataulutettuModal = ({
           }
         })
       }
-      
+
       // Jos versions ei löydy tai account_id on 0, käytä accounts-dataa
       if (editingPost.accounts && editingPost.accounts.length > 0) {
         editingPost.accounts.forEach(account => {
@@ -205,7 +205,7 @@ const AikataulutettuModal = ({
           }
         })
       }
-      
+
       // Debug info removed
       setChannelContents(channelContentsData)
     }
@@ -220,15 +220,15 @@ const AikataulutettuModal = ({
 
     // Validoi merkkimäärät
     if (formData.content.length > 2000) {
-      setError('Päätekstin pituus ylittää maksimin 2000 merkkiä')
+      setError(t('posts.publishModal.captionTooLong'))
       setLoading(false)
       return
     }
-    
+
     // Validoi kanavaspesifiset tekstit
     for (const [accountId, content] of Object.entries(channelContents)) {
       if (content.length > 2000) {
-        setError('Yhden tai useamman kanavan tekstin pituus ylittää maksimin 2000 merkkiä')
+        setError(t('posts.publishModal.captionTooLong'))
         setLoading(false)
         return
       }
@@ -248,7 +248,7 @@ const AikataulutettuModal = ({
 
       // Haetaan Mixpost post UUID - Supabase-datasta tai Mixpost-datasta
       let postUuid = null
-      
+
       if (editingPost.source === 'supabase') {
         // Supabase-data: käytä mixpost_post_id originalData:sta
         postUuid = editingPost.originalData?.mixpost_post_id
@@ -279,7 +279,7 @@ const AikataulutettuModal = ({
       const originalVersions = editingPost.versions || []
       // Jos account_id on 0, luo versions accounts-datasta
       let versionsToUpdate = originalVersions
-      
+
       if (originalVersions.length > 0 && originalVersions[0].account_id === 0 && editingPost.accounts && editingPost.accounts.length > 0) {
         // Luo versions accounts-datasta
         versionsToUpdate = editingPost.accounts.map(account => {
@@ -295,20 +295,20 @@ const AikataulutettuModal = ({
           }
         })
       }
-      
+
       const updatedVersions = versionsToUpdate.map(version => {
         // Käytä kanavan omaa tekstiä jos se on määritelty, muuten käytä päätekstiä
         const channelContent = channelContents[version.account_id] || formData.content
-        
+
         // Debug info removed
-        
+
         return {
           account_id: version.account_id,
           is_original: version.is_original,
           content: version.content?.map(content => ({
             body: channelContent,
             // Media-kenttä pitää olla integer-array, ei objekti-array
-            media: Array.isArray(content.media) 
+            media: Array.isArray(content.media)
               ? content.media.map(m => typeof m === 'object' ? parseInt(m.id) : parseInt(m)).filter(id => !isNaN(id))
               : []
           })) || [{ body: channelContent, media: [] }],
@@ -327,35 +327,35 @@ const AikataulutettuModal = ({
         // Tarkista että päivämäärä on tulevaisuudessa (Helsinki-aikavyöhyke)
         const selectedDateTime = new Date(`${formData.date}T${formData.time}`)
         const now = new Date()
-        
+
         // Vertaa Helsinki-aikavyöhykkeessä
-        const helsinkiNow = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Helsinki"}))
-        const helsinkiSelected = new Date(selectedDateTime.toLocaleString("en-US", {timeZone: "Europe/Helsinki"}))
-        
+        const helsinkiNow = new Date(now.toLocaleString("en-US", { timeZone: "Europe/Helsinki" }))
+        const helsinkiSelected = new Date(selectedDateTime.toLocaleString("en-US", { timeZone: "Europe/Helsinki" }))
+
         if (helsinkiSelected <= helsinkiNow) {
           throw new Error(t('schedule.messages.selectFutureDateTime'))
         }
-        
+
         // Mixpost API:n dokumentaation mukaan: lähetä lokaali päivä ja aika aikavyöhykkeen kanssa
         // Ei muunnoksia, Mixpost API käsittelee aikavyöhykkeen automaattisesti
         updateData.date = formData.date // YYYY-MM-DD (lokaali päivä)
         updateData.time = formData.time   // HH:MM (lokaali aika)
         updateData.timezone = 'Europe/Helsinki' // Aikavyöhyke
-        
+
         // Debug info removed
       }
 
       // Lisätään alkuperäiset accounts ja tags jos ne löytyvät
       // Tarkista ensin editingPost-objektista accounts
       if (editingPost.accounts && editingPost.accounts.length > 0) {
-        updateData.accounts = editingPost.accounts.map(acc => 
+        updateData.accounts = editingPost.accounts.map(acc =>
           typeof acc === 'object' ? acc.id : acc
         ).filter(id => !isNaN(id) && id !== 0)
       }
-      
+
       // Tags löytyvät yleensä editingPost-objektista
       if (editingPost.tags && editingPost.tags.length > 0) {
-        updateData.tags = editingPost.tags.map(tag => 
+        updateData.tags = editingPost.tags.map(tag =>
           typeof tag === 'object' ? tag.id : tag
         ).filter(id => !isNaN(id))
       }
@@ -402,7 +402,7 @@ const AikataulutettuModal = ({
       // Jos päivämäärä ja aika on asetettu, kutsutaan schedule-endpointtia
       // Mixpost API:n dokumentaation mukaan schedule-endpointtia käytetään ajastamiseen
       if (updateData.date && updateData.time) {
-        
+
         try {
           const scheduleResponse = await fetch('/api/integrations/mixpost/schedule-post', {
             method: 'POST',
@@ -423,30 +423,30 @@ const AikataulutettuModal = ({
           }
 
           const scheduleResult = await scheduleResponse.json()
-          
+
           console.log('AikataulutettuModal - scheduleResult:', scheduleResult)
           console.log('AikataulutettuModal - editingPost.source:', editingPost.source)
           console.log('AikataulutettuModal - editingPost.status:', editingPost.status)
-          
+
           // Jos postaus ajastettiin onnistuneesti ja se oli Supabase-postaus, 
           // palautetaan tieto callbackille
           // Tarkistetaan myös status, koska "Tarkistuksessa" -sarakkeessa olevat postaukset ovat Supabase-postauksia
           const isSupabasePost = editingPost.source === 'supabase' || editingPost.status === 'Tarkistuksessa'
-          
+
           if (isSupabasePost && scheduleResult) {
             console.log('AikataulutettuModal - Ajastetaan Supabase-postaus, palautetaan tiedot callbackille')
             // Palautetaan tiedot siitä, että postaus ajastettiin
             if (onEdit) {
-              onEdit({ 
-                wasScheduled: true, 
+              onEdit({
+                wasScheduled: true,
                 originalPost: editingPost,
                 mixpostUuid: scheduleResult.uuid || scheduleResult.id || postUuid,
                 scheduledAt: scheduleResult.scheduled_at || `${formData.date} ${formData.time}:00`
               })
             }
             if (onSave) {
-              onSave({ 
-                wasScheduled: true, 
+              onSave({
+                wasScheduled: true,
                 originalPost: editingPost,
                 mixpostUuid: scheduleResult.uuid || scheduleResult.id || postUuid
               })
@@ -497,266 +497,232 @@ const AikataulutettuModal = ({
     }
   }
 
+  if (!show || !editingPost) return null
+
+  const handleSaveInternal = async () => {
+    await handleSave()
+  }
+
+  const isOverLimitFull = formData.content.length > 2000 || Object.values(channelContents).some(c => c.length > 2000)
+
   return createPortal(
-    <div 
-      className="modal-overlay modal-overlay--light"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose()
-        }
-      }}
-    >
-      <div className="modal-container edit-post-modal">
-        <div className="modal-header">
-          <h2 className="modal-title">
-            {editingPost?.status === 'Luonnos' ? t('schedule.messages.draftPost') : t('schedule.messages.scheduledPost')}
-          </h2>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 text-left">
+      <div
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl shadow-blue-500/10 border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="px-6 py-6 border-b border-gray-50 flex items-center justify-between sticky top-0 bg-white z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">
+                {editingPost?.status === 'Luonnos' ? t('calendar.modals.scheduledDetail.draftTitle') : t('calendar.modals.scheduledDetail.title')}
+              </h2>
+              <p className="text-xs text-gray-400 font-medium">{t('calendar.modals.scheduledDetail.subtitle')}</p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="modal-close-btn"
+            className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-900 transition-colors"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
-        <div className="modal-content">
+
+        <div className="p-8 space-y-8 overflow-y-auto">
           {error && (
-            <div className="error-message mb-4 p-3 bg-red-50 text-red-600 rounded">
+            <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-medium animate-in slide-in-from-top-2">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="success-message mb-4 p-3 bg-green-50 text-green-600 rounded">
-              Postaus päivitetty onnistuneesti!
+            <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-2xl text-emerald-600 text-sm font-medium animate-in slide-in-from-top-2">
+              {t('calendar.modals.scheduledDetail.successUpdate')}
             </div>
           )}
 
-          {/* Luontipäivämäärä */}
-          <div className="form-group mb-4">
-            <label className="form-label">Luotu</label>
-            <p className="form-text py-2 px-3 bg-gray-50 border border-gray-200 rounded-md text-sm text-gray-500">
-              {editingPost.created_at ? new Date(editingPost.created_at).toLocaleString('fi-FI', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-              }) : 'Ei tiedossa'}
-            </p>
-          </div>
-
-          {/* Media-preview */}
-          <div className="form-group">
-            <label className="form-label">Media</label>
-            <div className="max-w-[300px] max-h-[200px] border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-              {(() => {
-                // Hae media URL editingPost-datasta
-                let mediaUrl = null
-
-                if (editingPost.source === 'mixpost' && editingPost.versions?.[0]?.content?.[0]?.media?.[0]) {
-                  // Mixpost-data: hae media URL
-                  const mediaItem = editingPost.versions[0].content[0].media[0]
-                  if (typeof mediaItem === 'object' && mediaItem.url) {
-                    mediaUrl = mediaItem.url
-                  } else if (typeof mediaItem === 'string') {
-                    mediaUrl = mediaItem
-                  }
-                } else if (editingPost.source === 'supabase') {
-                  // Supabase-data: käytä thumbnail tai media_urls
-                  mediaUrl = editingPost.thumbnail || editingPost.media_urls?.[0]
-                }
-
-                if (!mediaUrl) {
-                  return (
-                    <div className="flex items-center justify-center h-[200px] text-gray-500">
-                      Ei mediaa
-                    </div>
-                  )
-                }
-
-                // Video-tarkistus
-                if (mediaUrl.includes('.mp4') || mediaUrl.includes('video')) {
-                  return (
-                    <video
-                      src={mediaUrl}
-                      className="w-full h-[200px] object-cover"
-                      controls
-                    />
-                  )
-                }
-
-                // Kuva
-                return (
-                  <img
-                    src={mediaUrl}
-                    alt="Postauksen media"
-                    className="w-full h-[200px] object-cover"
-                    onError={(e) => {
-                      e.target.style.display = 'none'
-                      e.target.nextSibling.style.display = 'flex'
-                    }}
-                  />
-                )
-              })()}
-
-              {/* Fallback placeholder */}
-              <div className="hidden items-center justify-center h-[200px] text-gray-500">
-                Media ei lataa
-              </div>
-            </div>
-          </div>
-
-          {/* Näytetään nykyinen ajastettu ajankohta */}
-          {(() => {
-            let dateTimeStr = null
-            if (editingPost.source === 'supabase') {
-              dateTimeStr = editingPost.originalData?.mixpost_scheduled_at || editingPost.originalData?.publish_date
-            } else if (editingPost.source === 'mixpost') {
-              dateTimeStr = editingPost.scheduled_at
-            }
-            return dateTimeStr
-          })() && (
-            <div className="form-group">
-              <div className="p-4 bg-sky-50 border border-sky-400 rounded-md mb-2">
-                <div className="text-sm font-semibold text-sky-700 mb-1">
-                  📅 Ajastettu julkaisuajankohta
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('calendar.modals.scheduledDetail.createdLabel')}</label>
+                <div className="px-4 py-3 bg-gray-50/50 rounded-2xl border border-gray-100 text-xs font-medium text-gray-600">
+                  {editingPost.created_at ? new Date(editingPost.created_at).toLocaleString(i18n.language === 'en' ? 'en-US' : 'fi-FI', {
+                    year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+                  }) : t('calendar.modals.scheduledDetail.unknown')}
                 </div>
-                <div className="text-lg font-bold text-sky-900">
-                  {(() => {
-                    try {
-                      let dateTimeStr = null
-                      if (editingPost.source === 'supabase') {
-                        dateTimeStr = editingPost.originalData?.mixpost_scheduled_at || editingPost.originalData?.publish_date
-                      } else if (editingPost.source === 'mixpost') {
-                        dateTimeStr = editingPost.scheduled_at
-                      }
+              </div>
 
-                      if (dateTimeStr) {
-                        // Mixpost tallentaa UTC-ajan ilman Z-merkintää
-                        // Lisätään Z jotta JavaScript tulkitsee sen UTC:nä
-                        const utcDateString = dateTimeStr.replace(' ', 'T') + 'Z'
-                        const date = new Date(utcDateString)
-                        return date.toLocaleString('fi-FI', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          hour12: false,
-                          timeZone: 'Europe/Helsinki'
-                        })
-                      }
-                      return 'Ei ajankohtaa'
-                    } catch (e) {
-                      return 'Virhe ajankohdassa'
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('calendar.modals.scheduledDetail.mediaLabel')}</label>
+                <div className="relative aspect-video rounded-3xl overflow-hidden bg-gray-50 border border-gray-100 group">
+                  {(() => {
+                    let mediaUrl = null
+                    if (editingPost.source === 'mixpost' && editingPost.versions?.[0]?.content?.[0]?.media?.[0]) {
+                      const mediaItem = editingPost.versions[0].content[0].media[0]
+                      mediaUrl = typeof mediaItem === 'object' ? mediaItem.url : mediaItem
+                    } else if (editingPost.source === 'supabase') {
+                      mediaUrl = editingPost.thumbnail || editingPost.media_urls?.[0]
                     }
+
+                    if (!mediaUrl) return <div className="flex items-center justify-center h-full text-xs font-bold text-gray-300 uppercase tracking-widest">Ei mediaa</div>
+
+                    if (mediaUrl.includes('.mp4') || mediaUrl.includes('video')) {
+                      return <video src={mediaUrl} className="w-full h-full object-cover" controls preload="metadata" />
+                    }
+                    return <img src={mediaUrl} alt="Media" className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   })()}
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Näytetään statustieto */}
-          <div className="form-group">
-            <label className="form-label">Status</label>
-            <p className={`form-text inline-block py-1 px-3 rounded-full text-sm font-semibold ${
-              editingPost.status === 'Aikataulutettu'
-                ? 'bg-blue-100 text-blue-800'
-                : editingPost.status === 'Luonnos'
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-gray-100 text-gray-700'
-            }`}>
-              {editingPost.status || 'Ei statusta'}
-            </p>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('calendar.modals.scheduledDetail.statusLabel')}</label>
+                <div className="flex">
+                  <span className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-widest border ${editingPost.status === 'Aikataulutettu'
+                    ? 'bg-blue-50 text-blue-600 border-blue-100'
+                    : 'bg-amber-50 text-amber-600 border-amber-100'
+                    }`}>
+                    {editingPost.status || 'Ei statusta'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {(() => {
+                let dateTimeStr = null
+                if (editingPost.source === 'supabase') {
+                  dateTimeStr = editingPost.originalData?.mixpost_scheduled_at || editingPost.originalData?.publish_date
+                } else if (editingPost.source === 'mixpost') {
+                  dateTimeStr = editingPost.scheduled_at
+                }
+
+                if (dateTimeStr) {
+                  return (
+                    <div className="p-5 bg-blue-50/50 rounded-3xl border border-blue-100 space-y-2">
+                      <label className="text-[10px] font-bold text-blue-600 uppercase tracking-widest flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
+                        {t('calendar.modals.scheduledDetail.scheduledAtLabel')}
+                      </label>
+                      <div className="text-sm font-bold text-gray-900 leading-tight capitalize">
+                        {(() => {
+                          try {
+                            const date = new Date(dateTimeStr.replace(' ', 'T') + 'Z')
+                            return date.toLocaleString(i18n.language === 'en' ? 'en-US' : 'fi-FI', {
+                              weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Europe/Helsinki'
+                            })
+                          } catch (e) { return t('calendar.modals.scheduledDetail.noDateTime') }
+                        })()}
+                      </div>
+                    </div>
+                  )
+                }
+                return null
+              })()}
+
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('calendar.modals.scheduledDetail.dateLabel')}</label>
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-medium"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">{t('calendar.modals.scheduledDetail.timeLabel')}</label>
+                  <input
+                    type="time"
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-medium"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
-
-          <div className="form-group">
-            <div className="flex justify-between items-center mb-2">
-              <label className="form-label mb-0">Postaus (pääteksti)</label>
-              <span className={`text-xs ${formData.content.length > 2000 ? 'text-red-500 font-semibold' : 'text-gray-500'}`}>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center px-1">
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{t('calendar.modals.scheduledDetail.contentLabel')}</label>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${formData.content.length > 2000 ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-400'}`}>
                 {formData.content.length} / 2000
               </span>
             </div>
             <textarea
-              className={`form-textarea ${formData.content.length > 2000 ? 'border-red-500' : ''}`}
-              rows={6}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              placeholder="Kirjoita postauksen teksti..."
+              placeholder={t('calendar.modals.scheduledDetail.contentPlaceholder')}
+              rows={6}
+              className={`w-full p-5 bg-gray-50 border border-transparent rounded-3xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-medium leading-relaxed resize-none ${formData.content.length > 2000 ? 'border-red-200 ring-2 ring-red-50' : ''}`}
             />
-            {formData.content.length > 2000 && (
-              <p className="text-red-500 text-xs mt-1 font-medium">
-                Postauksen pituus ylittää maksimin 2000 merkkiä
-              </p>
-            )}
           </div>
 
-          {/* Per-kanava muokkauskentät */}
-          {editingPost.accounts && editingPost.accounts.length > 1 && (
-            <div className="form-group">
-              <label className="form-label">Teksti per kanava</label>
-              <div className="space-y-4">
+          {editingPost.accounts?.length > 1 && (
+            <div className="space-y-4">
+              <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1 flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                {t('calendar.modals.scheduledDetail.perChannelLabel')}
+              </label>
+              <div className="grid grid-cols-1 gap-4">
                 {editingPost.accounts.map((account, index) => {
                   const accountId = typeof account === 'object' ? account.id : account
                   if (!accountId || accountId === 0) return null
-                  
-                  // Debug info removed
-                  
-                  return renderChannelField(accountId, account, index)
+
+                  const supabaseAccount = socialAccounts.find(acc => acc.mixpost_account_uuid === String(accountId))
+                  const accountName = supabaseAccount?.username ? `@${supabaseAccount.username}` : supabaseAccount?.account_name || `Kanava ${accountId}`
+                  const currentContent = channelContents[accountId] || formData.content
+
+                  return (
+                    <div key={accountId} className="p-5 bg-gray-50/50 rounded-3xl border border-gray-100 space-y-3 group hover:border-blue-200 transition-colors">
+                      <div className="flex justify-between items-center px-1">
+                        <div className="flex items-center gap-2">
+                          {supabaseAccount?.profile_image_url && <img src={supabaseAccount.profile_image_url} className="w-6 h-6 rounded-full border border-white shadow-sm" alt="" />}
+                          <span className="text-xs font-bold text-gray-900">{accountName}</span>
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${currentContent.length > 2000 ? 'bg-red-50 text-red-600' : 'bg-white/80 text-gray-400'}`}>
+                          {currentContent.length} / 2000
+                        </span>
+                      </div>
+                      <textarea
+                        value={currentContent}
+                        onChange={(e) => setChannelContents({ ...channelContents, [accountId]: e.target.value })}
+                        rows={3}
+                        className={`w-full p-4 bg-white border border-transparent rounded-2xl focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-medium leading-relaxed resize-none shadow-sm ${currentContent.length > 2000 ? 'border-red-200' : ''}`}
+                        placeholder={t('calendar.modals.scheduledDetail.contentPlaceholder')}
+                      />
+                    </div>
+                  )
                 })}
               </div>
             </div>
           )}
+        </div>
 
-          <div className="form-group">
-            <label className="form-label">Julkaisupäivä</label>
-            <input
-              type="date"
-              className="form-input"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Julkaisuaika</label>
-            <input
-              type="time"
-              className="form-input"
-              value={formData.time}
-              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-            />
-          </div>
-
-
-          <div className="modal-actions">
-            <div className="modal-actions-left">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={onClose}
-                disabled={loading}
-              >
-                {t('common.cancel')}
-              </Button>
-            </div>
-            <div className="modal-actions-right">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={handleSave}
-                disabled={loading || formData.content.length > 2000 || Object.values(channelContents).some(content => content.length > 2000)}
-              >
-                {loading ? t('ui.buttons.saving') : t('common.save')}
-              </Button>
-            </div>
-          </div>
+        <div className="p-6 bg-gray-50/50 border-t border-gray-100 flex items-center justify-end gap-3 sticky bottom-0 z-10">
+          <button
+            onClick={onClose}
+            disabled={loading}
+            className="px-6 py-3 rounded-2xl text-sm font-bold text-gray-500 hover:text-gray-900 hover:bg-white transition-all disabled:opacity-50"
+          >
+            {t('common.cancel')}
+          </button>
+          <button
+            onClick={handleSaveInternal}
+            disabled={loading || isOverLimitFull}
+            className="px-8 py-3 bg-gray-900 hover:bg-black text-white rounded-2xl font-bold text-sm shadow-xl shadow-gray-200 transition-all disabled:opacity-50 disabled:bg-gray-400 flex items-center justify-center gap-2 min-w-[120px]"
+          >
+            {loading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                {t('ui.buttons.saving')}
+              </>
+            ) : t('common.save')}
+          </button>
         </div>
       </div>
     </div>,

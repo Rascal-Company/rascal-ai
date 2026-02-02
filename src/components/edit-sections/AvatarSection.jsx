@@ -10,11 +10,10 @@ export default function AvatarSection({ editingPost, voiceoverReadyChecked, setV
           <textarea
             name="caption"
             rows={4}
-            className="form-textarea"
+            className="form-textarea bg-gray-50 text-gray-500"
             defaultValue={editingPost.caption || ""}
             placeholder="Postauksen sisältö..."
             readOnly
-            style={{ backgroundColor: '#f8f9fa', color: '#6c757d' }}
           />
         </div>
       )}

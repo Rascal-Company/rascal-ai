@@ -43,7 +43,7 @@ export default function SiteHeader({ onOpenSignIn }) {
         </div>
         <div className="lang-switch" aria-label={t('newLabels.languageSwitcher')}>
           <button className="nav-link" onClick={() => setLanguage('fi')}>{t('lang.shortFi')}</button>
-          <span style={{padding: '0 4px'}}> / </span>
+          <span className="px-1"> / </span>
           <button className="nav-link" onClick={() => setLanguage('en')}>{t('lang.shortEn')}</button>
         </div>
         <button
@@ -81,7 +81,7 @@ export default function SiteHeader({ onOpenSignIn }) {
           </div>
           <div className="mobile-lang-switch">
             <button className="mobile-nav-link" onClick={() => { setLanguage('fi'); setIsMobileMenuOpen(false) }}>{t('lang.shortFi')}</button>
-            <span style={{padding: '0 4px'}}> / </span>
+            <span className="px-1"> / </span>
             <button className="mobile-nav-link" onClick={() => { setLanguage('en'); setIsMobileMenuOpen(false) }}>{t('lang.shortEn')}</button>
           </div>
         </div>

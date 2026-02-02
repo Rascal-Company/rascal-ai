@@ -237,7 +237,7 @@ export default function KuvapankkiPage() {
 
       <div className="kuvapankki-container">
         <div className="kuvapankki-header">
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div className="flex gap-2 items-center">
             <button
               className="kuvapankki-upload-btn"
               onClick={() => fileInputRef.current?.click()}
@@ -251,7 +251,7 @@ export default function KuvapankkiPage() {
               multiple
               accept="image/*"
               onChange={handleFileSelect}
-              style={{ display: 'none' }}
+              className="hidden"
             />
           </div>
         </div>

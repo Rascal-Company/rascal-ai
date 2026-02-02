@@ -8,7 +8,7 @@ const MonthlyLimitWarning = ({ limitData, onClose, onCreateAnyway }) => {
 
   return (
     <div className="modal-overlay">
-      <div className="modal-container" style={{ maxWidth: '500px' }}>
+      <div className="modal-container max-w-[500px]">
         <div className="modal-header">
           <h2 className="modal-title">⚠️ {t('monthlyLimit.title')}</h2>
           <button

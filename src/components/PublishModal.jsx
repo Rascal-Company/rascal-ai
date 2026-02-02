@@ -1,261 +1,131 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
-import Button from './Button'
 
-const PublishModal = ({ 
-  show, 
-  publishingPost, 
+const PublishModal = ({
+  show,
+  publishingPost,
   socialAccounts,
   selectedAccounts,
   setSelectedAccounts,
   loadingAccounts,
-  onClose, 
+  onClose,
   onConfirm,
-  t 
+  t
 }) => {
+  const [publishDate, setPublishDate] = useState('')
+
   if (!show || !publishingPost) return null
 
-  const [publishDate, setPublishDate] = React.useState('')
-
   const toggleAccount = (accountId) => {
-    console.log('toggleAccount called with:', accountId)
-    console.log('Current selectedAccounts:', selectedAccounts)
     if (selectedAccounts.includes(accountId)) {
-      const newAccounts = selectedAccounts.filter(id => id !== accountId)
-      console.log('Removing account, new selectedAccounts:', newAccounts)
-      setSelectedAccounts(newAccounts)
+      setSelectedAccounts(selectedAccounts.filter(id => id !== accountId))
     } else {
-      const newAccounts = [...selectedAccounts, accountId]
-      console.log('Adding account, new selectedAccounts:', newAccounts)
-      setSelectedAccounts(newAccounts)
+      setSelectedAccounts([...selectedAccounts, accountId])
     }
   }
 
+  const isCarousel = publishingPost.type === 'Carousel'
+  const mediaUrl = publishingPost.thumbnail || (publishingPost.media_urls && publishingPost.media_urls[0])
+
   return createPortal(
-    <div 
-      className="modal-overlay modal-overlay--light"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose()
-        }
-      }}
-    >
-      <div className="modal-container publish-modal-wide">
-        <div className="modal-header">
-          <h2 className="modal-title">{t('posts.publishModal.title')}</h2>
-          <button onClick={onClose} className="modal-close-btn">✕</button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-white/80 backdrop-blur-sm animate-in fade-in duration-300"
+        onClick={onClose}
+      />
+
+      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-[0_32px_96px_-16px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[85vh]">
+
+        {/* Simple Header */}
+        <div className="px-8 py-6 flex items-center justify-between border-b border-gray-50">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900 leading-none">{t('posts.publishModal.title')}</h2>
+            <p className="text-xs text-gray-400 mt-1.5">{t('posts.publishModal.contentToPublish')}</p>
+          </div>
+          <button onClick={onClose} className="p-2 hover:bg-gray-50 rounded-full text-gray-400 hover:text-gray-900 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
         </div>
-        
-        <div className="modal-content">
-          {/* Grid: Kuva vasemmalla (1/3), Caption+Aikataulu oikealla (2/3), Somet alhaalla koko leveydellä */}
-          <div className="publish-modal-grid">
-            {/* Vasen: Kuva/Video */}
-            <div className="publish-modal-media">
-              <div className="media-container">
-                {(() => {
-                  const isCarousel = publishingPost.type === 'Carousel'
-                  
-                  // Carousel-tyyppisillä postauksilla näytetään kaikki slaidit
-                  if (isCarousel && publishingPost.segments && publishingPost.segments.length > 0) {
-                    return (
-                      <div className="carousel-slides">
-                        <h4 className="publish-modal-slides-title">
-                          {t('posts.publishModal.slides', { count: publishingPost.segments.length })}
-                        </h4>
-                        <div className="slides-grid">
-                          {publishingPost.segments.map((segment, index) => (
-                            <div key={segment.id || index} className="slide-item">
-                              <div className="slide-number">
-                                {segment.slide_no || index + 1}
-                              </div>
-                              {segment.media_urls && segment.media_urls.length > 0 ? (
-                                <img
-                                  src={segment.media_urls[0]}
-                                  alt={`Slaidi ${segment.slide_no || index + 1}`}
-                                  className="slide-image"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none'
-                                    e.target.nextSibling.style.display = 'flex'
-                                  }}
-                                />
-                              ) : (
-                                <div className="slide-placeholder">
-                                  <img src="/placeholder.png" alt={t('posts.publishModal.noMedia')} />
-                                </div>
-                              )}
-                              {/* Fallback placeholder */}
-                              <div className="slide-placeholder hidden">
-                                <img src="/placeholder.png" alt={t('posts.publishModal.noMedia')} />
-                              </div>
-                              {segment.caption && (
-                                <div className="slide-caption">
-                                  {segment.caption}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  }
-                  
-                  // Muille tyypeille näytetään yksi kuva
-                  const mediaUrl = publishingPost.thumbnail || (publishingPost.media_urls && publishingPost.media_urls[0])
-                  
-                  if (!mediaUrl) {
-                    return (
-                      <div className="media-placeholder">
-                        <img src="/placeholder.png" alt={t('posts.publishModal.noMedia')} />
-                      </div>
-                    )
-                  }
-                  
-                  if (mediaUrl.includes('.mp4') || mediaUrl.includes('video')) {
-                    return (
-                      <video
-                        src={mediaUrl}
-                        className="media-preview media-object-contain"
-                        controls
-                      />
-                    )
-                  }
-                  
-                  return (
-                    <div className="media-wrapper">
-                      <img 
-                        src={mediaUrl} 
-                        alt="Postauksen media"
-                        className="media-preview media-object-contain"
-                        onError={(e) => {
-                          e.target.style.display = 'none'
-                          e.target.nextSibling.style.display = 'flex'
-                        }}
-                      />
-                    </div>
+
+        <div className="flex-1 overflow-y-auto flex flex-col md:flex-row">
+          {/* Content Preview */}
+          <div className="flex-1 p-8 bg-gray-50/30">
+            <div className="max-w-[320px] mx-auto space-y-6">
+              <div className="aspect-square bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+                {isCarousel && publishingPost.segments?.length > 0 ? (
+                  <img src={publishingPost.segments[0].media_urls?.[0]} className="w-full h-full object-cover" alt="preview" />
+                ) : mediaUrl ? (
+                  mediaUrl.includes('.mp4') || mediaUrl.includes('video') ? (
+                    <video src={mediaUrl} className="w-full h-full object-cover" controls />
+                  ) : (
+                    <img src={mediaUrl} className="w-full h-full object-cover" alt="preview" />
                   )
-                })()}
-
-                {/* Fallback placeholder */}
-                <div className="media-placeholder hidden">
-                  <img src="/placeholder.png" alt={t('posts.publishModal.noMedia')} />
-                </div>
-              </div>
-            </div>
-
-            {/* Oikea: Caption + Aikataulu allekkain */}
-            <div className="publish-modal-right-column publish-modal-col-fixed">
-              {/* Caption/Postaus */}
-              <div className="publish-modal-fields publish-modal-half">
-                <div className="publish-modal-header-row">
-                  <h3 className="publish-modal-section-title">
-                    {t('posts.publishModal.contentToPublish')}
-                  </h3>
-                  <span className={`publish-modal-char-count ${(publishingPost.caption?.length || 0) > 2000 ? 'warning' : ''}`}>
-                    {publishingPost.caption?.length || 0} / 2000
-                  </span>
-                </div>
-                <div className={`publish-modal-caption-box ${(publishingPost.caption?.length || 0) > 2000 ? 'error' : ''}`}>
-                  {publishingPost.caption || t('posts.publishModal.noCaption')}
-                </div>
-                {(publishingPost.caption?.length || 0) > 2000 && (
-                  <p className="publish-modal-warning-text">
-                    {t('posts.publishModal.captionTooLong')}
-                  </p>
-                )}
-              </div>
-
-              {/* Julkaisupäivä */}
-              <div className="publish-modal-schedule publish-modal-half">
-                <h3 className="publish-modal-section-title-mt0">
-                  {t('posts.publishModal.scheduleDate')}
-                </h3>
-                <div className="publish-modal-schedule-box">
-                  <input
-                    type="datetime-local"
-                    value={publishDate}
-                    onChange={(e) => setPublishDate(e.target.value)}
-                    className="publish-modal-datetime-input"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Ala: Somekanavat */}
-            <div className="publish-modal-accounts">
-              <h3 className="publish-modal-section-title-mt0">
-                {t('posts.publishModal.selectChannels')}
-              </h3>
-              <div className="publish-modal-accounts-list">
-                {loadingAccounts ? (
-                  <div className="publish-modal-loading-box">
-                    {t('posts.publishModal.loadingAccounts')}
-                  </div>
-                ) : socialAccounts && socialAccounts.length > 0 ? (
-                  socialAccounts.map((account) => {
-                    const isSelected = selectedAccounts.includes(account.mixpost_account_uuid)
-                    return (
-                      <div
-                        key={account.mixpost_account_uuid}
-                        onClick={() => toggleAccount(account.mixpost_account_uuid)}
-                        className={`publish-modal-account-card ${isSelected ? 'selected' : ''}`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={(e) => {
-                            e.stopPropagation()
-                            toggleAccount(account.mixpost_account_uuid)
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="publish-modal-account-checkbox"
-                        />
-                        {account.profile_image_url && (
-                          <img
-                            src={account.profile_image_url}
-                            alt={account.account_name}
-                            className="publish-modal-account-avatar"
-                          />
-                        )}
-                        <div className="publish-modal-account-info">
-                          <div className="publish-modal-account-name">
-                            {account.account_name}
-                          </div>
-                          <div className="publish-modal-account-meta">
-                            {account.provider} • {account.username ? `@${account.username}` : account.account_name}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })
                 ) : (
-                  <div className="publish-modal-loading-box">
-                    {t('posts.publishModal.noAccounts')}
-                  </div>
+                  <div className="h-full flex items-center justify-center text-gray-300 text-xs">{t('posts.publishModal.noMedia')}</div>
                 )}
+              </div>
+              <div className="text-sm text-gray-600 leading-relaxed max-h-40 overflow-y-auto pr-2 custom-scrollbar whitespace-pre-wrap italic">
+                {publishingPost.caption || t('posts.publishModal.noCaption')}
+              </div>
+            </div>
+          </div>
+
+          {/* Configuration */}
+          <div className="flex-1 p-8 border-l border-gray-50 space-y-10">
+            {/* Account Selector */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t('posts.publishModal.selectChannels')}</label>
+                <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full">{selectedAccounts.length}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {socialAccounts?.map(account => {
+                  const isSelected = selectedAccounts.includes(account.mixpost_account_uuid)
+                  return (
+                    <button
+                      key={account.mixpost_account_uuid}
+                      onClick={() => toggleAccount(account.mixpost_account_uuid)}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${isSelected ? 'border-blue-500 bg-blue-50/50 shadow-sm' : 'border-gray-100 hover:border-gray-200'
+                        }`}
+                    >
+                      <img src={account.profile_image_url} className="w-8 h-8 rounded-lg object-cover" alt="" />
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-gray-900 truncate">{account.account_name}</div>
+                        <div className="text-[9px] text-gray-400 uppercase tracking-tighter">{account.provider}</div>
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
-         
+            {/* Schedule */}
+            <div className="space-y-4 pt-6 border-t border-gray-50">
+              <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">{t('posts.publishModal.scheduleDate')}</label>
+              <input
+                type="datetime-local"
+                value={publishDate}
+                onChange={(e) => setPublishDate(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50/50 focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-sm font-medium"
+              />
+              {!publishDate && <p className="text-[10px] text-gray-400 italic">{t('posts.publishModal.publishImmediatelyHint')}</p>}
+            </div>
           </div>
+        </div>
 
-          {/* Modal actions */}
-          <div className="modal-actions">
-            <div className="modal-actions-left">
-              <Button type="button" variant="secondary" onClick={onClose}>
-                {t('posts.publishModal.cancel')}
-              </Button>
-            </div>
-            <div className="modal-actions-right">
-              <Button
-                type="button"
-                variant="primary"
-                onClick={() => onConfirm(publishDate)}
-                disabled={selectedAccounts.length === 0 || (publishingPost.caption?.length || 0) > 2000}
-              >
-                {publishDate ? t('posts.publishModal.schedule') : t('posts.publishModal.publishNow')}
-              </Button>
-            </div>
-          </div>
+        {/* Action Bar */}
+        <div className="px-8 py-6 border-t border-gray-100 bg-white flex justify-end gap-3">
+          <button onClick={onClose} className="px-6 py-3 text-sm font-bold text-gray-400 hover:text-gray-900 transition-colors">
+            {t('posts.publishModal.cancel')}
+          </button>
+          <button
+            onClick={() => onConfirm(publishDate)}
+            disabled={selectedAccounts.length === 0 || (publishingPost.caption?.length || 0) > 2000}
+            className={`px-8 py-3 rounded-2xl text-sm font-bold transition-all ${selectedAccounts.length > 0 ? 'bg-gray-900 text-white shadow-lg hover:bg-black active:scale-95' : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+              }`}
+          >
+            {publishDate ? t('posts.publishModal.schedule') : t('posts.publishModal.publishNow')}
+          </button>
         </div>
       </div>
     </div>,

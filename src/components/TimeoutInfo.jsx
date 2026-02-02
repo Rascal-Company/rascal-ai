@@ -9,18 +9,7 @@ const TimeoutInfo = () => {
   const contextTimeout = getContextTimeout(location.pathname)
 
   return (
-    <div style={{
-      position: 'fixed',
-      bottom: '20px',
-      right: '20px',
-      background: 'rgba(0, 0, 0, 0.8)',
-      color: 'white',
-      padding: '8px 12px',
-      borderRadius: '6px',
-      fontSize: '12px',
-      zIndex: 1000,
-      fontFamily: 'monospace'
-    }}>
+    <div className="fixed bottom-5 right-5 bg-black/80 text-white py-2 px-3 rounded-md text-xs z-[1000] font-mono">
       <div>Timeout: {currentTimeout}min</div>
       <div>Active: {isActive ? '✓' : '✗'}</div>
       <div>Context: {contextTimeout}min</div>

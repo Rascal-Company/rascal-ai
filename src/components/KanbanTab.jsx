@@ -2,29 +2,23 @@ import React, { useState } from "react";
 import PostCard from "./PostCard/PostCard";
 
 const columns = [
-  { status: "Avatar", titleKey: "posts.columns.avatar", color: "#fef3c7" },
+  { status: "Avatar", titleKey: "posts.columns.avatar", color: "bg-amber-400" },
   {
     status: "KeskenSupabase",
     titleKey: "posts.columns.inProgress",
-    color: "#fef3c7",
+    color: "bg-blue-400",
   },
   {
     status: "Tarkistuksessa",
     titleKey: "posts.columns.readyToPublish",
-    color: "#dbeafe",
+    color: "bg-indigo-400",
   },
   {
     status: "Aikataulutettu",
     titleKey: "posts.columns.scheduled",
-    color: "#fce7f3",
+    color: "bg-pink-400",
   },
 ];
-
-const publishedColumn = {
-  status: "Julkaistu",
-  titleKey: "posts.statuses.published",
-  color: "#dcfce7",
-};
 
 export default function KanbanTab({
   posts = [],
@@ -41,10 +35,36 @@ export default function KanbanTab({
   const [draggedPost, setDraggedPost] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
 
+  // Advanced State for Professional UX
+  const [collapsedColumns, setCollapsedColumns] = useState({});
+  const [columnFilters, setColumnFilters] = useState({});
+  const [sortOrders, setSortOrders] = useState({}); // column -> 'new' | 'old'
+  const [viewMode, setViewMode] = useState('visual'); // 'visual' | 'compact'
+  const [selectedPosts, setSelectedPosts] = useState([]);
+
+  const toggleCollapse = (status) => {
+    setCollapsedColumns(prev => ({ ...prev, [status]: !prev[status] }));
+  };
+
+  const updateFilter = (status, val) => {
+    setColumnFilters(prev => ({ ...prev, [status]: val }));
+  };
+
+  const toggleSort = (status) => {
+    setSortOrders(prev => ({ ...prev, [status]: prev[status] === 'old' ? 'new' : 'old' }));
+  };
+
+  const handleSelect = (post) => {
+    setSelectedPosts(prev =>
+      prev.find(p => p.id === post.id)
+        ? prev.filter(p => p.id !== post.id)
+        : [...prev, post]
+    );
+  };
+
   const handleDragStart = (e, post) => {
     setDraggedPost(post);
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("text/html", e.target.outerHTML);
   };
 
   const handleDragEnd = () => {
@@ -66,244 +86,253 @@ export default function KanbanTab({
     e.preventDefault();
     setDragOverColumn(null);
 
-    // Tallenna draggedPost ennen kuin se nollataan handleDragEnd:issä
     const postToMove = draggedPost;
-
     if (!postToMove) return;
-
-    // Jos status on sama, ei tehdä mitään
     if (postToMove.status === targetStatus) return;
 
-    // Jos raahataan Mixpost-postausta pois Aikataulutettu-sarakkeesta
-    if (
-      postToMove.source === "mixpost" &&
-      postToMove.status === "Aikataulutettu"
-    ) {
+    if (postToMove.source === "mixpost" && postToMove.status === "Aikataulutettu") {
       try {
         const postUuidToDelete = postToMove.uuid || postToMove.id;
-
-        if (onDeleteMixpostPost) {
-          await onDeleteMixpostPost(postUuidToDelete);
-        }
-
-        if (onRefreshPosts) {
-          await onRefreshPosts();
-        }
+        if (onDeleteMixpostPost) await onDeleteMixpostPost(postUuidToDelete);
+        if (onRefreshPosts) await onRefreshPosts();
       } catch (error) {
         console.error("❌ Error in handleDrop:", error);
       }
       return;
     }
 
-    // Varmistetaan että kyseessä on Supabase-postaus muille siirroille
-    if (postToMove.source !== "supabase") {
-      return;
-    }
+    if (postToMove.source !== "supabase") return;
 
-    // Kutsutaan handleMoveToNext funktiota Supabase-postauksille
     if (onMoveToNext) {
       await onMoveToNext(postToMove, targetStatus);
     }
   };
 
   return (
-    <div className="kanban-board">
-      {/* Ylemmät 4 saraketta */}
-      <div className="kanban-top-row">
-        {columns.map((column) => {
-          // Filteröidään postit statusin JA lähteen mukaan
-          let columnPosts = posts.filter((post) => {
-            // Kesken-sarakkeessa näytetään vain Supabase-dataa "Kesken" statusilla
-            if (column.titleKey === "posts.columns.inProgress") {
-              return post.status === "Kesken" && post.source === "supabase";
-            }
+    <div className="space-y-12">
+      {/* Global Kanban Controls */}
+      <div className="flex items-center justify-between px-2">
+        <div className="flex items-center gap-4 bg-white/60 backdrop-blur-md p-1.5 rounded-2xl border border-gray-100 shadow-sm">
+          <button
+            onClick={() => setViewMode('visual')}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'visual' ? 'bg-gray-900 text-white shadow-lg' : 'text-gray-400 hover:text-gray-900'}`}
+          >
+            Visual
+          </button>
+          <button
+            onClick={() => setViewMode('compact')}
+            className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === 'compact' ? 'bg-gray-900 text-white shadow-lg' : 'text-gray-400 hover:text-gray-900'}`}
+          >
+            Compact
+          </button>
+        </div>
 
-            // Aikataulutettu-sarakkeessa näytetään Mixpost dataa
-            if (column.status === "Aikataulutettu") {
-              return (
-                post.status === "Aikataulutettu" && post.source === "mixpost"
-              );
-            }
-            // Julkaistu-sarakkeessa näytetään sekä Supabase että Mixpost dataa
-            if (column.status === "Julkaistu") {
-              return post.status === "Julkaistu";
-            }
-            // Muissa sarakkeissa näytetään Supabase-data oikealla statusilla
+        {selectedPosts.length > 0 && (
+          <div className="flex items-center gap-4 animate-in slide-in-from-top-4 duration-300">
+            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-xl border border-blue-100 italic">
+              {selectedPosts.length} postia valittu
+            </span>
+            <button
+              onClick={() => setSelectedPosts([])}
+              className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-red-500"
+            >
+              Tyhjennä
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Kanban Board - Horizontal Scroll */}
+      <div className="flex flex-row gap-6 lg:gap-8 overflow-x-auto pb-8 snap-x no-scrollbar lg:no-scrollbar-none min-h-[800px] items-start">
+        {columns.map((column) => {
+          const isCollapsed = collapsedColumns[column.status];
+          const filter = columnFilters[column.status] || '';
+          const sort = sortOrders[column.status] || 'new';
+
+          let columnPosts = posts.filter((post) => {
+            if (column.titleKey === "posts.columns.inProgress") return post.status === "Kesken" && post.source === "supabase";
+            if (column.status === "Aikataulutettu") return post.status === "Aikataulutettu" && post.source === "mixpost";
+            if (column.status === "Avatar") return post.status === "Avatar" && post.source === "supabase";
             return post.status === column.status && post.source === "supabase";
+          });
+
+          // Apply per-column filter
+          if (filter) {
+            columnPosts = columnPosts.filter(p =>
+              (p.title || '').toLowerCase().includes(filter.toLowerCase()) ||
+              (p.caption || '').toLowerCase().includes(filter.toLowerCase())
+            );
+          }
+
+          // Apply per-column sort
+          columnPosts.sort((a, b) => {
+            const dateA = new Date(a.originalData?.created_at || 0);
+            const dateB = new Date(b.originalData?.created_at || 0);
+            return sort === 'new' ? dateB - dateA : dateA - dateB;
           });
 
           return (
             <div
               key={column.status}
-              className={`kanban-column ${dragOverColumn === column.status ? "drag-over" : ""}`}
+              className={`flex-shrink-0 flex flex-col gap-6 p-4 rounded-[40px] transition-all duration-700 snap-start h-fit ${isCollapsed ? "w-[100px]" : "w-[320px] sm:w-[380px]"
+                } ${dragOverColumn === column.status
+                  ? "bg-blue-50/40 ring-2 ring-blue-500/20 shadow-[0_32px_64px_-16px_rgba(59,130,246,0.15)] scale-[1.01]"
+                  : "bg-gray-50/30 border border-transparent"
+                }`}
               onDragOver={(e) => handleDragOver(e, column.status)}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, column.status)}
             >
-              <h3 className="column-title">{t(column.titleKey)}</h3>
-              <div className="column-content">
-                {column.titleKey === "posts.columns.avatar" ? (
-                  <div
-                    style={{
-                      padding: "32px",
-                      textAlign: "center",
-                      background:
-                        "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-                      borderRadius: "12px",
-                      border: "2px dashed #cbd5e1",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
-                    {/* Dekoratiivinen gradient */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "-50%",
-                        right: "-50%",
-                        width: "200%",
-                        height: "200%",
-                        background:
-                          "radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)",
-                        pointerEvents: "none",
-                      }}
-                    />
-
-                    {/* Sisältö */}
-                    <div style={{ position: "relative", zIndex: 1 }}>
-                      <svg
-                        width="48"
-                        height="48"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#10b981"
-                        strokeWidth="2"
-                        style={{ margin: "0 auto 16px", display: "block" }}
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                      <div
-                        style={{
-                          color: "#334155",
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          marginBottom: "8px",
-                        }}
-                      >
-                        Tulossa uusi versio
-                      </div>
-                      <div
-                        style={{
-                          color: "#64748b",
-                          fontSize: "13px",
-                          lineHeight: "1.5",
-                        }}
-                      >
-                        Työskentelemme parhaillaan uuden
-                        <br />
-                        avatar-toiminnallisuuden parissa
-                      </div>
-                    </div>
+              {/* Column Header */}
+              <div className={`sticky top-0 z-20 flex flex-col gap-3 p-3 bg-white/80 backdrop-blur-xl rounded-[28px] border border-white/60 shadow-lg shadow-gray-200/10 transition-all ${isCollapsed ? 'items-center py-6' : ''}`}>
+                <div className={`flex items-center ${isCollapsed ? 'flex-col gap-4' : 'justify-between w-full'}`}>
+                  <div className={`flex items-center gap-3 ${isCollapsed ? 'flex-col' : ''}`}>
+                    <div className={`w-3 h-3 rounded-full shadow-lg ${column.color}`} />
+                    {!isCollapsed && (
+                      <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-[0.2em] leading-none">
+                        {t(column.titleKey)}
+                      </h3>
+                    )}
                   </div>
-                ) : columnPosts.length === 0 ? null : (
-                  columnPosts.map((post) => {
-                    // Varmistetaan että post on oikeassa muodossa
-                    const safePost = {
-                      id: post.id || "unknown",
-                      title: post.title || t("posts.statuses.untitled"),
-                      caption: post.caption || t("posts.placeholders.noImage"),
-                      type: post.type || "Photo",
-                      source: post.source || "supabase",
-                      thumbnail: post.thumbnail || null,
-                      status: post.status || "Kesken",
-                      voiceover: post.voiceover || "",
-                      segments: post.segments || [],
-                      originalData: post.originalData || {},
-                      createdAt: post.createdAt,
-                      scheduledDate: post.scheduledDate,
-                      publishedAt: post.publishedAt,
-                    };
 
-                    return (
-                      <PostCard
-                        key={safePost.id}
-                        post={safePost}
-                        onEdit={onEdit}
-                        onDelete={onDelete}
-                        onDuplicate={onDuplicate}
-                        onPublish={onPublish}
-                        onSchedule={onSchedule}
-                        onMoveToNext={onMoveToNext}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
-                        isDragging={draggedPost?.id === safePost.id}
-                        hideActions={column.status === "Aikataulutettu"}
-                        t={t}
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => toggleCollapse(column.status)}
+                      className="p-2 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-900"
+                    >
+                      {isCollapsed ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" /></svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {!isCollapsed && (
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1 group">
+                      <input
+                        type="text"
+                        value={filter}
+                        onChange={(e) => updateFilter(column.status, e.target.value)}
+                        placeholder="Hae..."
+                        className="w-full pl-8 pr-3 py-2 bg-gray-50/50 border border-transparent rounded-xl text-[10px] font-bold outline-none focus:bg-white focus:border-blue-500/20 transition-all"
                       />
-                    );
-                  })
+                      <svg className="absolute left-2.5 top-2.5 w-3 h-3 text-gray-300 group-focus-within:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    <button
+                      onClick={() => toggleSort(column.status)}
+                      className={`p-2 rounded-xl border transition-all ${sort === 'new' ? 'bg-blue-50 border-blue-100 text-blue-600' : 'bg-white border-gray-100 text-gray-400'}`}
+                      title={sort === 'new' ? 'Uusin ensin' : 'Vanhin ensin'}
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" /></svg>
+                    </button>
+                    <span className="text-[10px] font-black text-gray-400 bg-gray-100/50 px-2.5 py-1.5 rounded-xl border border-gray-100/50 min-w-[32px] text-center">
+                      {columnPosts.length}
+                    </span>
+                  </div>
                 )}
               </div>
+
+              {/* Column Content */}
+              {!isCollapsed && (
+                <div className="flex-1 space-y-5 px-1 pb-4 overflow-y-auto max-h-[800px] lg:max-h-[calc(100vh-300px)] custom-scrollbar pr-2">
+                  {column.status === "Avatar" ? (
+                    <div className="p-10 text-center bg-white/40 backdrop-blur-xl rounded-[32px] border-2 border-dashed border-gray-100 relative overflow-hidden group hover:border-amber-400/50 transition-all duration-700">
+                      <div className="relative z-10">
+                        <div className="w-16 h-16 bg-white rounded-[24px] shadow-2xl shadow-gray-200/50 flex items-center justify-center mx-auto mb-6 group-hover:rotate-12 transition-transform duration-500">
+                          <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                        </div>
+                        <div className="text-gray-900 text-[10px] font-black uppercase tracking-widest mb-3">AI Avatars</div>
+                        <div className="text-gray-400 text-[10px] font-bold leading-relaxed uppercase tracking-tighter opacity-60">
+                          Ready to enhance your<br />content flow
+                        </div>
+                      </div>
+                      <div className="absolute inset-0 bg-gradient-to-br from-amber-50/0 via-amber-50/50 to-amber-100/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                    </div>
+                  ) : columnPosts.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-24 px-8 text-center bg-white/10 border-2 border-dashed border-gray-100/50 rounded-[32px] transition-all duration-500 hover:bg-white/20">
+                      <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 text-gray-100">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                      </div>
+                      <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">No Content</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      {columnPosts.map((post) => (
+                        <div key={post.id || Math.random()} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+                          <PostCard
+                            post={post}
+                            onEdit={onEdit}
+                            onDelete={onDelete}
+                            onDuplicate={onDuplicate}
+                            onPublish={onPublish}
+                            onSchedule={onSchedule}
+                            onMoveToNext={onMoveToNext}
+                            onDragStart={handleDragStart}
+                            onDragEnd={handleDragEnd}
+                            isDragging={draggedPost?.id === post.id}
+                            hideActions={column.status === "Aikataulutettu"}
+                            t={t}
+                            compact={viewMode === 'compact'}
+                            isSelected={selectedPosts.some(p => p.id === post.id)}
+                            onSelect={handleSelect}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* Julkaistu-sarakkeessa kaikkien 4 sarakkeen levyinen */}
-      <div className="kanban-bottom-row">
-        {(() => {
-          // Haetaan vain Supabase julkaistut postaukset
-          const supabasePublishedPosts = posts.filter(
-            (post) =>
-              post.status === publishedColumn.status &&
-              post.source === "supabase",
-          );
-
-          return (
-            <div className="kanban-column kanban-column-full-width">
-              <h3 className="column-title">{t(publishedColumn.titleKey)}</h3>
-              <div className="column-content">
-                {supabasePublishedPosts.map((post) => {
-                  const safePost = {
-                    id: post.id || "unknown",
-                    title: post.title || t("posts.statuses.untitled"),
-                    caption: post.caption || t("posts.placeholders.noImage"),
-                    type: post.type || "Photo",
-                    source: post.source || "supabase",
-                    thumbnail: post.thumbnail || null,
-                    status: post.status || "Julkaistu",
-                    published_at: post.publishedAt,
-                    external_urls: [],
-                    segments: post.segments || [],
-                    originalData: post.originalData || {},
-                    createdAt: post.createdAt,
-                    scheduledDate: post.scheduledDate,
-                    publishedAt: post.publishedAt,
-                  };
-
-                  return (
-                    <PostCard
-                      key={safePost.id}
-                      post={safePost}
-                      onEdit={onEdit}
-                      onDelete={onDelete}
-                      onDuplicate={onDuplicate}
-                      onPublish={onPublish}
-                      onSchedule={onSchedule}
-                      onMoveToNext={onMoveToNext}
-                      onDragStart={handleDragStart}
-                      onDragEnd={handleDragEnd}
-                      isDragging={draggedPost?.id === safePost.id}
-                      t={t}
-                    />
-                  );
-                })}
-              </div>
+      {/* Published Section */}
+      <div className="space-y-10 group pb-20">
+        <div className="flex items-center justify-between px-2 lg:px-6">
+          <div className="flex items-center gap-4">
+            <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)] animate-pulse" />
+            <div className="space-y-1">
+              <h3 className="text-lg font-black text-gray-900 tracking-tight uppercase leading-none">
+                {t("posts.statuses.published")}
+              </h3>
+              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Live Content History</p>
             </div>
-          );
-        })()}
+          </div>
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-100">
+            <span className="text-[11px] font-black text-emerald-600 uppercase tracking-widest">
+              {posts.filter(p => p.status === "Julkaistu" && p.source === "supabase").length}
+            </span>
+            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-tight">Posts</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+          {posts
+            .filter(p => p.status === "Julkaistu" && p.source === "supabase")
+            .map((post) => (
+              <div key={post.id} className="animate-in fade-in zoom-in-95 duration-700">
+                <PostCard
+                  post={post}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onDuplicate={onDuplicate}
+                  onPublish={onPublish}
+                  onSchedule={onSchedule}
+                  onMoveToNext={onMoveToNext}
+                  onDragStart={handleDragStart}
+                  onDragEnd={handleDragEnd}
+                  isDragging={draggedPost?.id === post.id}
+                  t={t}
+                />
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   );
 }
+

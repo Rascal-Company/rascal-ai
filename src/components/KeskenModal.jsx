@@ -10,14 +10,14 @@ import ModalActions from './KeskenModal/ModalActions'
 import CaptionEditor from './KeskenModal/CaptionEditor'
 import MediaPreview from './KeskenModal/MediaPreview'
 
-const KeskenModal = ({ 
-  show, 
-  editingPost, 
+const KeskenModal = ({
+  show,
+  editingPost,
   user,
-  onClose, 
+  onClose,
   onSave,
   t: tProp,
-  userAccountType 
+  userAccountType
 }) => {
   const { t: tHook } = useTranslation('common')
   const t = tProp || tHook
@@ -32,101 +32,61 @@ const KeskenModal = ({
   const [showKuvapankkiSelector, setShowKuvapankkiSelector] = useState(false)
   const fileInputRef = useRef(null)
 
-  // Validoi media-tiedosto
   const validateMediaFile = (file) => {
-    // Tarkista tiedostotyyppi - backend odottaa tiettyjä MIME-tyyppejä
-    const validImageTypes = [
-      'image/jpeg',
-      'image/jpg', 
-      'image/png',
-      'image/gif'
-    ]
-    
-    const validVideoTypes = [
-      'video/mp4',
-      'video/x-m4v'
-    ]
-
+    const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif']
+    const validVideoTypes = ['video/mp4', 'video/x-m4v']
     const validTypes = [...validImageTypes, ...validVideoTypes]
-    
+
     if (!validTypes.includes(file.type)) {
       return t('validation.fileTypeNotSupported', { type: file.type })
     }
-
-    return null // Ei virheitä
+    return null
   }
 
-  // Päivitä formData kun editingPost muuttuu
-  // TÄRKEÄ: Älä resetoi formDataa jos käyttäjä on jo muuttanut sitä
-  // Tämä estää tekstin katoamisen kun kuva vaihdetaan
   const hasUserEdited = useRef(false)
   const currentPostId = useRef(null)
-  
+
   useEffect(() => {
     if (editingPost) {
-      // Jos postaus on vaihtunut (eri ID), resetoi muokkaus-tila
       if (currentPostId.current !== editingPost.id) {
         hasUserEdited.current = false
         currentPostId.current = editingPost.id
-        setFormData({
-          caption: editingPost.caption || ''
-        })
+        setFormData({ caption: editingPost.caption || '' })
         return
       }
-      
-      // Jos sama postaus ja käyttäjä ei ole vielä muuttanut tekstiä, päivitä formData
+
       if (!hasUserEdited.current) {
-        setFormData({
-          caption: editingPost.caption || ''
-        })
+        setFormData({ caption: editingPost.caption || '' })
       }
-      // Jos käyttäjä on muuttanut tekstiä, säilytä muokkaukset
-      // Älä resetoi formDataa vaikka editingPost päivittyisi kuvan vaihdon jälkeen
     }
   }, [editingPost])
-  
-  // Seuraa kun käyttäjä muuttaa caption-kenttää
+
   const handleCaptionChange = (e) => {
     hasUserEdited.current = true
-    setFormData({...formData, caption: e.target.value})
+    setFormData({ ...formData, caption: e.target.value })
   }
 
   if (!show || !editingPost) return null
 
-  // Kuvan poisto
   const handleDeleteImage = async (imageUrl) => {
     if (!imageUrl) return
-    
     setImageLoading(true)
     setError('')
-    
     try {
-      // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
       const userId = await getUserOrgId(user?.id)
-
       if (!userId) {
         setError(t('keskenModal.errors.userNotFound'))
         return
       }
-
       const response = await fetch('/api/content/media-management', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
-        body: JSON.stringify({
-          contentId: editingPost.id,
-          imageUrl: imageUrl
-        })
+        body: JSON.stringify({ contentId: editingPost.id, imageUrl: imageUrl })
       })
-
-      if (!response.ok) {
-        throw new Error(t('keskenModal.errors.imageDeleteFailed'))
-      }
-
-      // Päivitä editingPost data
-      const result = await response.json()
+      if (!response.ok) throw new Error(t('keskenModal.errors.imageDeleteFailed'))
       onSave()
     } catch (err) {
       setError(t('keskenModal.errors.imageDeleteFailedWithDetails', { message: err.message }))
@@ -135,62 +95,45 @@ const KeskenModal = ({
     }
   }
 
-  // Lisää kuva kuvapankista
   const handleAddImageFromKuvapankki = async (imageUrl) => {
     try {
       setImageLoading(true)
       setError('')
-
-      // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
       const userId = await getUserOrgId(user?.id)
-
       if (!userId) {
         setError(t('keskenModal.errors.userNotFound'))
         return
       }
 
-      // Jos on jo kuvia, poista ne kaikki ensin (replaceMode)
       if (editingPost.media_urls && editingPost.media_urls.length > 0) {
-        // Poista kaikki vanhat kuvat
         for (const oldImageUrl of editingPost.media_urls) {
-          const deleteResponse = await fetch('/api/content/media-management', {
+          await fetch('/api/content/media-management', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
             },
-            body: JSON.stringify({
-              contentId: editingPost.id,
-              imageUrl: oldImageUrl
-            })
+            body: JSON.stringify({ contentId: editingPost.id, imageUrl: oldImageUrl })
           })
-
-          if (!deleteResponse.ok) {
-            const errorData = await deleteResponse.json().catch(() => ({}))
-            throw new Error(t('keskenModal.errors.oldImageDeleteFailed', { error: errorData.error || deleteResponse.statusText }))
-          }
         }
       }
 
-      // Lisää uusi kuva kuvapankista
-      // Tarvitaan file-objekti, mutta meillä on vain URL
-      // Käytetään fetch API:a hakeaksemme kuvan blobina
       const imageResponse = await fetch(imageUrl)
       const imageBlob = await imageResponse.blob()
       const fileName = imageUrl.split('/').pop() || 'kuvapankki.jpg'
-      
-      const formData = new FormData()
-      formData.append('image', imageBlob, fileName)
-      formData.append('contentId', editingPost.id)
-      formData.append('userId', userId)
-      formData.append('replaceMode', 'true')
+
+      const uploadData = new FormData()
+      uploadData.append('image', imageBlob, fileName)
+      uploadData.append('contentId', editingPost.id)
+      uploadData.append('userId', userId)
+      uploadData.append('replaceMode', 'true')
 
       const response = await fetch('/api/content/media-management', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
-        body: formData
+        body: uploadData
       })
 
       if (!response.ok) {
@@ -199,50 +142,31 @@ const KeskenModal = ({
       }
 
       const result = await response.json()
-
-      // Päivitä editingPost data
       const updatedPost = {
         ...editingPost,
         media_urls: [result.publicUrl],
         mediaUrls: [result.publicUrl],
         thumbnail: result.publicUrl
       }
-      
-      // Päivitä paikallinen state ensin, sitten kutsu onSave
-      setFormData(prev => ({
-        ...prev,
-        // Lisää timestamp kuvan URL:een cache-busting:ia varten
-        imageUpdated: Date.now()
-      }))
-      
+
+      setFormData(prev => ({ ...prev, imageUpdated: Date.now() }))
       setShowKuvapankkiSelector(false)
-      // Älä sulje showMediaSourceMenu -valikkoa, jotta käyttäjä voi helposti valita uuden kuvan
-      
-      // Kutsu onSave pienen viiveen jälkeen, jotta state ehtii päivittyä
-      setTimeout(() => {
-        onSave(updatedPost)
-      }, 100)
+      setTimeout(() => onSave(updatedPost), 100)
     } catch (err) {
-      console.error('Error adding image from kuvapankki:', err)
       setError(t('keskenModal.errors.imageFromKuvapankkiFailed', { message: err.message }))
     } finally {
       setImageLoading(false)
     }
   }
 
-  // Uuden kuvan lataus
   const handleImageUpload = async (event) => {
     const file = event.target.files[0]
     if (!file) return
 
-    // Validoi tiedosto ennen latausta
     const validationError = validateMediaFile(file)
     if (validationError) {
       setError(validationError)
-      // Tyhjennä file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
 
@@ -250,50 +174,37 @@ const KeskenModal = ({
     setError('')
 
     try {
-      // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
       const userId = await getUserOrgId(user?.id)
-
       if (!userId) {
         setError(t('keskenModal.errors.userNotFound'))
         return
       }
 
-      // Jos on jo kuvia, poista ne kaikki ensin
       if (editingPost.media_urls && editingPost.media_urls.length > 0) {
-
-        // Poista kaikki vanhat kuvat
         for (const imageUrl of editingPost.media_urls) {
-          const deleteResponse = await fetch('/api/content/media-management', {
+          await fetch('/api/content/media-management', {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
             },
-            body: JSON.stringify({
-              contentId: editingPost.id,
-              imageUrl: imageUrl
-            })
+            body: JSON.stringify({ contentId: editingPost.id, imageUrl: imageUrl })
           })
-
-          if (!deleteResponse.ok) {
-            const errorData = await deleteResponse.json().catch(() => ({}))
-            throw new Error(t('keskenModal.errors.oldImageDeleteFailed', { error: errorData.error || deleteResponse.statusText }))
-          }
         }
       }
 
-      const formData = new FormData()
-      formData.append('image', file)
-      formData.append('contentId', editingPost.id)
-      formData.append('userId', userId)
-      formData.append('replaceMode', 'true') // Flag että tämä on "vaihda kuva" -toiminto
+      const uploadData = new FormData()
+      uploadData.append('image', file)
+      uploadData.append('contentId', editingPost.id)
+      uploadData.append('userId', userId)
+      uploadData.append('replaceMode', 'true')
 
       const response = await fetch('/api/content/media-management', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
-        body: formData
+        body: uploadData
       })
 
       if (!response.ok) {
@@ -301,15 +212,12 @@ const KeskenModal = ({
         throw new Error(t('keskenModal.errors.imageUploadFailed', { error: errorData.error || response.statusText }))
       }
 
-      // Päivitä editingPost data
       const result = await response.json()
 
-      // Tallenna myös caption tietokantaan samalla kun kuva vaihdetaan
-      // Näin muokattu teksti ei katoa
       try {
         const userId = await getUserOrgId(user?.id)
         if (userId && formData.caption !== undefined) {
-          const { error: updateError } = await supabase
+          await supabase
             .from('content')
             .update({
               caption: formData.caption || null,
@@ -317,18 +225,11 @@ const KeskenModal = ({
             })
             .eq('id', editingPost.id)
             .eq('user_id', userId)
-
-          if (updateError) {
-            console.error('Caption update error:', updateError)
-            // Jatketaan silti kuvan päivitystä
-          }
         }
       } catch (captionError) {
         console.error('Error saving caption:', captionError)
-        // Jatketaan silti kuvan päivitystä
       }
-      
-      // Päivitä editingPost state uudella kuvalla JA captionilla
+
       const updatedPost = {
         ...editingPost,
         media_urls: [result.publicUrl],
@@ -336,30 +237,13 @@ const KeskenModal = ({
         thumbnail: result.publicUrl,
         caption: formData.caption || editingPost.caption || ''
       }
-      
-      // Tyhjennä file input Safari-yhteensopivuuden vuoksi
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
-      
-      // Päivitä paikallinen state ensin, sitten kutsu onSave
-      setFormData(prev => ({
-        ...prev,
-        // Lisää timestamp kuvan URL:een cache-busting:ia varten
-        imageUpdated: Date.now()
-      }))
-      
-      // Kutsu onSave pienen viiveen jälkeen, jotta state ehtii päivittyä
-      // Älä sulje modaalia - anna käyttäjän nähdä uusi kuva ja jatkaa muokkausta
-      setTimeout(() => {
-        onSave(updatedPost)
-      }, 100)
+
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      setFormData(prev => ({ ...prev, imageUpdated: Date.now() }))
+      setTimeout(() => onSave(updatedPost), 100)
     } catch (err) {
       setError(t('keskenModal.errors.imageUploadFailedGeneric', { message: err.message }))
-      // Tyhjennä file input myös virhetilanteessa
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      if (fileInputRef.current) fileInputRef.current.value = ''
     } finally {
       setImageLoading(false)
     }
@@ -370,7 +254,6 @@ const KeskenModal = ({
     setLoading(true)
     setError('')
 
-    // Validoi merkkimäärä
     if (formData.caption.length > 2000) {
       setError(t('keskenModal.errors.captionTooLong'))
       setLoading(false)
@@ -378,15 +261,12 @@ const KeskenModal = ({
     }
 
     try {
-      // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
       const userId = await getUserOrgId(user?.id)
-
       if (!userId) {
         setError(t('keskenModal.errors.userNotFound'))
         return
       }
 
-      // Päivitä Supabase
       const { error: updateError } = await supabase
         .from('content')
         .update({
@@ -409,234 +289,123 @@ const KeskenModal = ({
     }
   }
 
-  if (!show) return null
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div
+        className="absolute inset-0 bg-white/80 backdrop-blur-sm animate-in fade-in duration-500"
+        onClick={onClose}
+      />
+      <div className="relative w-full max-w-5xl bg-white rounded-3xl shadow-[0_32px_96px_-16px_rgba(0,0,0,0.1)] border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
 
-  return (
-    <>
-      {createPortal(
-        <div 
-          className="modal-overlay modal-overlay--light"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              // Tyhjennä file input kun modaali suljetaan
-              if (fileInputRef.current) {
-                fileInputRef.current.value = ''
-              }
-              onClose()
-            }
-          }}
-          onTouchEnd={(e) => {
-            if (e.target === e.currentTarget) {
-              // Tyhjennä file input kun modaali suljetaan
-              if (fileInputRef.current) {
-                fileInputRef.current.value = ''
-              }
-              onClose()
-            }
-          }}
-        >
-      <div className="modal-container" style={{ maxWidth: '800px' }}>
-        <div className="modal-header">
-          <h2 className="modal-title">{t('keskenModal.title')}</h2>
+        {/* Simple Header */}
+        <div className="px-8 py-6 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
+          <div>
+            <h2 className="text-lg font-bold text-gray-900 leading-none">{t('keskenModal.title')}</h2>
+            <p className="text-xs text-gray-400 mt-1.5">Edit your post caption and media</p>
+          </div>
           <button
-            onClick={() => {
-              // Tyhjennä file input kun modaali suljetaan
-              if (fileInputRef.current) {
-                fileInputRef.current.value = ''
-              }
-              onClose()
-            }}
-            className="modal-close-btn"
+            onClick={onClose}
+            className="p-2 hover:bg-gray-50 rounded-full text-gray-400 hover:text-gray-900 transition-colors"
           >
-            ✕
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
-        <div className="modal-content">
-          <form onSubmit={handleSubmit}>
-          {/* Luontipäivämäärä */}
-          <div className="form-group" style={{ marginBottom: '16px' }}>
-            <label className="form-label">{t('keskenModal.created')}</label>
-            <p className="form-text" style={{
-              padding: '8px 12px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #e5e7eb',
-              borderRadius: '6px',
-              fontSize: '14px',
-              color: '#6b7280'
-            }}>
-              {editingPost.created_at ? new Date(editingPost.created_at).toLocaleString('fi-FI', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) : t('keskenModal.notAvailable')}
-            </p>
+
+        <div className="flex-1 overflow-y-auto flex flex-col md:flex-row">
+          {/* Left Side: Media Preview */}
+          <div className="flex-1 p-8 bg-gray-50/30 overflow-y-auto custom-scrollbar">
+            <div className="max-w-[400px] mx-auto space-y-6">
+              <div className="bg-white rounded-[32px] border border-gray-100 p-2 shadow-sm">
+                <MediaPreview
+                  editingPost={editingPost}
+                  userAccountType={userAccountType}
+                  imageLoading={imageLoading}
+                  showMediaSourceMenu={showMediaSourceMenu}
+                  onToggleMediaSourceMenu={() => setShowMediaSourceMenu(!showMediaSourceMenu)}
+                  onSelectKuvapankki={() => { setShowMediaSourceMenu(false); setShowKuvapankkiSelector(true); }}
+                  onSelectKoneelta={() => fileInputRef.current?.click()}
+                  onDeleteImage={handleDeleteImage}
+                  fileInputRef={fileInputRef}
+                  formData={formData}
+                  t={t}
+                />
+              </div>
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/jpg,image/png,image/gif,video/mp4,video/x-m4v" onChange={handleImageUpload} className="hidden" />
+            </div>
           </div>
 
-            {/* Kaksi saraketta: media vasemmalle, kentät oikealle */}
-            {/* Jos segmenttien muokkaus näkyy, vaihdetaan layout: vasen = Postaus, oikea = Slaidit + muokkaus */}
-            {(() => {
-              const isCarousel = editingPost.type === 'Carousel'
-              // Näytetään segmenttien muokkaus vain jos vähintään yhdellä segmentillä on status "In Progress"
-              const hasInProgressSegment = editingPost.segments && editingPost.segments.some(segment => segment.status === 'In Progress')
-              const showSegmentsEditor = isCarousel && editingPost.segments && editingPost.segments.length > 0 && hasInProgressSegment
-              
-              // Jos segmenttien muokkaus näkyy, vaihdetaan layout
-              if (showSegmentsEditor) {
-                return (
-                  <>
-                    <div className="edit-modal-grid">
-                    {/* Vasen sarake: Postaus */}
-                    <div className="edit-modal-fields">
-                      <CaptionEditor
-                        caption={formData.caption}
-                        onChange={handleCaptionChange}
-                        t={t}
-                      />
-                    </div>
+          {/* Right Side: Editors */}
+          <div className="flex-1 p-8 border-l border-gray-50 overflow-y-auto custom-scrollbar bg-white">
+            <form onSubmit={handleSubmit} className="space-y-8 h-full flex flex-col">
+              {(() => {
+                const isCarousel = editingPost.type === 'Carousel'
+                const hasInProgressSegment = editingPost.segments?.some(s => s.status === 'In Progress')
+                const showSegmentsEditor = isCarousel && editingPost.segments?.length > 0 && hasInProgressSegment
 
-                    {/* Oikea sarake: Segmenttien muokkaus */}
-                    <div className="edit-modal-media">
-                      {/* Segmenttien muokkaus */}
-                      <div>
+                if (showSegmentsEditor) {
+                  return (
+                    <div className="space-y-8 flex-1">
+                      <CaptionEditor caption={formData.caption} onChange={handleCaptionChange} t={t} height="300px" />
+                      <div className="pt-6 border-t border-gray-50">
                         <CarouselSegmentsEditor
                           segments={editingPost.segments}
                           contentId={editingPost.id}
                           onSave={async () => {
-                            // Päivitä segments data
                             const userId = await getUserOrgId(user?.id)
                             if (userId) {
-                              const { data: segmentsData } = await supabase
-                                .from('segments')
-                                .select('*')
-                                .eq('content_id', editingPost.id)
-                                .order('slide_no', { ascending: true })
-                              
-                              if (segmentsData) {
-                                // Päivitä editingPost state uudella segments-datalla
-                                const updatedPost = {
-                                  ...editingPost,
-                                  segments: segmentsData
-                                }
-                                // Kutsu onSave callbackia päivittääksesi postauksen
-                                if (onSave) {
-                                  onSave(updatedPost)
-                                }
-                              }
+                              const { data: segmentsData } = await supabase.from('segments').select('*').eq('content_id', editingPost.id).order('slide_no', { ascending: true })
+                              if (segmentsData) onSave({ ...editingPost, segments: segmentsData })
                             }
                           }}
                           t={t}
                         />
                       </div>
                     </div>
+                  )
+                }
+
+                return (
+                  <div className="flex-1">
+                    <CaptionEditor caption={formData.caption} onChange={handleCaptionChange} t={t} height="500px" />
                   </div>
-
-                  <ErrorDisplay error={error} />
-
-                  <ModalActions
-                    onClose={onClose}
-                    onSave={handleSubmit}
-                    loading={loading}
-                    disabled={formData.caption.length > 2000}
-                    fileInputRef={fileInputRef}
-                    t={t}
-                  />
-                  </>
                 )
-              }
-              
-              // Normaali layout: vasen = Media/Slaidit, oikea = Postaus
-              return (
-                <>
-                <div className="edit-modal-grid">
-                  {/* Vasen sarake: Media */}
-                  <div className="edit-modal-media">
-                    <div className="media-container">
-                      <MediaPreview
-                        editingPost={editingPost}
-                        userAccountType={userAccountType}
-                        imageLoading={imageLoading}
-                        showMediaSourceMenu={showMediaSourceMenu}
-                        onToggleMediaSourceMenu={() => setShowMediaSourceMenu(!showMediaSourceMenu)}
-                        onSelectKuvapankki={() => {
-                          setShowMediaSourceMenu(false)
-                          setShowKuvapankkiSelector(true)
-                        }}
-                        onSelectKoneelta={() => fileInputRef.current?.click()}
-                        onDeleteImage={handleDeleteImage}
-                        fileInputRef={fileInputRef}
-                        formData={formData}
-                        t={t}
-                      />
-                    </div>
-                    
-                    {/* Piilotettu file input */}
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/jpeg,image/jpg,image/png,image/gif,video/mp4,video/x-m4v"
-                      onChange={handleImageUpload}
-                      style={{ display: 'none' }}
-                    />
-                  </div>
+              })()}
 
-              {/* Oikea sarake: Postaus */}
-              <div className="edit-modal-fields">
-                <CaptionEditor
-                  caption={formData.caption}
-                  onChange={handleCaptionChange}
-                  t={t}
-                />
-              </div>
-            </div>
+              <ErrorDisplay error={error} />
+            </form>
+          </div>
+        </div>
 
-            <ErrorDisplay error={error} />
-
-            <ModalActions
-              onClose={onClose}
-              onSave={handleSubmit}
-              loading={loading}
-              disabled={formData.caption.length > 2000}
-              fileInputRef={fileInputRef}
-              t={t}
-            />
-                </>
-          )
-        })()}
-          </form>
+        {/* Action Bar */}
+        <div className="px-8 py-6 border-t border-gray-50 bg-white">
+          <ModalActions
+            onClose={onClose}
+            onSave={handleSubmit}
+            loading={loading}
+            disabled={formData.caption.length > 2000}
+            fileInputRef={fileInputRef}
+            t={t}
+          />
         </div>
       </div>
-    </div>,
-    document.body
-      )}
 
-      {/* Kuvapankki Selector Modal */}
       {showKuvapankkiSelector && createPortal(
-        <div 
-          className="modal-overlay modal-overlay--light"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setShowKuvapankkiSelector(false)
-              setShowMediaSourceMenu(false)
-            }
-          }}
-        >
-          <div className="modal-container" style={{ maxWidth: '800px', maxHeight: '90vh', overflow: 'auto' }}>
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-gray-900/60 backdrop-blur-xl animate-in fade-in duration-500"
+            onClick={() => { setShowKuvapankkiSelector(false); setShowMediaSourceMenu(false); }}
+          />
+          <div className="relative w-full max-w-4xl bg-white rounded-[40px] shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-300">
             <KuvapankkiSelector
               onSelectImage={(imageUrl) => handleAddImageFromKuvapankki(imageUrl)}
-              onClose={() => {
-                setShowKuvapankkiSelector(false)
-                // Palauta media source menu näkyviin kun kuvapankki sulkeutuu
-                // Näin käyttäjä voi helposti valita uuden kuvan
-                setShowMediaSourceMenu(true)
-              }}
+              onClose={() => { setShowKuvapankkiSelector(false); setShowMediaSourceMenu(true); }}
             />
           </div>
         </div>,
         document.body
       )}
-    </>
+    </div>,
+    document.body
   )
 }
 

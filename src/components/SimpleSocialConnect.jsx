@@ -108,70 +108,30 @@ export default function SimpleSocialConnect() {
 
   return (
     <div>
-      <h2
-        style={{
-          margin: "0 0 16px 0",
-          fontSize: 16,
-          fontWeight: 600,
-          color: "#1f2937",
-        }}
-      >
+      <h2 className="m-0 mb-4 text-base font-semibold text-gray-800">
         {t("settings.social.title")}
       </h2>
 
       {/* Yhdistetyt tilit */}
       {connectedAccounts.length > 0 && (
-        <div style={{ marginBottom: "16px" }}>
-          <h3
-            style={{
-              fontSize: 14,
-              fontWeight: 600,
-              color: "#374151",
-              margin: "0 0 8px 0",
-            }}
-          >
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold text-gray-700 m-0 mb-2">
             {t("settings.social.connectedAccounts")} ({connectedAccounts.length}
             )
           </h3>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
+          <div className="flex flex-wrap gap-3">
             {connectedAccounts.map((account, index) => (
               <div
                 key={index}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "8px 12px",
-                  backgroundColor: "#f3f4f6",
-                  borderRadius: "20px",
-                  fontSize: "12px",
-                  color: "#374151",
-                  border: "1px solid #e5e7eb",
-                }}
+                className="flex items-center gap-2 py-2 px-3 bg-gray-100 rounded-[20px] text-xs text-gray-700 border border-gray-200"
               >
                 {/* Profiilikuva */}
-                <div
-                  style={{
-                    position: "relative",
-                    width: "24px",
-                    height: "24px",
-                    borderRadius: "50%",
-                    overflow: "hidden",
-                    backgroundColor: "#d1d5db",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
+                <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
                   {getProfileImageUrl(account) ? (
                     <img
                       src={getProfileImageUrl(account)}
                       alt={account.name || account.username}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "cover",
-                      }}
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.style.display = "none";
                         e.target.nextSibling.style.display = "flex";
@@ -179,39 +139,14 @@ export default function SimpleSocialConnect() {
                     />
                   ) : null}
                   <div
-                    style={{
-                      display: getProfileImageUrl(account) ? "none" : "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: "100%",
-                      height: "100%",
-                      fontSize: "10px",
-                      fontWeight: "600",
-                      color: "#6b7280",
-                    }}
+                    className={`${getProfileImageUrl(account) ? "hidden" : "flex"} items-center justify-center w-full h-full text-[10px] font-semibold text-gray-500`}
                   >
                     {(account.name || account.username || "?")
                       .charAt(0)
                       .toUpperCase()}
                   </div>
                   {/* Platform-ikoni profiilikuvan alaosassa */}
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: "-3px",
-                      right: "-3px",
-                      width: "16px",
-                      height: "16px",
-                      borderRadius: "50%",
-                      backgroundColor: "#ffffff",
-                      border: "2px solid #e5e7eb",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "10px",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                    }}
-                  >
+                  <div className="absolute -bottom-[3px] -right-[3px] w-4 h-4 rounded-full bg-white border-2 border-gray-200 flex items-center justify-center text-[10px] shadow-sm">
                     {account.provider === "instagram" ? (
                       <svg
                         width="10"
@@ -260,21 +195,14 @@ export default function SimpleSocialConnect() {
 
                 {/* Tilin tiedot */}
                 <div>
-                  <div style={{ fontWeight: "600", lineHeight: "1.2" }}>
+                  <div className="font-semibold leading-tight">
                     {account.name || account.username}
                   </div>
-                  <div style={{ fontSize: "10px", color: "#6b7280" }}>
+                  <div className="text-[10px] text-gray-500">
                     @{account.username}
                   </div>
                   {/* Provider-nimi */}
-                  <div
-                    style={{
-                      fontSize: "9px",
-                      color: "#9ca3af",
-                      textTransform: "capitalize",
-                      marginTop: "2px",
-                    }}
-                  >
+                  <div className="text-[9px] text-gray-400 capitalize mt-0.5">
                     {account.provider === "instagram"
                       ? "Instagram"
                       : account.provider === "facebook"
@@ -295,16 +223,7 @@ export default function SimpleSocialConnect() {
         <button
           onClick={handleConnectSocial}
           disabled={connecting}
-          className={`${styles.btn} ${styles.btnPrimary}`}
-          style={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
-            fontSize: "14px",
-            fontWeight: "600",
-          }}
+          className="btn btn-primary w-full flex items-center justify-center gap-2 text-sm font-semibold"
         >
           {connecting ? (
             <>
@@ -329,60 +248,29 @@ export default function SimpleSocialConnect() {
           )}
         </button>
       ) : (
-        <div
-          style={{
-            padding: "12px",
-            backgroundColor: "#f0f9ff",
-            border: "1px solid #bae6fd",
-            borderRadius: "8px",
-            fontSize: "13px",
-            color: "#0369a1",
-            textAlign: "center",
-          }}
-        >
+        <div className="p-3 bg-sky-50 border border-sky-200 rounded-lg text-[13px] text-sky-700 text-center">
           {t("settings.social.memberRestriction")}
         </div>
       )}
 
       {/* Virheviesti */}
       {error && (
-        <div
-          style={{
-            marginTop: "8px",
-            padding: "8px 12px",
-            backgroundColor: "#fef2f2",
-            color: "#dc2626",
-            borderRadius: "6px",
-            fontSize: "12px",
-            border: "1px solid #fecaca",
-          }}
-        >
+        <div className="mt-2 py-2 px-3 bg-red-50 text-red-600 rounded-md text-xs border border-red-200">
           {error}
         </div>
       )}
 
       {/* Ohjeteksti */}
-      <div
-        style={{
-          marginTop: "12px",
-          fontSize: "11px",
-          color: "#6b7280",
-          lineHeight: "1.4",
-        }}
-      >
+      <div className="mt-3 text-[11px] text-gray-500 leading-snug">
         <p>
           <strong>{t("settings.social.howItWorks")}</strong>
         </p>
-        <p style={{ margin: "4px 0" }}>
+        <p className="my-1">
           <a
             href="https://rascalcompany.notion.site/"
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              color: "#2563eb",
-              textDecoration: "underline",
-              cursor: "pointer",
-            }}
+            className="text-blue-600 underline cursor-pointer"
           >
             {t("settings.social.instructionsLink")}
           </a>

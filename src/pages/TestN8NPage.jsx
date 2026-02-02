@@ -50,138 +50,70 @@ export default function TestN8NPage() {
   }
 
   return (
-    <div style={{ 
-      padding: '2rem', 
-      maxWidth: '900px', 
-      margin: '0 auto',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
-    }}>
-      <h1 style={{ marginBottom: '1rem' }}>N8N Test Endpoint</h1>
-      
+    <div className="p-8 max-w-[900px] mx-auto font-sans">
+      <h1 className="mb-4">N8N Test Endpoint</h1>
+
       {/* Token status */}
-      <div style={{ 
-        padding: '1rem', 
-        background: token ? '#d4edda' : '#f8d7da',
-        border: `1px solid ${token ? '#c3e6cb' : '#f5c6cb'}`,
-        borderRadius: '4px',
-        marginBottom: '1.5rem'
-      }}>
+      <div className={`p-4 rounded mb-6 ${token ? 'bg-green-100 border border-green-200' : 'bg-red-100 border border-red-200'}`}>
         <strong>Token status:</strong> {token ? (
-          <span style={{ color: '#155724' }}>
+          <span className="text-green-800">
             ✅ Löytyi ({token.length} merkkiä)
-            <button 
+            <button
               onClick={copyToken}
-              style={{
-                marginLeft: '1rem',
-                padding: '0.25rem 0.5rem',
-                fontSize: '12px',
-                background: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '3px',
-                cursor: 'pointer'
-              }}
+              className="ml-4 py-1 px-2 text-xs bg-blue-600 text-white border-none rounded cursor-pointer"
             >
               Kopioi token
             </button>
           </span>
         ) : (
-          <span style={{ color: '#721c24' }}>❌ Ei tokenia</span>
+          <span className="text-red-800">❌ Ei tokenia</span>
         )}
       </div>
 
       {/* Error display */}
       {error && (
-        <div style={{ 
-          padding: '1rem', 
-          background: '#fee', 
-          border: '1px solid #fcc',
-          borderRadius: '4px',
-          marginBottom: '1rem',
-          whiteSpace: 'pre-wrap',
-          fontFamily: 'monospace',
-          fontSize: '14px'
-        }}>
+        <div className="p-4 bg-red-50 border border-red-200 rounded mb-4 whitespace-pre-wrap font-mono text-sm">
           <strong>Virhe:</strong><br />
           {error}
         </div>
       )}
 
       {/* Test data input */}
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+      <div className="mb-6">
+        <label className="block mb-2 font-bold">
           Testidata (JSON):
         </label>
         <textarea
           value={testData}
           onChange={(e) => setTestData(e.target.value)}
-          style={{
-            width: '100%',
-            minHeight: '120px',
-            padding: '0.75rem',
-            border: '1px solid #ddd',
-            borderRadius: '4px',
-            fontFamily: 'monospace',
-            fontSize: '14px',
-            resize: 'vertical'
-          }}
+          className="w-full min-h-[120px] p-3 border border-gray-300 rounded font-mono text-sm resize-y"
           placeholder='{"test": "value"}'
         />
       </div>
 
       {/* Send button */}
-      <button 
+      <button
         onClick={handleTest}
         disabled={true}
-        style={{
-          padding: '0.75rem 1.5rem',
-          fontSize: '16px',
-          background: '#6c757d',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'not-allowed',
-          fontWeight: 'bold',
-          marginBottom: '1.5rem'
-        }}
+        className="py-3 px-6 text-base bg-gray-500 text-white border-none rounded cursor-not-allowed font-bold mb-6"
       >
         Test-endpoint poistettu käytöstä
       </button>
 
       {/* Response display */}
       {response && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <h2 style={{ marginBottom: '0.5rem' }}>Vastaus:</h2>
-          <pre style={{
-            background: '#f5f5f5',
-            padding: '1rem',
-            borderRadius: '4px',
-            overflow: 'auto',
-            border: '1px solid #ddd',
-            fontSize: '14px'
-          }}>
+        <div className="mt-6">
+          <h2 className="mb-2">Vastaus:</h2>
+          <pre className="bg-gray-100 p-4 rounded overflow-auto border border-gray-300 text-sm">
             {JSON.stringify(response, null, 2)}
           </pre>
         </div>
       )}
 
       {/* Curl example */}
-      <div style={{ 
-        marginTop: '2rem', 
-        padding: '1rem', 
-        background: '#f8f9fa',
-        borderRadius: '4px',
-        border: '1px solid #dee2e6'
-      }}>
-        <h3 style={{ marginTop: 0 }}>Curl-kutsu:</h3>
-        <pre style={{
-          background: '#fff',
-          padding: '1rem',
-          borderRadius: '4px',
-          overflow: 'auto',
-          fontSize: '12px',
-          margin: 0
-        }}>
+      <div className="mt-8 p-4 bg-gray-50 rounded border border-gray-200">
+        <h3 className="mt-0">Curl-kutsu:</h3>
+        <pre className="bg-white p-4 rounded overflow-auto text-xs m-0">
 {`# HUOM: /api/test/* on poistettu käytöstä (api/_test ei reitity Vercelissä)
 # Käytä oikeaa endpointia tai aja dev/testit paikallisesti.
 #

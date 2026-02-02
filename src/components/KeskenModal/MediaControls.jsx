@@ -11,77 +11,57 @@ const MediaControls = ({
   onSelectKoneelta,
   onDeleteImage,
   mediaUrl,
-  variant = 'primary', // 'primary' tai 'secondary'
+  variant = 'primary',
   showDelete = false,
   t
 }) => {
-  // Poisto-nappi näkyy aina kun mediaUrl on olemassa ja onDeleteImage on määritelty
-  // Tarkistetaan että mediaUrl on truthy-arvo (ei undefined, null tai tyhjä string)
   const hasMediaUrl = !!(mediaUrl && String(mediaUrl).trim().length > 0)
   const canDelete = hasMediaUrl && !!onDeleteImage && typeof onDeleteImage === 'function'
 
-  if (userAccountType === 'personal_brand') {
-    return (
-      <div className="media-controls">
-        <div style={{ position: 'relative', display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ position: 'relative' }}>
-            <Button
-              type="button"
-              variant={variant}
-              size="small"
-              onClick={onToggleMediaSourceMenu}
-              disabled={imageLoading}
-              title="Sallitut muodot: JPG, PNG, GIF, MP4, M4V"
-            >
-              {imageLoading ? t('media.buttons.loading') : 
-               variant === 'primary' ? t('media.buttons.addMedia') : t('media.buttons.changeMedia')}
-            </Button>
-            <MediaSourceMenu
-              show={showMediaSourceMenu}
-              onSelectKuvapankki={onSelectKuvapankki}
-              onSelectKoneelta={onSelectKoneelta}
-            />
-          </div>
-          {canDelete && (
-            <Button
-              type="button"
-              variant="danger"
-              size="small"
-              onClick={() => onDeleteImage(mediaUrl)}
-              disabled={imageLoading}
-              style={{ flexShrink: 0 }}
-            >
-              {t('keskenModal.deleteImage')}
-            </Button>
-          )}
-        </div>
-      </div>
-    )
-  }
+  const buttonBaseClass = "px-4 py-2 rounded-xl text-[11px] font-bold uppercase tracking-widest transition-all disabled:opacity-50"
+  const primaryClass = "bg-white text-gray-900 shadow-xl shadow-black/10 hover:scale-105 active:scale-95"
+  const secondaryClass = "bg-white/90 backdrop-blur-md text-gray-900 shadow-xl hover:bg-white"
+  const dangerClass = "bg-red-500/90 backdrop-blur-md text-white shadow-xl hover:bg-red-600"
+
+  const buttonStyle = variant === 'primary' ? primaryClass : secondaryClass
 
   return (
-    <div className="media-controls">
-      <Button
-        type="button"
-        variant={variant}
-        size="small"
-        onClick={onSelectKoneelta}
-        disabled={imageLoading}
-        title="Sallitut muodot: JPG, PNG, GIF, MP4, M4V"
-      >
-        {imageLoading ? t('media.buttons.loading') : 
-         variant === 'primary' ? t('media.buttons.addMedia') : t('media.buttons.changeMedia')}
-      </Button>
-      {canDelete && (
-        <Button
+    <div className="flex items-center gap-2">
+      <div className="relative">
+        <button
           type="button"
-          variant="danger"
-          size="small"
+          onClick={userAccountType === 'personal_brand' ? onToggleMediaSourceMenu : onSelectKoneelta}
+          disabled={imageLoading}
+          className={`${buttonBaseClass} ${buttonStyle}`}
+        >
+          {imageLoading ? (
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+              {t('media.buttons.loading')}
+            </div>
+          ) : (
+            variant === 'primary' ? t('media.buttons.addMedia') : t('media.buttons.changeMedia')
+          )}
+        </button>
+
+        {userAccountType === 'personal_brand' && (
+          <MediaSourceMenu
+            show={showMediaSourceMenu}
+            onSelectKuvapankki={onSelectKuvapankki}
+            onSelectKoneelta={onSelectKoneelta}
+          />
+        )}
+      </div>
+
+      {canDelete && (
+        <button
+          type="button"
           onClick={() => onDeleteImage(mediaUrl)}
           disabled={imageLoading}
+          className={`${buttonBaseClass} ${dangerClass}`}
         >
           {t('keskenModal.deleteImage')}
-        </Button>
+        </button>
       )}
     </div>
   )

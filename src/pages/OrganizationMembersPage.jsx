@@ -434,13 +434,7 @@ const OrganizationMembersPage = () => {
                             )}
                           </td>
                           <td>
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: "8px",
-                                alignItems: "center",
-                              }}
-                            >
+                            <div className="flex gap-2 items-center">
                               {/* Lähetä kutsu uudelleen -nappi */}
                               {canInvite && !isCurrentUser && (
                                 <Button
@@ -448,10 +442,7 @@ const OrganizationMembersPage = () => {
                                   onClick={() =>
                                     handleResendInvite(member.auth_user_id)
                                   }
-                                  style={{
-                                    fontSize: "13px",
-                                    padding: "6px 12px",
-                                  }}
+                                  className="text-[13px] py-1.5 px-3"
                                 >
                                   {t("orgMembers.resendInvite")}
                                 </Button>

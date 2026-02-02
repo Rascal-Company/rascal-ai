@@ -39,17 +39,11 @@ export default function TestTokenPage() {
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="p-8 max-w-[800px] mx-auto">
       <h1>Test Token Page</h1>
-      
+
       {error && (
-        <div style={{ 
-          padding: '1rem', 
-          background: '#fee', 
-          border: '1px solid #fcc',
-          borderRadius: '4px',
-          marginBottom: '1rem'
-        }}>
+        <div className="p-4 bg-red-50 border border-red-200 rounded mb-4">
           <strong>Virhe:</strong> {error}
         </div>
       )}
@@ -57,40 +51,20 @@ export default function TestTokenPage() {
       {token ? (
         <div>
           <h2>Token löytyi!</h2>
-          <button 
+          <button
             onClick={copyToClipboard}
-            style={{
-              padding: '0.5rem 1rem',
-              background: '#007bff',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginBottom: '1rem'
-            }}
+            className="py-2 px-4 bg-blue-600 text-white border-none rounded cursor-pointer mb-4"
           >
             Kopioi token
           </button>
-          
-          <div style={{
-            background: '#f5f5f5',
-            padding: '1rem',
-            borderRadius: '4px',
-            wordBreak: 'break-all',
-            fontSize: '12px',
-            fontFamily: 'monospace'
-          }}>
+
+          <div className="bg-gray-100 p-4 rounded break-all text-xs font-mono">
             {token}
           </div>
 
-          <div style={{ marginTop: '2rem' }}>
+          <div className="mt-8">
             <h3>Curl-kutsu:</h3>
-            <pre style={{
-              background: '#f5f5f5',
-              padding: '1rem',
-              borderRadius: '4px',
-              overflow: 'auto'
-            }}>
+            <pre className="bg-gray-100 p-4 rounded overflow-auto">
 {`# HUOM: /api/test/* on poistettu käytöstä (api/_test ei reitity Vercelissä)
 # Käytä oikeaa endpointia tai aja dev/testit paikallisesti.
 #

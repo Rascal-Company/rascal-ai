@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../lib/supabase'
-import { getCurrentUser, isAdmin as checkIsAdmin } from '../utils/userApi'
 import { useAuth } from '../contexts/AuthContext'
 import { useFeatures } from '../hooks/useFeatures'
 
@@ -11,10 +9,11 @@ export default function MobileNavigation() {
   const navigate = useNavigate()
   const location = useLocation()
   const [isOpen, setIsOpen] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [isModerator, setIsModerator] = useState(false)
   const { user, signOut } = useAuth()
   const { has: hasFeature } = useFeatures()
+
+  const isAdmin = user?.systemRole === 'superadmin'
+  const isModerator = user?.systemRole === 'moderator' || isAdmin
 
   const menuItems = [
     { label: t('sidebar.labels.dashboard'), path: '/dashboard', feature: null },
@@ -34,30 +33,6 @@ export default function MobileNavigation() {
     { label: t('sidebar.settings'), path: '/settings' },
     { label: t('sidebar.helpCenter'), path: '/help' },
   ]
-
-  // Tarkista admin-oikeudet
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!user) return
-      
-      try {
-        // Admin-tarkistus: käytetään uutta is-admin endpointia
-        const adminStatus = await checkIsAdmin()
-        setIsAdmin(adminStatus)
-        
-        // Hae käyttäjätiedot moderator-tarkistukseen
-        const userData = await getCurrentUser()
-        if (userData) {
-          const moderator = userData.role === 'moderator' || adminStatus
-          setIsModerator(moderator)
-        }
-      } catch (error) {
-        console.error('Error checking admin status:', error)
-      }
-    }
-
-    checkAdminStatus()
-  }, [user])
 
   const handleLogout = async () => {
     try {

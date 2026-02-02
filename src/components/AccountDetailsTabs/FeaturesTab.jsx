@@ -48,7 +48,7 @@ export default function FeaturesTab({
   features = [],
   isSaving,
   onFeatureToggle,
-  userId, // Käyttäjän/organisaation ID
+  userId,
 }) {
   const { organization, user } = useAuth();
   const [userData, setUserData] = useState(null);
@@ -61,7 +61,6 @@ export default function FeaturesTab({
   const [wordpressConfigured, setWordpressConfigured] = useState(false);
   const [wordpressLoading, setWordpressLoading] = useState(true);
 
-  // Lataa käyttäjän kaikki tiedot
   useEffect(() => {
     if (!userId) {
       setOnboardingLoading(false);
@@ -99,7 +98,6 @@ export default function FeaturesTab({
       }
     };
 
-    // Tarkista WordPress-integraation tila
     const checkWordPressIntegration = async () => {
       try {
         const { data, error } = await supabase
@@ -132,7 +130,6 @@ export default function FeaturesTab({
     checkWordPressIntegration();
   }, [userId]);
 
-  // Tallenna onboarding_completed arvo
   const handleOnboardingToggle = async (newValue) => {
     if (!userId || onboardingSaving) return;
 
@@ -140,8 +137,6 @@ export default function FeaturesTab({
     setOnboardingMessage("");
 
     try {
-      // Tarkista onko käyttäjä admin/moderator/owner
-      // Tarkistetaan SEKÄ system role (users.role) ETTÄ organization role (org_members.role)
       const isSystemAdmin =
         user?.systemRole === "admin" ||
         user?.systemRole === "superadmin" ||
@@ -153,7 +148,6 @@ export default function FeaturesTab({
       const isAdmin = isSystemAdmin || isOrgAdmin;
 
       if (isAdmin) {
-        // Käytä admin-data endpointia admin-käyttäjille (ohittaa RLS:n)
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -185,7 +179,6 @@ export default function FeaturesTab({
         setOnboardingMessage("Onboarding-status päivitetty onnistuneesti!");
         setTimeout(() => setOnboardingMessage(""), 3000);
       } else {
-        // Normaali käyttäjä: käytä suoraa Supabase-kyselyä
         const { error } = await supabase
           .from("users")
           .update({
@@ -214,7 +207,6 @@ export default function FeaturesTab({
     }
   };
 
-  // Tallenna alustavalinnat
   const handlePlatformToggle = async (newPlatforms) => {
     if (!userId) return;
 
@@ -226,11 +218,8 @@ export default function FeaturesTab({
     setSaveMessage("");
 
     try {
-      // Varmista että newPlatforms on array
       const platformsToSave = Array.isArray(newPlatforms) ? newPlatforms : [];
 
-      // Tarkista onko käyttäjä admin/moderator/owner
-      // Tarkistetaan SEKÄ system role (users.role) ETTÄ organization role (org_members.role)
       const isSystemAdmin =
         user?.systemRole === "admin" ||
         user?.systemRole === "superadmin" ||
@@ -242,7 +231,6 @@ export default function FeaturesTab({
       const isAdmin = isSystemAdmin || isOrgAdmin;
 
       if (isAdmin) {
-        // Käytä admin-data endpointia admin-käyttäjille (ohittaa RLS:n)
         const {
           data: { session },
         } = await supabase.auth.getSession();
@@ -268,16 +256,14 @@ export default function FeaturesTab({
           throw new Error(errorData.error || "Failed to update platforms");
         }
 
-        // Päivitä state arrayina (ei stringinä)
         setUserData((prev) => ({
           ...prev,
-          platforms: platformsToSave, // Pidä arrayina staten sisällä
+          platforms: platformsToSave,
         }));
 
         setSaveMessage("Alustat päivitetty!");
         setTimeout(() => setSaveMessage(""), 3000);
       } else {
-        // Normaali käyttäjä: käytä suoraa Supabase-kyselyä
         const platformsToSaveString = JSON.stringify(platformsToSave);
 
         const { error } = await supabase
@@ -292,10 +278,9 @@ export default function FeaturesTab({
           throw error;
         }
 
-        // Päivitä state arrayina (ei stringinä)
         setUserData((prev) => ({
           ...prev,
-          platforms: platformsToSave, // Pidä arrayina staten sisällä
+          platforms: platformsToSave,
         }));
 
         setSaveMessage("Alustat päivitetty!");
@@ -313,11 +298,9 @@ export default function FeaturesTab({
     }
   };
 
-  // Käsittele platforms-kenttä eri muodoista (sama logiikka kuin admin-sivulla)
   const getCurrentPlatforms = () => {
     const platformsData = userData?.platforms || [];
 
-    // Jos on jo array, palauta sellaisenaan
     if (Array.isArray(platformsData)) {
       console.log(
         "[FeaturesTab] getCurrentPlatforms: already array:",
@@ -326,15 +309,12 @@ export default function FeaturesTab({
       return platformsData;
     }
 
-    // Jos on string, käsittele sitä
     if (typeof platformsData === "string") {
-      // Tyhjä string
       if (!platformsData.trim()) {
         console.log("[FeaturesTab] getCurrentPlatforms: empty string");
         return [];
       }
 
-      // Yritä parsia JSON array stringinä
       try {
         const parsed = JSON.parse(platformsData);
         if (Array.isArray(parsed)) {
@@ -345,7 +325,6 @@ export default function FeaturesTab({
           return parsed;
         }
       } catch (e) {
-        // Ei JSON, käsittele pilkuilla eroteltuna
         const result = platformsData
           .split(",")
           .map((p) => p.trim())
@@ -362,7 +341,6 @@ export default function FeaturesTab({
     return [];
   };
 
-  // Varmista että features on aina array
   const enabledFeatures = React.useMemo(() => {
     if (!features) return [];
     if (!Array.isArray(features)) {
@@ -375,85 +353,73 @@ export default function FeaturesTab({
   const currentPlatforms = getCurrentPlatforms();
 
   return (
-    <div className="features-tab-container">
+    <div className="space-y-6">
       {/* Onboarding-osio */}
-      <div
-        className="onboarding-section features-section-card"
-      >
-        <h3
-          className="features-section-title"
-        >
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h3 className="text-base font-semibold text-gray-800 mb-1">
           Onboarding
         </h3>
-        <p
-          className="features-section-desc"
-        >
+        <p className="text-sm text-gray-500 mb-4">
           Onko käyttäjän onboarding suoritettu? Jos onboarding on valmis,
           onboarding-modaali ei näy käyttäjälle.
         </p>
 
         {onboardingMessage && (
-          <div className={`features-message ${onboardingMessage.includes("Virhe") ? 'error' : 'success'}`}>
+          <div className={`mb-4 p-3 rounded-lg text-sm ${onboardingMessage.includes("Virhe") ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
             {onboardingMessage}
           </div>
         )}
 
         {onboardingLoading ? (
-          <div className="features-loading-text">Ladataan...</div>
+          <div className="text-sm text-gray-500">Ladataan...</div>
         ) : (
-          <div className="features-toggle-row">
-            <label className={`features-toggle-label ${!onboardingCompleted ? 'active' : 'inactive'}`}>
+          <div className="flex items-center gap-3">
+            <span className={`text-sm px-3 py-1 rounded-full ${!onboardingCompleted ? 'bg-red-100 text-red-800 font-medium' : 'bg-gray-100 text-gray-500'}`}>
               Ei valmis
-            </label>
+            </span>
 
             <button
               type="button"
               onClick={() => handleOnboardingToggle(!onboardingCompleted)}
               disabled={onboardingSaving}
-              className={`features-toggle-btn ${onboardingCompleted ? 'on' : 'off'}`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 ${onboardingCompleted ? 'bg-green-500' : 'bg-red-500'}`}
             >
-              <div className={`features-toggle-knob ${onboardingCompleted ? 'on' : 'off'}`} />
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${onboardingCompleted ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
 
-            <label className={`features-toggle-label ${onboardingCompleted ? 'active' : 'inactive'}`}>
+            <span className={`text-sm px-3 py-1 rounded-full ${onboardingCompleted ? 'bg-green-100 text-green-800 font-medium' : 'bg-gray-100 text-gray-500'}`}>
               Valmis
-            </label>
+            </span>
           </div>
         )}
       </div>
 
       {/* Alustat-osio */}
-      <div
-        className="platforms-section features-section-card"
-      >
-        <h3
-          className="features-section-title"
-        >
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h3 className="text-base font-semibold text-gray-800 mb-1">
           Alustat
         </h3>
-        <p
-          className="features-section-desc"
-        >
+        <p className="text-sm text-gray-500 mb-4">
           Valitse mitkä alustat ovat käytössä asiakkaalla.
         </p>
 
         {saveMessage && (
-          <div className={`features-message ${saveMessage.includes("Virhe") ? 'error' : 'success'}`}>
+          <div className={`mb-4 p-3 rounded-lg text-sm ${saveMessage.includes("Virhe") ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
             {saveMessage}
           </div>
         )}
 
         {onboardingLoading ? (
-          <div className="features-loading-text">Ladataan...</div>
+          <div className="text-sm text-gray-500">Ladataan...</div>
         ) : (
-          <div className="features-platform-grid">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
             {ALL_PLATFORMS.map((platform) => {
               const isSelected = currentPlatforms.includes(platform);
 
               return (
                 <label
                   key={platform}
-                  className={`features-platform-label ${isSelected ? 'selected' : 'unselected'}`}
+                  className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all ${isSelected ? 'bg-primary-50 border-primary-500 text-primary-700' : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'}`}
                 >
                   <input
                     type="checkbox"
@@ -471,35 +437,34 @@ export default function FeaturesTab({
                       handlePlatformToggle(newPlatforms);
                     }}
                     disabled={onboardingSaving}
-                    className="features-platform-checkbox"
+                    className="w-4 h-4 text-primary-500 border-gray-300 rounded focus:ring-primary-500"
                   />
-                  <span>{platform}</span>
+                  <span className="text-sm">{platform}</span>
                 </label>
               );
             })}
           </div>
         )}
 
-        <div className="features-summary-box">
-          <strong>Valittuna:</strong> {currentPlatforms.length} /{" "}
-          {ALL_PLATFORMS.length}
+        <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
+          <strong>Valittuna:</strong> {currentPlatforms.length} / {ALL_PLATFORMS.length}
         </div>
       </div>
 
-      {/* WordPress-plugin latausosio - näytetään vain jos WordPress on konfiguroitu */}
+      {/* WordPress-plugin latausosio */}
       {wordpressLoading ? (
-        <div className="features-wordpress-loading">
-          <div className="features-loading-text">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div className="text-sm text-gray-500">
             Tarkistetaan WordPress-integraatiota...
           </div>
         </div>
       ) : (
         wordpressConfigured && (
-          <div className="wordpress-plugin-section features-section-card">
-            <h3 className="features-section-title">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <h3 className="text-base font-semibold text-gray-800 mb-1">
               WordPress-plugin
             </h3>
-            <p className="features-section-desc">
+            <p className="text-sm text-gray-500 mb-4">
               WordPress-integraatio on konfiguroitu. Voit ladata Rascal AI
               WordPress-pluginin alla olevasta linkistä.
             </p>
@@ -507,7 +472,7 @@ export default function FeaturesTab({
             <a
               href="/plugins/rascal-ai.zip"
               download="rascal-ai.zip"
-              className="features-download-btn"
+              className="inline-flex items-center gap-2 py-2 px-4 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors"
             >
               <svg
                 width="16"
@@ -541,69 +506,67 @@ export default function FeaturesTab({
               Lataa WordPress-plugin
             </a>
 
-            <div
-              className="features-note"
-            >
+            <div className="mt-3 text-xs text-gray-500">
               Versio: 1.0 | Tiedoston koko: ~100KB
             </div>
           </div>
         )
       )}
 
-      <div className="features-description">
-        <p>
+      {/* Ominaisuudet */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <p className="text-sm text-gray-500 mb-4">
           Hallitse käyttäjän käytössä olevia ominaisuuksia. Ota ominaisuudet
           käyttöön tai poista ne käytöstä vaihtamalla kytkintä.
         </p>
-      </div>
 
-      <div className="features-list">
-        {ALL_FEATURES.map((feature) => {
-          const isEnabled = enabledFeatures.includes(feature);
+        <div className="space-y-3">
+          {ALL_FEATURES.map((feature) => {
+            const isEnabled = enabledFeatures.includes(feature);
 
-          return (
-            <div key={feature} className="feature-item">
-              <div className="feature-info">
-                <span className="feature-name">{getFeatureLabel(feature)}</span>
-                <span className="feature-key">{feature}</span>
+            return (
+              <div key={feature} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                <div>
+                  <span className="text-sm font-medium text-gray-800">{getFeatureLabel(feature)}</span>
+                  <span className="ml-2 text-xs text-gray-400">{feature}</span>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isEnabled}
+                    onChange={(e) => {
+                      const current = Array.isArray(features) ? features : [];
+                      const next = e.target.checked
+                        ? Array.from(new Set([...current, feature]))
+                        : current.filter((x) => x !== feature);
+                      if (onFeatureToggle) {
+                        onFeatureToggle(next);
+                      } else {
+                        console.error(
+                          "FeaturesTab - onFeatureToggle is not defined!",
+                        );
+                      }
+                    }}
+                    disabled={isSaving}
+                    className="sr-only peer"
+                    aria-label={getFeatureLabel(feature)}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-500"></div>
+                </label>
               </div>
-              <label className="feature-switch">
-                <input
-                  type="checkbox"
-                  checked={isEnabled}
-                  onChange={(e) => {
-                    const current = Array.isArray(features) ? features : [];
-                    const next = e.target.checked
-                      ? Array.from(new Set([...current, feature]))
-                      : current.filter((x) => x !== feature);
-                    if (onFeatureToggle) {
-                      onFeatureToggle(next);
-                    } else {
-                      console.error(
-                        "FeaturesTab - onFeatureToggle is not defined!",
-                      );
-                    }
-                  }}
-                  disabled={isSaving}
-                  aria-label={getFeatureLabel(feature)}
-                />
-                <span className="switch-slider" />
-              </label>
-            </div>
-          );
-        })}
-      </div>
-
-      {enabledFeatures.length === 0 && (
-        <div className="no-features-message">
-          <p>Käyttäjällä ei ole yhtään aktiivista ominaisuutta.</p>
+            );
+          })}
         </div>
-      )}
 
-      <div className="features-summary">
-        <div className="summary-item">
-          <span className="summary-label">Aktiivisia ominaisuuksia:</span>
-          <span className="summary-value">
+        {enabledFeatures.length === 0 && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg text-center text-gray-500 text-sm">
+            Käyttäjällä ei ole yhtään aktiivista ominaisuutta.
+          </div>
+        )}
+
+        <div className="mt-4 p-3 bg-gray-50 rounded-lg flex justify-between items-center">
+          <span className="text-sm text-gray-600">Aktiivisia ominaisuuksia:</span>
+          <span className="text-sm font-semibold text-gray-800">
             {enabledFeatures.length} / {ALL_FEATURES.length}
           </span>
         </div>

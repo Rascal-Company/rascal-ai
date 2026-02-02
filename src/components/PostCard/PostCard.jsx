@@ -2,7 +2,23 @@ import React, { useState, useRef } from 'react'
 import Button from '../Button'
 import ConfirmPopover from '../ConfirmPopover'
 
-function PostCard({ post, onEdit, onDelete, onDuplicate, onPublish, onSchedule, onMoveToNext, onDragStart, onDragEnd, isDragging, hideActions = false, t }) {
+function PostCard({
+  post,
+  onEdit,
+  onDelete,
+  onDuplicate,
+  onPublish,
+  onSchedule,
+  onMoveToNext,
+  onDragStart,
+  onDragEnd,
+  isDragging,
+  hideActions = false,
+  t,
+  compact = false,
+  isSelected = false,
+  onSelect
+}) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const deleteButtonRef = useRef(null)
 
@@ -19,289 +35,230 @@ function PostCard({ post, onEdit, onDelete, onDuplicate, onPublish, onSchedule, 
   const handleCancelDelete = () => {
     setShowDeleteConfirm(false)
   }
+
+  // Common media logic
+  let mediaUrl = post.thumbnail;
+  let isVideo = false;
+  if (post.type === 'Carousel' && post.segments?.length > 0) {
+    const firstSegment = post.segments.find(seg => seg.slide_no === 1) || post.segments[0];
+    mediaUrl = firstSegment.media_urls?.[0];
+  }
+  if (mediaUrl) {
+    isVideo = mediaUrl.includes('.mp4') || mediaUrl.includes('.webm') || mediaUrl.includes('.mov');
+  }
+
+  if (compact) {
+    return (
+      <div
+        className={`group relative bg-white rounded-2xl border transition-all duration-300 flex items-center gap-4 p-3 hover:shadow-lg hover:border-blue-200 ${isDragging ? 'opacity-50 scale-95' : ''} ${isSelected ? 'border-blue-500 bg-blue-50/30 ring-1 ring-blue-500' : 'border-gray-100 shadow-sm shadow-gray-200/10'}`}
+        draggable={true}
+        onDragStart={(e) => onDragStart(e, post)}
+        onDragEnd={onDragEnd}
+        onClick={(e) => {
+          if (e.metaKey || e.ctrlKey) {
+            onSelect?.(post);
+          } else if (hideActions) {
+            onEdit(post);
+          }
+        }}
+      >
+        <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
+          {mediaUrl ? (
+            isVideo ? (
+              <video src={mediaUrl} className="w-full h-full object-cover" />
+            ) : (
+              <img src={mediaUrl} alt="prev" className="w-full h-full object-cover" />
+            )
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+          )}
+          {isSelected && (
+            <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+              <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0 py-0.5">
+          <div className="flex items-center gap-2 mb-0.5">
+            <span className={`text-[8px] font-black uppercase tracking-tight px-1.5 py-0.5 rounded-md ${post.type === 'Reels' ? 'bg-indigo-50 text-indigo-600' :
+              post.type === 'Carousel' ? 'bg-blue-50 text-blue-600' :
+                'bg-gray-50 text-gray-500'
+              }`}>
+              {post.type}
+            </span>
+            <h3 className="text-[11px] font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors" title={post.title}>
+              {post.title || t('posts.carouselsTab.postCard.untitled')}
+            </h3>
+          </div>
+          <div className="flex items-center gap-4 text-[9px] font-medium text-gray-400">
+            <span className="truncate max-w-[120px]">{post.caption || t('posts.carouselsTab.postCard.noDescription')}</span>
+            <span className="flex-shrink-0">• {post.originalData?.created_at ? new Date(post.originalData.created_at).toLocaleDateString(t('common.locale') === 'fi' ? 'fi-FI' : 'en-US') : '--'}</span>
+          </div>
+        </div>
+
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {!hideActions && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onEdit(post); }}
+              className="p-1.5 hover:bg-gray-50 text-gray-400 hover:text-blue-600 rounded-lg transition-colors"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div 
-      className={`post-card ${isDragging ? 'dragging' : ''} ${hideActions ? 'clickable' : ''}`}
+    <div
+      className={`group relative bg-white rounded-[32px] border transition-all duration-500 overflow-hidden flex flex-col h-full hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-100 ${isDragging ? 'opacity-50 ring-2 ring-blue-500 ring-offset-4 scale-95 shadow-2xl' : 'border-gray-100 shadow-xl shadow-gray-200/20'} ${isSelected ? 'ring-2 ring-blue-500 border-blue-200' : ''} ${hideActions ? 'cursor-pointer active:scale-[0.98]' : ''}`}
       draggable={true}
       onDragStart={(e) => onDragStart(e, post)}
       onDragEnd={onDragEnd}
-      onClick={hideActions ? () => onEdit(post) : undefined}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey) {
+          onSelect?.(post);
+        } else if (hideActions) {
+          onEdit(post);
+        }
+      }}
     >
-      <div className="post-card-content">
-        <div className="post-thumbnail">
-          {(() => {
-            // Carousel: Näytä ensimmäinen slide segments-taulusta
-            if (post.type === 'Carousel' && post.segments && post.segments.length > 0) {
-              const firstSegment = post.segments.find(seg => seg.slide_no === 1) || post.segments[0];
-              const mediaUrl = firstSegment.media_urls?.[0];
-              
-              if (mediaUrl) {
-                const isVideo = mediaUrl.includes('.mp4') || mediaUrl.includes('.webm') || mediaUrl.includes('.mov') || mediaUrl.includes('.avi');
-                
-                if (isVideo) {
-                  return (
-                    <video
-                      src={mediaUrl}
-                      muted
-                      loop
-                      playsInline
-                      className="post-thumbnail-media"
-                      onError={(e) => {
-                        if (e.target && e.target.style) {
-                          e.target.style.display = 'none';
-                        }
-                        if (e.target && e.target.nextSibling && e.target.nextSibling.style) {
-                          e.target.nextSibling.style.display = 'flex';
-                        }
-                      }}
-                    />
-                  );
-                } else {
-                  return (
-                    <img
-                      src={mediaUrl}
-                      alt="carousel preview"
-                      loading="lazy"
-                      decoding="async"
-                      className="post-thumbnail-image"
-                      onLoad={(e) => {
-                        e.target.classList.add('loaded')
-                      }}
-                      onError={(e) => {
-                        if (e.target && e.target.style) {
-                          e.target.style.display = 'none';
-                        }
-                        if (e.target && e.target.nextSibling && e.target.nextSibling.style) {
-                          e.target.nextSibling.style.display = 'flex';
-                        }
-                      }}
-                    />
-                  );
-                }
-              }
-            }
-            
-            // Video: Toisto
-            if (post.thumbnail && (post.thumbnail.includes('.mp4') || post.thumbnail.includes('.webm') || post.thumbnail.includes('.mov') || post.thumbnail.includes('.avi'))) {
-              return (
-                <video
-                  src={post.thumbnail}
-                  muted
-                  loop
-                  playsInline
-                  className="post-thumbnail-media"
-                  onError={(e) => {
-                    if (e.target && e.target.style) {
-                      e.target.style.display = 'none';
-                    }
-                    if (e.target && e.target.nextSibling && e.target.nextSibling.style) {
-                      e.target.nextSibling.style.display = 'flex';
-                    }
-                  }}
-                />
-              );
-            }
-            
-            // Kuva: Näytä kaikki kuvat jos useampi, muuten vain thumbnail
-            if (post.thumbnail) {
-              // Tarkista onko useampi kuva media_urls-kentässä
-              const mediaUrls = post.media_urls || post.mediaUrls || [];
-              const hasMultipleImages = mediaUrls.length > 1;
-              
-              if (hasMultipleImages) {
-                // Näytä kaikki kuvat pienenä gridinä
-                return (
-                  <div className="post-thumbnail-grid">
-                    {mediaUrls.slice(0, 4).map((url, index) => (
-                      <img
-                        key={index}
-                        src={url}
-                        alt={`media ${index + 1}`}
-                        loading="lazy"
-                        decoding="async"
-                        className="post-thumbnail-grid-item"
-                        onLoad={(e) => {
-                          e.target.classList.add('loaded')
-                        }}
-                        onError={(e) => {
-                          if (e.target && e.target.style) {
-                            e.target.style.display = 'none';
-                          }
-                          if (e.target && e.target.nextSibling && e.target.nextSibling.style) {
-                            e.target.nextSibling.style.display = 'flex';
-                          }
-                        }}
-                      />
-                    ))}
-                    {mediaUrls.length > 4 && (
-                      <div className="post-thumbnail-count">
-                        +{mediaUrls.length - 4}
-                      </div>
-                    )}
-                  </div>
-                );
-              } else {
-                // Näytä vain yksi kuva
-                return (
-                  <img
-                    src={post.thumbnail}
-                    alt="thumbnail"
-                    loading="lazy"
-                    decoding="async"
-                    className="post-thumbnail-image"
-                    onLoad={(e) => {
-                      e.target.classList.add('loaded')
-                    }}
-                    onError={(e) => {
-                      if (e.target && e.target.style) {
-                        e.target.style.display = 'none';
-                      }
-                      if (e.target && e.target.nextSibling && e.target.nextSibling.style) {
-                        e.target.nextSibling.style.display = 'flex';
-                      }
-                    }}
-                  />
-                );
-              }
-            }
-            
-            // Placeholder jos ei mediaa
-            return (
-              <div className="placeholder-content">
-                <img
-                  src="/placeholder.png"
-                  alt="Ei kuvaa"
-                  className="placeholder-image"
-                  onError={(e) => {
-                    // Jos placeholder-kuva ei lataa, näytä tekstin
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-                <div className="placeholder-fallback" style={{ display: 'none' }}>
-                  <div className="placeholder-icon">🖼️</div>
-                  <div className="placeholder-text">Ei kuvaa</div>
-                </div>
-              </div>
-            );
-          })()}
-        </div>
-        <div className="post-info">
-          <div className="post-header">
-            <h3 className="post-title">
-              {post.title.includes('.') ? post.title.split('.')[0] + '.' : post.title}
-            </h3>
-            <div className="post-badges">
-              <span className="post-type">
-                {post.source === 'mixpost' && post.provider
-                  ? (post.provider.charAt(0).toUpperCase() + post.provider.slice(1))
-                  : (post.type === 'Carousel' ? 'Carousel' :  
-                     post.type === 'Reels' ? 'Reels' :
-                     post.type === 'Blog' ? 'Blog' : 
-                     post.type === 'Newsletter' ? 'Newsletter' :  
-                     post.type)}
-              </span>
-            </div>
+      {isSelected && (
+        <div className="absolute top-4 right-4 z-20">
+          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg border-2 border-white">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
           </div>
-          <p className="post-caption post-caption-contain">
-            {post.caption}
+        </div>
+      )}
+
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
+        {mediaUrl ? (
+          isVideo ? (
+            <video src={mediaUrl} muted loop playsInline className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+          ) : (
+            <img src={mediaUrl} alt="preview" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+          )
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center text-gray-200 bg-gray-50 group-hover:bg-gray-100 transition-colors">
+            <svg className="w-8 h-8 mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            <span className="text-[10px] font-bold uppercase tracking-widest opacity-40">{t('posts.carouselsTab.postCard.noMedia')}</span>
+          </div>
+        )}
+
+        <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10 transition-transform group-hover:translate-y-px">
+          <span className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-md flex items-center gap-1.5 border border-white/20 ${post.type === 'Reels' ? 'bg-indigo-600/90 text-white' :
+            post.type === 'Carousel' ? 'bg-blue-500/90 text-white' :
+              'bg-white/90 text-gray-900 border-gray-100'
+            }`}>
+            {post.type === 'Carousel' && <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>}
+            {post.type}
+          </span>
+          {post.source === 'mixpost' && post.provider && (
+            <span className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-md bg-gray-900/90 text-white border border-white/10 uppercase italic">
+              {post.provider}
+            </span>
+          )}
+        </div>
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      </div>
+
+      <div className="p-6 flex flex-col flex-1 gap-4">
+        <div className="space-y-1.5">
+          <h3 className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors" title={post.title}>
+            {post.title || t('posts.carouselsTab.postCard.untitled')}
+          </h3>
+          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium">
+            {post.caption || t('posts.carouselsTab.postCard.noDescription')}
           </p>
-          <div className="post-footer">
+        </div>
+
+        <div className="mt-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
             {post.originalData?.created_at && (
-              <span className="post-created-date">
-                Luotu: {new Date(post.originalData.created_at).toLocaleDateString('fi-FI')}
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+                {new Date(post.originalData.created_at).toLocaleDateString(t('common.locale') === 'fi' ? 'fi-FI' : 'en-US')}
               </span>
             )}
-            <div className="post-actions">
-              {/* Näytä napit vain jos ei ole "Julkaistu" sarakkeessa */}
-              {!hideActions && post.status !== 'Julkaistu' && (
-                <>
-                  {post.status !== 'Tarkistuksessa' && (
-                    <Button 
-                      variant="secondary" 
-                      onClick={() => onEdit(post)}
-                      className="post-button-small"
-                    >
-                      {post.source === 'reels' ? 'Tarkista' : t('posts.actions.edit')}
-                    </Button>
-                  )}
-                  
-                  {/* Monista-nappi - näytetään vain Supabase-postauksille */}
-                  {onDuplicate && post.source === 'supabase' && (
-                    <Button
-                      variant="secondary"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onDuplicate(post)
-                      }}
-                      className="post-button-small"
-                      title="Monista postaus"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                      </svg>
-                    </Button>
-                  )}
-                  
-                  {/* Siirtymispainikkeet */}
-                  {post.status === 'Kesken' && post.source === 'supabase' && (
-                    <Button
-                      variant="primary"
-                      onClick={() => onMoveToNext(post, 'Tarkistuksessa')}
-                      className="post-button-primary"
-                    >
-                      {t('posts.columns.readyToPublish')}
-                    </Button>
-                  )}
-                  
-                  {/* Julkaisu-nappi vain jos status on "Valmiina julkaisuun" (Tarkistuksessa) */}
-                  {post.status === 'Tarkistuksessa' && (
-                    <Button
-                      variant="primary"
-                      onClick={() => onPublish(post)}
-                      className="post-button-success"
-                    >
-                      {t('posts.actions.publish')}
-                    </Button>
-                  )}
-                  
-                  {post.status !== 'Aikataulutettu' && (
-                    <Button 
-                      ref={deleteButtonRef}
-                      variant="danger" 
-                      onClick={handleDeleteClick}
-                      className="post-button-small"
-                    >
-                      {t('posts.actions.delete')}
-                    </Button>
-                  )}
-                </>
-              )}
-            </div>
-            {/* Monista-nappi julkaistuille postauksille */}
-            {post.status === 'Julkaistu' && onDuplicate && post.source === 'supabase' && (
-              <div className="published-post-actions">
-                <Button
-                  variant="secondary"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDuplicate(post)
-                  }}
-                  className="post-button-small"
-                  style={{ width: '100%', marginTop: '8px' }}
+          </div>
+
+          <div className="flex gap-2 isolate translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+            {!hideActions && post.status !== 'Julkaistu' && (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEdit(post); }}
+                  className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-blue-600 transition-all hover:scale-110 active:scale-95"
+                  title={t('posts.actions.edit')}
                 >
-                  Monista uureksi
-                </Button>
-              </div>
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                </button>
+
+                {onDuplicate && post.source === 'supabase' && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDuplicate(post); }}
+                    className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-indigo-600 transition-all hover:scale-110 active:scale-95"
+                    title={t('posts.carouselsTab.postCard.duplicate')}
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+                  </button>
+                )}
+
+                <button
+                  ref={deleteButtonRef}
+                  onClick={handleDeleteClick}
+                  className="p-2 bg-red-50 text-red-600 rounded-xl shadow-lg border border-red-100 hover:bg-red-500 hover:text-white transition-all hover:scale-110 active:scale-95"
+                  title={t('posts.actions.delete')}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </>
+            )}
+
+            {post.status === 'Julkaistu' && onDuplicate && post.source === 'supabase' && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onDuplicate(post); }}
+                className="p-2 bg-blue-50 text-blue-600 rounded-xl shadow-lg border border-blue-100 hover:bg-blue-600 hover:text-white transition-all hover:scale-110 active:scale-95"
+                title={t('posts.carouselsTab.postCard.duplicateNew')}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+              </button>
             )}
           </div>
         </div>
+
+        {!hideActions && (
+          <div className="flex gap-2 pt-2">
+            {post.status === 'Kesken' && post.source === 'supabase' && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onMoveToNext(post, 'Tarkistuksessa'); }}
+                className="w-full py-2.5 bg-gray-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-gray-200"
+              >
+                {t('posts.columns.readyToPublish')}
+              </button>
+            )}
+
+            {post.status === 'Tarkistuksessa' && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onPublish(post); }}
+                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-emerald-500/20"
+              >
+                {t('posts.actions.publish')}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <ConfirmPopover
         show={showDeleteConfirm}
-        message={t('posts.alerts.deleteConfirm') || 'Haluatko varmasti poistaa tämän postauksen? Tätä toimintoa ei voi perua.'}
+        message={t('posts.alerts.deleteConfirm') || 'Poistetaanko tämä?'}
         confirmText={t('posts.actions.delete') || 'Poista'}
         cancelText={t('ui.buttons.cancel') || 'Peruuta'}
         variant="danger"

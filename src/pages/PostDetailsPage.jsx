@@ -27,53 +27,46 @@ export default function PostDetailsPage() {
   }, [id])
 
   if (loading) return <p>Ladataan...</p>
-  if (error) return <p style={{color: 'red'}}>{error}</p>
+  if (error) return <p className="text-red-500">{error}</p>
   if (!post) return <p>Postausta ei löytynyt.</p>
 
   return (
-    <div style={{padding: 32}}>
-      <button onClick={() => navigate(-1)} style={{
-        background: 'none',
-        border: 'none',
-        color: '#2563eb',
-        cursor: 'pointer',
-        fontSize: 16,
-        marginBottom: 24
-      }}>
+    <div className="p-8">
+      <button onClick={() => navigate(-1)} className="bg-transparent border-none text-blue-600 cursor-pointer text-base mb-6">
         ← Takaisin
       </button>
-      
-      <div style={{background: '#fff', borderRadius: 12, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.1)'}}>
-        <h1 style={{margin: '0 0 16px 0', fontSize: 24, fontWeight: 700}}>
+
+      <div className="bg-white rounded-xl p-6 shadow-md">
+        <h1 className="m-0 mb-4 text-2xl font-bold">
           {post.Idea || post.title || 'Ei otsikkoa'}
         </h1>
-        
-        <div style={{marginBottom: 16}}>
+
+        <div className="mb-4">
           <strong>Julkaisupäivä:</strong> {post["Publish Date"] ? new Date(post["Publish Date"]).toLocaleDateString('fi-FI') : 'Ei määritelty'}
         </div>
-        
-        <div style={{marginBottom: 16}}>
+
+        <div className="mb-4">
           <strong>Kuvaus:</strong>
-          <p style={{margin: '8px 0 0 0', lineHeight: 1.6}}>
+          <p className="mt-2 mb-0 leading-relaxed">
             {post.Caption || post.desc || 'Ei kuvausta'}
           </p>
         </div>
-        
+
         {post.Media && post.Media.length > 0 && (
-          <div style={{marginBottom: 16}}>
+          <div className="mb-4">
             <strong>Media:</strong>
-            <div style={{marginTop: 8}}>
+            <div className="mt-2">
               {post.Media.map((media, index) => (
-                <div key={index} style={{marginBottom: 8}}>
+                <div key={index} className="mb-2">
                   {media.type && media.type.startsWith('image/') ? (
-                    <img src={media.url} alt="media" style={{maxWidth: '100%', borderRadius: 8}} />
+                    <img src={media.url} alt="media" className="max-w-full rounded-lg" />
                   ) : media.type && media.type.startsWith('video/') ? (
-                    <video controls style={{maxWidth: '100%', borderRadius: 8}}>
+                    <video controls className="max-w-full rounded-lg">
                       <source src={media.url} type={media.type} />
                       Selaimesi ei tue videon toistoa.
                     </video>
                   ) : (
-                    <a href={media.url} target="_blank" rel="noopener noreferrer" style={{color: '#2563eb'}}>
+                    <a href={media.url} target="_blank" rel="noopener noreferrer" className="text-blue-600">
                       Avaa media
                     </a>
                   )}

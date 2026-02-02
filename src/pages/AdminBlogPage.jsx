@@ -391,7 +391,7 @@ export default function AdminBlogPage() {
             )}
           </header>
 
-          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <div className="flex gap-2 mb-4">
             <button className={`btn ${activeTab === 'articles' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setActiveTab('articles')}>Artikkelit</button>
             <button className={`btn ${activeTab === 'testimonials' ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setActiveTab('testimonials')}>Testimonials</button>
           </div>
@@ -674,7 +674,7 @@ export default function AdminBlogPage() {
               )}
             </main>
           ) : (
-            <div style={{ marginTop: 16 }}>
+            <div className="mt-4">
               <AdminTestimonialsPage embedded />
             </div>
           )}

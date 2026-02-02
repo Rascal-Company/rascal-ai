@@ -46,11 +46,9 @@ export default function AccountDetailsPage() {
   }, [account])
 
   useEffect(() => {
-    // Nollaa paginointi kun vaihdetaan tabia
     setCurrentPage(1)
     setCallTypesCurrentPage(1)
-    
-    // Lataa featuret uudelleen kun features-tabia avataan
+
     if (activeTab === 'features' && account) {
       loadFeatures()
     }
@@ -126,8 +124,7 @@ export default function AccountDetailsPage() {
     setLoading(true)
     try {
       console.log('Loading account details for account:', account.id, account.company_name)
-      
-      // Hae postaukset
+
       const { data: posts, error: postsError } = await supabase
         .from('content')
         .select(`
@@ -146,7 +143,6 @@ export default function AccountDetailsPage() {
 
       if (postsError) console.error('Error loading posts:', postsError)
 
-      // Hae strategiat
       const { data: strategies, error: strategiesError } = await supabase
         .from('content_strategy')
         .select('*')
@@ -157,7 +153,6 @@ export default function AccountDetailsPage() {
         console.error('Error loading strategies:', strategiesError)
       }
 
-      // Hae yrityksen tiedot
       const { data: companyData, error: companyError } = await supabase
         .from('users')
         .select('company_summary, icp_summary, kpi, tov, features, onboarding_completed')
@@ -167,13 +162,11 @@ export default function AccountDetailsPage() {
       if (companyError) {
         console.error('Error loading company data:', companyError)
       } else {
-        // Aseta featuret - varmista että ne ovat aina array
         const features = Array.isArray(companyData?.features) ? companyData.features : []
         console.log('Loaded features for account:', account.id, features)
         setAccountFeatures(features)
       }
 
-      // Hae puhelutyypit
       console.log('Fetching call types for user_id:', account.id)
       const { data: callTypes, error: callTypesError } = await supabase
         .from('call_types')
@@ -191,7 +184,6 @@ export default function AccountDetailsPage() {
           hint: callTypesError.hint,
           code: callTypesError.code
         })
-        // Jos RLS-esto, logitetaan lisätietoja
         if (callTypesError.code === '42501' || callTypesError.message?.includes('permission')) {
           console.error('RLS policy violation - checking session...')
           const { data: { session } } = await supabase.auth.getSession()
@@ -208,7 +200,7 @@ export default function AccountDetailsPage() {
         callTypes: callTypes || [],
         company: companyData || {}
       }
-      
+
       console.log('Account data set:', {
         postsCount: accountData.posts.length,
         strategiesCount: accountData.strategies.length,
@@ -225,7 +217,7 @@ export default function AccountDetailsPage() {
 
   const handleFieldUpdate = (field, value) => {
     if (!accountDetails) return
-    
+
     setAccountDetails(prev => ({
       ...prev,
       company: {
@@ -306,11 +298,10 @@ export default function AccountDetailsPage() {
 
       if (error) throw error
 
-      // Päivitä paikallinen state
       setAccountDetails(prev => ({
         ...prev,
-        strategies: prev.strategies.map(strategy => 
-          strategy.id === editingStrategy 
+        strategies: prev.strategies.map(strategy =>
+          strategy.id === editingStrategy
             ? { ...strategy, strategy: strategyEditValues.strategy, status: strategyEditValues.status }
             : strategy
         )
@@ -345,7 +336,6 @@ export default function AccountDetailsPage() {
 
       if (error) throw error
 
-      // Päivitä paikallinen state
       setAccountDetails(prev => ({
         ...prev,
         company: {
@@ -380,7 +370,7 @@ export default function AccountDetailsPage() {
 
       setAccountDetails(prev => ({
         ...prev,
-        posts: prev.posts.map(post => 
+        posts: prev.posts.map(post =>
           post.id === postId ? { ...post, [field]: value } : post
         )
       }))
@@ -421,11 +411,10 @@ export default function AccountDetailsPage() {
 
       if (error) throw error
 
-      // Päivitä paikallinen state
       setAccountDetails(prev => ({
         ...prev,
-        posts: prev.posts.map(post => 
-          post.id === editingPost 
+        posts: prev.posts.map(post =>
+          post.id === editingPost
             ? { ...post, ...postEditValues }
             : post
         )
@@ -504,11 +493,10 @@ export default function AccountDetailsPage() {
 
       if (error) throw error
 
-      // Päivitä paikallinen state
       setAccountDetails(prev => ({
         ...prev,
-        callTypes: prev.callTypes.map(callType => 
-          callType.id === editingCallType 
+        callTypes: prev.callTypes.map(callType =>
+          callType.id === editingCallType
             ? { ...callType, ...callTypeEditValues }
             : callType
         )
@@ -532,16 +520,13 @@ export default function AccountDetailsPage() {
       console.error('handleFeatureToggle: account is null')
       return
     }
-    
+
     setIsSaving(true)
     setSaveMessage('')
-    
+
     try {
-      // Varmista että newFeatures on array
       const featuresToSave = Array.isArray(newFeatures) ? newFeatures : []
 
-      // Tarkista onko käyttäjä admin/moderator/owner
-      // Tarkistetaan SEKÄ system role (users.role) ETTÄ organization role (org_members.role)
       const isSystemAdmin = user?.systemRole === 'admin' || user?.systemRole === 'superadmin' || user?.systemRole === 'moderator'
       const isOrgAdmin = organization?.role === 'admin' || organization?.role === 'owner' || organization?.role === 'moderator'
       const isAdmin = isSystemAdmin || isOrgAdmin
@@ -554,9 +539,8 @@ export default function AccountDetailsPage() {
         orgRole: organization?.role,
         userId: account.id
       })
-      
+
       if (isAdmin) {
-        // Käytä admin-data endpointia admin-käyttäjille (ohittaa RLS:n)
         const { data: { session } } = await supabase.auth.getSession()
         if (!session?.access_token) {
           throw new Error('Session expired or invalid')
@@ -580,12 +564,10 @@ export default function AccountDetailsPage() {
           throw new Error(errorData.error || 'Failed to update features')
         }
 
-        // Päivitä state suoraan tallennettuun arvoon
         setAccountFeatures(featuresToSave)
         setSaveMessage('Ominaisuudet päivitetty!')
         setTimeout(() => setSaveMessage(''), 3000)
       } else {
-        // Normaali käyttäjä: käytä suoraa Supabase-kyselyä
         const { error } = await supabase
           .from('users')
           .update({ features: featuresToSave })
@@ -596,7 +578,6 @@ export default function AccountDetailsPage() {
           throw error
         }
 
-        // Päivitä state suoraan tallennettuun arvoon
         setAccountFeatures(featuresToSave)
         setSaveMessage('Ominaisuudet päivitetty!')
         setTimeout(() => setSaveMessage(''), 3000)
@@ -610,19 +591,35 @@ export default function AccountDetailsPage() {
     }
   }
 
+  const tabs = [
+    { id: 'company', label: 'Yritys' },
+    { id: 'strategies', label: `Strategiat (${accountDetails?.strategies?.length || 0})` },
+    { id: 'posts', label: `Postaukset (${accountDetails?.posts?.length || 0})` },
+    { id: 'callTypes', label: `Puhelutyypit (${accountDetails?.callTypes?.length || 0})` },
+    { id: 'features', label: `Ominaisuudet (${accountFeatures.length})` },
+    { id: 'socialMedia', label: 'Integraatiot' },
+  ]
+
   if (loading) {
     return (
-      <div className="account-details-page">
-        <div className="loading-message">Ladataan tietoja...</div>
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-center py-12 text-gray-500">
+          Ladataan tietoja...
+        </div>
       </div>
     )
   }
 
   if (!account || !accountDetails) {
     return (
-      <div className="account-details-page">
-        <div className="error-message">Tiliä ei löytynyt</div>
-        <button className="back-btn" onClick={() => navigate('/account-manager')}>
+      <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div className="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm mb-4">
+          Tiliä ei löytynyt
+        </div>
+        <button
+          className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+          onClick={() => navigate('/account-manager')}
+        >
           Takaisin
         </button>
       </div>
@@ -630,60 +627,44 @@ export default function AccountDetailsPage() {
   }
 
   return (
-    <div className="account-details-page">
-      <div className="account-details-header">
-        <button className="back-btn" onClick={() => navigate('/account-manager')}>
+    <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          className="py-2 px-4 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+          onClick={() => navigate('/account-manager')}
+        >
           ← Takaisin
         </button>
-        <h1>{account.company_name || account.contact_person || 'Tiedot'}</h1>
+        <h1 className="text-2xl font-bold text-gray-800">
+          {account.company_name || account.contact_person || 'Tiedot'}
+        </h1>
       </div>
 
       {saveMessage && (
-        <div className={`save-message ${isSaving ? 'saving' : 'saved'}`}>
+        <div className={`px-4 py-3 rounded-lg text-sm mb-6 ${
+          isSaving ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'
+        }`}>
           {saveMessage}
         </div>
       )}
 
-      <div className="page-tabs">
-        <button
-          className={`tab ${activeTab === 'company' ? 'active' : ''}`}
-          onClick={() => setActiveTab('company')}
-        >
-          Yritys
-        </button>
-        <button
-          className={`tab ${activeTab === 'strategies' ? 'active' : ''}`}
-          onClick={() => setActiveTab('strategies')}
-        >
-          Strategiat ({accountDetails.strategies.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'posts' ? 'active' : ''}`}
-          onClick={() => setActiveTab('posts')}
-        >
-          Postaukset ({accountDetails.posts.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'callTypes' ? 'active' : ''}`}
-          onClick={() => setActiveTab('callTypes')}
-        >
-          Puhelutyypit ({accountDetails.callTypes.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'features' ? 'active' : ''}`}
-          onClick={() => setActiveTab('features')}
-        >
-          Ominaisuudet ({accountFeatures.length})
-        </button>
-        <button
-          className={`tab ${activeTab === 'socialMedia' ? 'active' : ''}`}
-          onClick={() => setActiveTab('socialMedia')}
-        >
-          Integraatiot
-        </button>
+      <div className="flex flex-wrap gap-2 mb-6 pb-4 border-b border-gray-200">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            className={`py-2.5 px-5 rounded-lg text-sm font-medium transition-all duration-200 ${
+              activeTab === tab.id
+                ? 'bg-primary-500 text-white shadow-md'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800'
+            }`}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <div className="page-body">
+      <div>
         {activeTab === 'company' && (
           <CompanyTab
             company={accountDetails.company}
@@ -761,4 +742,3 @@ export default function AccountDetailsPage() {
     </div>
   )
 }
-

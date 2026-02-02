@@ -22,7 +22,6 @@ import StrategyModalManager from './src/components/StrategyModalManager'
 import OnboardingModal from './src/components/OnboardingModal'
 import ToastContainer from './src/components/ToastContainer'
 import ManagePostsPage from './src/pages/ManagePostsPage'
-import KuvapankkiPage from './src/pages/KuvapankkiPage'
 import AdminPage from './src/pages/AdminPage'
 import ContentStrategyPage from './src/pages/ContentStrategyPage'
 import AIChatPage from './src/pages/AIChatPage'
@@ -57,7 +56,7 @@ export default function App() {
     timestamp: new Date().toISOString(),
     stack: new Error().stack.split('\n')[2]
   })
-  
+
   // Debug: Kuuntele välilehden vaihtoa
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -66,7 +65,7 @@ export default function App() {
     document.addEventListener('visibilitychange', handleVisibilityChange)
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
-  
+
   return (
     <AuthProvider>
       <AutoLogoutProvider>
@@ -76,73 +75,72 @@ export default function App() {
           <PostsProvider>
             <NotificationProvider>
               <MonitoringProvider>
-              <StrategyStatusProvider>
-              <Routes>
-                {/* Kirjautumisreitit */}
-                <Route path="/" element={<SignIn />} />
-                <Route path="/signin" element={<SignIn />} />
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/auth/callback" element={<AuthCallback />} />
-                
-                {/* Julkinen lead magnet -sivu */}
-                <Route path="/leadmagnet/:token" element={<LeadMagnetPage />} />
-                
-                {/* Suojatut reitit yhteisellä layoutilla */}
-                <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                  <Route path="/dashboard" element={<DashboardPage />} />
-                  <Route path="/campaigns" element={<CampaignsPage />} />
-                  <Route path="/campaigns/create" element={<CampaignCreatePage />} />
-                  <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
-                  <Route path="/posts" element={<ManagePostsPage />} />
-                  <Route path="/posts/kuvapankki" element={<KuvapankkiPage />} />
-                  <Route path="/blog-newsletter" element={<BlogNewsletterPage />} />
-                  <Route path="/strategy" element={<ContentStrategyPage />} />
-                  <Route path="/ai-chat" element={<AIChatPage />} />
-                  <Route path="/help" element={<HelpPage />} />
-                  <Route path="/test-n8n" element={<TestN8NPage />} />
-                  <Route path="/calls" element={<CallPanel />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/organization-members" element={<OrganizationMembersPage />} />
-                  <Route path="/meeting-notes" element={<MeetingNotesPage />} />
-                  <Route path="/vastaaja" element={<VastaajaPage />} />
-                  <Route path="/lead-scraping" element={<LeadScrapingPage />} />
-                  <Route path="/monitoring" element={
-                    <ProtectedRoute requiredFeatures={['Media Monitoring']}>
-                      <MediaMonitoringPage />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/monitoring/create" element={
-                    <ProtectedRoute requiredFeatures={['Media Monitoring']}>
-                      <MonitoringCreatePostPage />
-                    </ProtectedRoute>
-                  } />
-                </Route>
-                
-                {/* Superadmin-reitit (vaativat superadmin-roolin) */}
-                <Route element={<ProtectedRoute requiredRole="superadmin"><Layout /></ProtectedRoute>}>
-                  <Route path="/admin" element={<AdminPage />} />
-                  <Route path="/dev" element={<DevPage />} />
-                  <Route path="/admin-blog" element={<AdminBlogPage />} />
-                  <Route path="/admin-testimonials" element={<AdminTestimonialsPage />} />
-                </Route>
+                <StrategyStatusProvider>
+                  <Routes>
+                    {/* Kirjautumisreitit */}
+                    <Route path="/" element={<SignIn />} />
+                    <Route path="/signin" element={<SignIn />} />
+                    <Route path="/signup" element={<SignUp />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
 
-                {/* Moderator-reitit (vaativat moderator-roolin tai ylemmän) */}
-                <Route element={<ProtectedRoute requiredRole="moderator"><Layout /></ProtectedRoute>}>
-                  <Route path="/account-manager" element={<AccountManagerPage />} />
-                  <Route path="/account-manager/:id" element={<AccountDetailsPage />} />
-                </Route>
-              </Routes>
-              <VersionNotification />
-              <StrategyModalManager />
-            </StrategyStatusProvider>
-            </MonitoringProvider>
-          </NotificationProvider>
-        </PostsProvider>
-        <ConditionalChatbotWidget />
-        <InactivityWarningModal />
-        <SpeedInsights />
+                    {/* Julkinen lead magnet -sivu */}
+                    <Route path="/leadmagnet/:token" element={<LeadMagnetPage />} />
+
+                    {/* Suojatut reitit yhteisellä layoutilla */}
+                    <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                      <Route path="/dashboard" element={<DashboardPage />} />
+                      <Route path="/campaigns" element={<CampaignsPage />} />
+                      <Route path="/campaigns/create" element={<CampaignCreatePage />} />
+                      <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
+                      <Route path="/posts" element={<ManagePostsPage />} />
+                      <Route path="/blog-newsletter" element={<BlogNewsletterPage />} />
+                      <Route path="/strategy" element={<ContentStrategyPage />} />
+                      <Route path="/ai-chat" element={<AIChatPage />} />
+                      <Route path="/help" element={<HelpPage />} />
+                      <Route path="/test-n8n" element={<TestN8NPage />} />
+                      <Route path="/calls" element={<CallPanel />} />
+                      <Route path="/settings" element={<SettingsPage />} />
+                      <Route path="/organization-members" element={<OrganizationMembersPage />} />
+                      <Route path="/meeting-notes" element={<MeetingNotesPage />} />
+                      <Route path="/vastaaja" element={<VastaajaPage />} />
+                      <Route path="/lead-scraping" element={<LeadScrapingPage />} />
+                      <Route path="/monitoring" element={
+                        <ProtectedRoute requiredFeatures={['Media Monitoring']}>
+                          <MediaMonitoringPage />
+                        </ProtectedRoute>
+                      } />
+                      <Route path="/monitoring/create" element={
+                        <ProtectedRoute requiredFeatures={['Media Monitoring']}>
+                          <MonitoringCreatePostPage />
+                        </ProtectedRoute>
+                      } />
+                    </Route>
+
+                    {/* Superadmin-reitit (vaativat superadmin-roolin) */}
+                    <Route element={<ProtectedRoute requiredRole="superadmin"><Layout /></ProtectedRoute>}>
+                      <Route path="/admin" element={<AdminPage />} />
+                      <Route path="/dev" element={<DevPage />} />
+                      <Route path="/admin-blog" element={<AdminBlogPage />} />
+                      <Route path="/admin-testimonials" element={<AdminTestimonialsPage />} />
+                    </Route>
+
+                    {/* Moderator-reitit (vaativat moderator-roolin tai ylemmän) */}
+                    <Route element={<ProtectedRoute requiredRole="moderator"><Layout /></ProtectedRoute>}>
+                      <Route path="/account-manager" element={<AccountManagerPage />} />
+                      <Route path="/account-manager/:id" element={<AccountDetailsPage />} />
+                    </Route>
+                  </Routes>
+                  <VersionNotification />
+                  <StrategyModalManager />
+                </StrategyStatusProvider>
+              </MonitoringProvider>
+            </NotificationProvider>
+          </PostsProvider>
+          <ConditionalChatbotWidget />
+          <InactivityWarningModal />
+          <SpeedInsights />
         </ToastProvider>
       </AutoLogoutProvider>
     </AuthProvider>

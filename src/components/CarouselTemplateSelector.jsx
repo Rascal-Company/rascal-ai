@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { getCurrentUser } from '../utils/userApi';
+import { useOrgId } from '../hooks/queries';
 import Button from './Button';
 import ColorPicker from './ColorPicker';
 import { useTranslation } from 'react-i18next';
@@ -36,6 +36,7 @@ const templates = [
 export default function CarouselTemplateSelector() {
   const { user } = useAuth();
   const { t } = useTranslation('common');
+  const { orgId } = useOrgId();
   const [selected, setSelected] = useState(templates[0].id);
   const [selectedColor, setSelectedColor] = useState(templates[0].content.defaultBgColor);
   const [loading, setLoading] = useState(false);
@@ -64,11 +65,19 @@ export default function CarouselTemplateSelector() {
     setSuccess(false);
     try {
       const selectedTemplate = templates.find(t => t.id === selected);
-      
-      // Hae käyttäjätiedot turvallisen API-endpointin kautta
-      const userData = await getCurrentUser()
-      
-      if (!userData?.company_id) {
+
+      if (!orgId) {
+        throw new Error(t('settings.carousel.userCompanyMissing'));
+      }
+
+      // Hae company_id suoraan Supabasesta
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('company_id')
+        .eq('id', orgId)
+        .single();
+
+      if (userError || !userData?.company_id) {
         throw new Error(t('settings.carousel.userCompanyMissing'));
       }
       

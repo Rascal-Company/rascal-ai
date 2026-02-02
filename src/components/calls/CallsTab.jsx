@@ -31,17 +31,17 @@ export default function CallsTab({
   const { t } = useTranslation('common')
 
   return (
-    <div className="callpanel-grid" style={{ width: '100%', maxWidth: 'none' }}>
+    <div className="callpanel-grid w-full max-w-none">
       {/* Massapuhelut */}
       <div className="card">
         <h2 className="section-title">{t('calls.callsTab.mass.header')}</h2>
-        <p style={{ color: '#6b7280', marginBottom: 20, fontSize: 15 }}>
+        <p className="text-gray-500 mb-5 text-[15px]">
           {t('calls.callsTab.mass.description')}
         </p>
         <Button
           onClick={openMassCallModal}
           variant="primary"
-          style={{ width: '100%', padding: '16px 24px', fontSize: 16, fontWeight: 600 }}
+          className="w-full py-4 px-6 text-base font-semibold"
         >
           {t('calls.callsTab.mass.startButton')}
         </Button>
@@ -50,13 +50,13 @@ export default function CallsTab({
       {/* Yksittäinen puhelu */}
       <div className="card">
         <h2 className="section-title">{t('calls.callsTab.single.header')}</h2>
-        <p style={{ color: '#6b7280', marginBottom: 20, fontSize: 15 }}>
+        <p className="text-gray-500 mb-5 text-[15px]">
           {t('calls.callsTab.single.description')}
         </p>
         <Button
           onClick={openSingleCallModal}
           variant="primary"
-          style={{ width: '100%', padding: '16px 24px', fontSize: 16, fontWeight: 600 }}
+          className="w-full py-4 px-6 text-base font-semibold"
         >
           {t('calls.callsTab.single.startButton')}
         </Button>
@@ -65,7 +65,7 @@ export default function CallsTab({
       {/* Inbound-asetukset */}
       <div className="card">
         <h2 className="section-title">{t('calls.callsTab.inbound.header')}</h2>
-        <p style={{ color: '#6b7280', marginBottom: 20, fontSize: 15 }}>
+        <p className="text-gray-500 mb-5 text-[15px]">
           Määritä inbound-puheluille ääni, tervetuloviesti ja skripti
         </p>
         <Button
@@ -75,7 +75,7 @@ export default function CallsTab({
             script: inboundScript
           })}
           variant="primary"
-          style={{ width: '100%', padding: '16px 24px', fontSize: 16, fontWeight: 600 }}
+          className="w-full py-4 px-6 text-base font-semibold"
         >
           Muokkaa inbound-asetuksia
         </Button>
@@ -84,13 +84,13 @@ export default function CallsTab({
       {/* Tietokanta */}
       <div className="card">
         <h2 className="section-title">Tietokanta</h2>
-        <p style={{ color: '#6b7280', marginBottom: 20, fontSize: 15 }}>
+        <p className="text-gray-500 mb-5 text-[15px]">
           Hallitse tietokantaa (tiedostot ja sisältö), jota käytetään puheluissa.
         </p>
         <Button
           onClick={openCallsKnowledgeModal}
           variant="primary"
-          style={{ width: '100%', padding: '16px 24px', fontSize: 16, fontWeight: 600 }}
+          className="w-full py-4 px-6 text-base font-semibold"
         >
           Avaa tietokanta
         </Button>

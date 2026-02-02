@@ -37,22 +37,22 @@ export default function CampaignForm({ userId, onSuccess, onCancel }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 16 }}>
+    <form onSubmit={handleSubmit} className="grid gap-4">
       {error && (
-        <div style={{ padding: 12, border: '1px solid #fecaca', background: '#fef2f2', color: '#991b1b', borderRadius: 8 }}>{error}</div>
+        <div className="p-3 border border-red-200 bg-red-50 text-red-800 rounded-lg">{error}</div>
       )}
 
       <div>
-        <label htmlFor="name" style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>{t('campaigns.form.nameLabel')}</label>
-        <input id="name" type="text" required value={formData.name} onChange={(e) => handleChange('name', e.target.value)} placeholder={t('campaigns.form.namePlaceholder')} style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+        <label htmlFor="name" className="block font-semibold mb-1.5">{t('campaigns.form.nameLabel')}</label>
+        <input id="name" type="text" required value={formData.name} onChange={(e) => handleChange('name', e.target.value)} placeholder={t('campaigns.form.namePlaceholder')} className="w-full p-2.5 rounded-md border border-gray-200" />
       </div>
 
       <div>
-        <label htmlFor="description" style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>{t('campaigns.form.descriptionLabel')}</label>
-        <textarea id="description" rows={4} value={formData.description} onChange={(e) => handleChange('description', e.target.value)} placeholder={t('campaigns.form.descriptionPlaceholder')} style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid #e5e7eb' }} />
+        <label htmlFor="description" className="block font-semibold mb-1.5">{t('campaigns.form.descriptionLabel')}</label>
+        <textarea id="description" rows={4} value={formData.description} onChange={(e) => handleChange('description', e.target.value)} placeholder={t('campaigns.form.descriptionPlaceholder')} className="w-full p-2.5 rounded-md border border-gray-200" />
       </div>
 
-      <div style={{ display: 'flex', gap: 12 }}>
+      <div className="flex gap-3">
         <Button type="submit" disabled={loading}>{loading ? t('campaigns.form.submitting') : t('campaigns.form.submit')}</Button>
         <Button type="button" variant="secondary" onClick={() => (onCancel ? onCancel() : (window.location.href = '/campaigns'))}>{t('campaigns.form.cancel')}</Button>
       </div>

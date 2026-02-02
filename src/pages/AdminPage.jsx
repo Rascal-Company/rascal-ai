@@ -3,7 +3,6 @@ import pkg from '../../package.json'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
-import { getCurrentUser, isAdmin } from '../utils/userApi'
 import { useAuth } from '../contexts/AuthContext'
 import Button from '../components/Button'
 
@@ -75,16 +74,12 @@ export default function AdminPage() {
     }
   }, [updateTimeout])
 
-  const checkAdminStatus = async () => {
+  const checkAdminStatus = () => {
     if (!user) return
 
-    try {
-      // Admin-tarkistus: käytetään uutta is-admin endpointia
-      const adminStatus = await isAdmin()
-      setIsAdmin(adminStatus)
-    } catch (error) {
-      console.error('Error checking admin status:', error)
-    }
+    // Admin-tarkistus: käytetään systemRole:a suoraan AuthContextista
+    const adminStatus = user.systemRole === 'superadmin' || user.systemRole === 'moderator'
+    setIsAdmin(adminStatus)
   }
 
   const loadData = async () => {
@@ -565,7 +560,7 @@ export default function AdminPage() {
                              <select
                                value={user.subscription_status || 'free'}
                                onChange={(e) => updateUserField(user.id, 'subscription_status', e.target.value)}
-                               style={{ textTransform: 'capitalize' }}
+                               className="capitalize"
                              >
                                <option value="free">Free</option>
                                <option value="pro">Pro</option>
@@ -573,7 +568,7 @@ export default function AdminPage() {
                              </select>
                            </td>
                            <td>
-                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                             <div className="flex items-center gap-2">
                                <label className="switch" title="CRM yhdistetty">
                                  <input
                                    type="checkbox"
@@ -583,13 +578,13 @@ export default function AdminPage() {
                                  />
                                  <span className="slider" />
                                </label>
-                               <span style={{ fontSize: 12, color: user.crm_connected ? '#166534' : '#6b7280' }}>
+                               <span className={`text-xs ${user.crm_connected ? 'text-green-800' : 'text-gray-500'}`}>
                                  {user.crm_connected ? 'Kytketty' : 'Ei kytketty'}
                                </span>
                              </div>
                            </td>
                            <td>
-                            <div style={{ position: 'relative', marginTop: 8 }}>
+                            <div className="relative mt-2">
                               <button
                                 className="admin-btn admin-btn-secondary"
                                 onClick={(e) => {
@@ -605,14 +600,17 @@ export default function AdminPage() {
                                   setFeaturesOpen(prev => ({ ...prev, [user.id]: !prev[user.id] }))
                                 }}
                               >Näytä</button>
-                              <div className="feature-popover" style={{ display: featuresOpen[user.id] ? 'block' : 'none', position: 'absolute', [featuresPlacement[user.id] === 'up' ? 'bottom' : 'top']: 36, left: 0, background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 12, boxShadow: '0 12px 30px rgba(0,0,0,0.12)', zIndex: 1000, minWidth: 260 }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: featuresMaxHeight[user.id] || 300, overflowY: 'auto', paddingRight: 4 }}>
+                              <div
+                                className={`feature-popover absolute left-0 bg-white border border-gray-200 rounded-xl p-3 shadow-[0_12px_30px_rgba(0,0,0,0.12)] z-[1000] min-w-[260px] ${featuresOpen[user.id] ? 'block' : 'hidden'}`}
+                                style={{ [featuresPlacement[user.id] === 'up' ? 'bottom' : 'top']: 36 }}
+                              >
+                                <div className="flex flex-col gap-2.5 overflow-y-auto pr-1" style={{ maxHeight: featuresMaxHeight[user.id] || 300 }}>
                                   {KNOWN_FEATURES.map(f => {
                                     const enabled = (Array.isArray(user.features) ? user.features : []).includes(f)
                                     const featureLabel = f === 'Voicemail' ? 'Vastaaja' : f === 'Leads' ? 'Liidit' : f === 'UGC' ? 'UGC' : f
                                     return (
-                                      <div key={f} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <span style={{ fontSize: 13, color: '#374151' }}>{featureLabel}</span>
+                                      <div key={f} className="flex justify-between items-center">
+                                        <span className="text-[13px] text-gray-700">{featureLabel}</span>
                                         <label className="switch">
                                           <input
                                             type="checkbox"
@@ -661,11 +659,11 @@ export default function AdminPage() {
                  {/* Teknisten ID:iden muokkaus modal */}
                  {selectedUser && createPortal(
                    <div className="modal-overlay modal-overlay--light" onClick={closeModal}>
-                     <div className="modal-container" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
+                     <div className="modal-container max-w-[600px]" onClick={(e) => e.stopPropagation()}>
                        <div className="modal-header">
                          <h2 className="modal-title">Muokkaa {selectedUser?.contact_person || selectedUser?.contact_email || 'käyttäjän'} käyttäjätietoja</h2>
                          {Object.keys(modalChanges).length > 0 && (
-                           <span style={{ fontSize: '12px', color: '#666' }}>
+                           <span className="text-xs text-gray-500">
                              Tallentamattomia muutoksia
                            </span>
                          )}
@@ -1017,7 +1015,7 @@ export default function AdminPage() {
                              console.error('Error processing message logs:', error);
                              return (
                                <tr>
-                                 <td colSpan="4" style={{ textAlign: 'center', color: '#dc2626' }}>
+                                 <td colSpan="4" className="text-center text-red-600">
                                    Virhe tietojen käsittelyssä
                                  </td>
                                </tr>

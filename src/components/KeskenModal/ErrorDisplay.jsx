@@ -4,18 +4,9 @@ const ErrorDisplay = ({ error }) => {
   if (!error) return null
 
   return (
-    <div className="error-message" style={{ 
-      color: '#ef4444', 
-      marginBottom: '16px',
-      padding: '12px 16px',
-      backgroundColor: '#fef2f2',
-      border: '1px solid #fecaca',
-      borderRadius: '8px',
-      fontSize: '14px',
-      fontWeight: '500'
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <span style={{ fontSize: '16px' }}>⚠️</span>
+    <div className="error-message text-red-500 mb-4 py-3 px-4 bg-red-50 border border-red-200 rounded-lg text-sm font-medium">
+      <div className="flex items-center gap-2">
+        <span className="text-base">⚠️</span>
         <span>{error}</span>
       </div>
     </div>
