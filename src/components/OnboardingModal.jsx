@@ -353,11 +353,14 @@ const OnboardingModal = () => {
   // Jos minimoitu, näytä vain pieni nappi (vain jos käyttäjä on kirjautunut sisään)
   if (isMinimized && user?.id) {
     return (
-      <div className="onboarding-modal-minimized" onClick={handleRestore}>
-        <div className="onboarding-modal-minimized-content">
-          <span>ICP-haastattelu</span>
+      <div
+        className="fixed bottom-4 right-4 z-[9999] bg-primary-500 text-white px-4 py-3 rounded-xl shadow-lg cursor-pointer hover:bg-primary-600 transition-all duration-200 hover:scale-105"
+        onClick={handleRestore}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium">ICP-haastattelu</span>
           <button
-            className="btn-restore"
+            className="py-1 px-3 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-medium transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               handleRestore();
@@ -376,71 +379,82 @@ const OnboardingModal = () => {
   }
 
   return (
-    <div
-      className={`onboarding-modal-overlay ${isMinimized ? "minimized" : ""}`}
-    >
-      <div className={`onboarding-modal ${isMinimized ? "minimized" : ""}`}>
-        <div className="onboarding-modal-header">
-          <h2>Tervetuloa!</h2>
-          <p>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+      <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl border border-gray-200">
+        {/* Header */}
+        <div className="px-6 py-5 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-center">
+          <h2 className="text-2xl font-bold mb-2">Tervetuloa!</h2>
+          <p className="text-sm text-white/90">
             Aloitetaan luomalla yrityksellesi täydellinen ICP (Ideal Customer
             Profile)
           </p>
         </div>
 
-        <div className="onboarding-modal-content">
+        {/* Content */}
+        <div className="p-6">
           {conversation.status === "disconnected" ? (
             <>
-              <div className="onboarding-placeholder">
-                <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="50"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <circle
-                    cx="60"
-                    cy="60"
-                    r="35"
-                    fill="currentColor"
-                    opacity="0.1"
-                  />
-                  <path
-                    d="M60 40 L60 80 M40 60 L80 60"
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <h3>Aloita ICP-haastattelu</h3>
-                <p>
+              <div className="flex flex-col items-center text-center py-6">
+                <div className="text-primary-500 mb-4">
+                  <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="50"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="35"
+                      fill="currentColor"
+                      opacity="0.1"
+                    />
+                    <path
+                      d="M60 40 L60 80 M40 60 L80 60"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Aloita ICP-haastattelu
+                </h3>
+                <p className="text-sm text-gray-500 max-w-sm">
                   Keskustele AI-assistentin kanssa ja luo yrityksellesi ICP
                   muutamassa minuutissa.
                 </p>
               </div>
 
               <button
-                className="btn-primary btn-large"
+                className="w-full py-3 px-6 bg-primary-500 text-white rounded-xl text-base font-semibold hover:bg-primary-600 transition-colors shadow-md hover:shadow-lg"
                 onClick={handleStartConversation}
               >
                 Aloita haastattelu
               </button>
             </>
           ) : (
-            <div className="conversation-area">
+            <div className="flex flex-col items-center gap-6 py-4">
               <VoiceOrb conversation={conversation} />
 
-              <button className="btn-secondary" onClick={handleEndConversation}>
+              <button
+                className="py-2.5 px-5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                onClick={handleEndConversation}
+              >
                 Lopeta keskustelu
               </button>
             </div>
           )}
         </div>
 
-        <div className="onboarding-modal-footer">
-          <button className="btn-text" onClick={handleSkip}>
+        {/* Footer */}
+        <div className="px-6 py-4 border-t border-gray-100 bg-gray-50 text-center">
+          <button
+            className="text-sm text-gray-500 hover:text-gray-700 transition-colors font-medium"
+            onClick={handleSkip}
+          >
             Ohita toistaiseksi
           </button>
         </div>
