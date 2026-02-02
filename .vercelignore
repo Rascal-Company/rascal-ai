@@ -5,7 +5,6 @@
 **/*.test.ts
 api/_test/
 api/_lib/
-api/_middleware/
 
 # Duplicate directories
 api/integrations/elevenlabs 2/
