@@ -1092,7 +1092,7 @@ export default function SettingsIntegrationsTab() {
   return (
     <div className="settings-integrations-container">
       {/* AI-mallin valinta */}
-      <div className="ai-model-selector mb-6 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div className="mb-6 p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
         <h3 className="m-0 mb-3 text-base font-semibold text-gray-800">
           {t("integrations.aiModel.title")}
         </h3>
@@ -1135,7 +1135,7 @@ export default function SettingsIntegrationsTab() {
               disabled={aiModelSaving}
               className={`relative w-[52px] h-7 rounded-full border-none outline-none p-0.5 transition-colors duration-300 hover:opacity-90 ${
                 aiModelSaving ? "cursor-not-allowed" : "cursor-pointer"
-              } ${aiModel === "gemini" ? "bg-emerald-500" : "bg-gray-500"}`}
+              } ${aiModel === "gemini" ? "bg-emerald-500" : "bg-orange-500"}`}
             >
               <div
                 className={`absolute top-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 ${
