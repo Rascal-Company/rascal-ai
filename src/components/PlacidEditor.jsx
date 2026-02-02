@@ -1,162 +1,189 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { supabase } from '../lib/supabase'
-import styles from './PlacidEditor.module.css'
+import React, { useEffect, useState, useRef } from "react";
+import { supabase } from "../lib/supabase";
 
 export default function PlacidEditor({ placidId, onClose }) {
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const containerRef = useRef(null)
-  const editorInstanceRef = useRef(null)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [sdkReady, setSdkReady] = useState(false);
+  const containerRef = useRef(null);
+  const editorInstanceRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   // 1. Load Placid SDK Script
   useEffect(() => {
-    // Aseta SDK konfiguraatio ennen SDK:n lataamista
     window.EditorSDKConfig = {
       theme: {
-        primary_color: '#ff6600',   // Rascal AI oranssi
-        secondary_color: '#cea78d'  // Rascal AI beige/kulta
-      }
+        primary_color: "#ff6600",
+        secondary_color: "#9ca3af",
+      },
+    };
+
+    if (window.EditorSDK) {
+      setSdkReady(true);
+      return;
     }
 
-    const scriptId = 'placid-sdk'
+    window.EditorSDKReady = () => {
+      setSdkReady(true);
+    };
+
+    const scriptId = "placid-sdk";
     if (!document.getElementById(scriptId)) {
-      const script = document.createElement('script')
-      script.id = scriptId
-      script.src = 'https://sdk.placid.app/editor-sdk@latest/sdk.js'
-      script.async = true
-      document.body.appendChild(script)
+      const script = document.createElement("script");
+      script.id = scriptId;
+      script.src = "https://sdk.placid.app/editor-sdk@latest/sdk.js";
+      script.async = true;
+      document.body.appendChild(script);
     }
-  }, [])
+  }, []);
 
-  // 2. Initialize Editor
+  // 2. Initialize Editor when SDK is ready
   useEffect(() => {
-    let checkSdkInterval = null;
+    if (!sdkReady || !placidId) return;
+
+    let cancelled = false;
 
     const initEditor = async () => {
-      if (!placidId) return
-
       try {
-        setLoading(true)
-        setError(null)
+        setLoading(true);
+        setError(null);
 
-        // Odota että SDK on latautunut
-        checkSdkInterval = setInterval(async () => {
-          if (window.EditorSDK) {
-            clearInterval(checkSdkInterval)
-            
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+          throw new Error("Sessio vanhentunut. Kirjaudu uudelleen.");
+        }
+
+        const response = await fetch(
+          `/api/placid/auth?template_id=${encodeURIComponent(placidId)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          },
+        );
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (data.error === "CONFIGURATION_ERROR") {
+            throw new Error(data.message);
+          }
+          throw new Error(
+            data.message || data.error || "Autentikaatio epäonnistui",
+          );
+        }
+
+        if (cancelled) return;
+
+        const { token } = data;
+
+        if (containerRef.current && containerRef.current.offsetWidth > 0) {
+          if (editorInstanceRef.current) {
             try {
-              // Hae session token Supabasesta
-              const { data: { session } } = await supabase.auth.getSession()
-              if (!session?.access_token) {
-                throw new Error('Sessio vanhentunut. Kirjaudu uudelleen.')
-              }
-
-              // Hae Auth Token backendistä ja lähetä template ID, jota halutaan muokata
-              const response = await fetch(`/api/placid/auth?template_id=${encodeURIComponent(placidId)}`, {
-                headers: {
-                  'Authorization': `Bearer ${session.access_token}`
-                }
-              })
-              const data = await response.json()
-              
-              if (!response.ok) {
-                  if (data.error === 'CONFIGURATION_ERROR') {
-                    throw new Error(data.message)
-                  }
-                  throw new Error(data.message || data.error || 'Autentikaatio epäonnistui')
-              }
-              
-              const { token } = data
-
-              // Alusta editori
-              if (containerRef.current) {
-                  // Tyhjennä container ja tuhoa vanha instanssi jos on
-                  if (editorInstanceRef.current) {
-                      try {
-                          editorInstanceRef.current.destroy();
-                      } catch (e) { console.warn('Old editor destroy failed', e) }
-                  }
-                  containerRef.current.innerHTML = ''
-                  
-                  // Luo uusi instanssi
-                  const instance = await window.EditorSDK.editor.create(containerRef.current, {
-                      access_token: token,
-                      template_uuid: placidId,
-                      prefill_layers: {}
-                  })
-
-                  editorInstanceRef.current = instance;
-
-                  // Kuuntele eventtejä
-                  instance.on('editor:closed', () => {
-                      console.log('Editor closed via internal button');
-                      onClose();
-                  });
-
-                  instance.on('editor:template:saved', () => {
-                      console.log('Template saved');
-                      // Tässä voisi näyttää toastin tai päivittää listan
-                  });
-              }
-              setLoading(false)
-            } catch (err) {
-              console.error('Editor initialization error:', err)
-              setError(err.message)
-              setLoading(false)
+              editorInstanceRef.current.destroy();
+            } catch (e) {
+              console.warn("Old editor destroy failed", e);
             }
           }
-        }, 100)
+          containerRef.current.innerHTML = "";
 
-      } catch (err) {
-        console.error('Error initializing Placid Editor:', err)
-        setError(err.message)
-        setLoading(false)
-      }
-    }
+          const instance = await window.EditorSDK.editor.create(
+            containerRef.current,
+            {
+              access_token: token,
+              template_uuid: placidId,
+              prefill_layers: {},
+            },
+          );
 
-    initEditor()
+          if (cancelled) {
+            instance.destroy();
+            return;
+          }
 
-    // Cleanup function
-    return () => {
-        if (checkSdkInterval) clearInterval(checkSdkInterval);
-        
-        // Timeout cleanup varmuuden vuoksi, koska destroy voi olla async
-        if (editorInstanceRef.current) {
-            try {
-                // Dokumentaation mukaan destroy() on metodi
-                editorInstanceRef.current.destroy(); 
-                editorInstanceRef.current = null;
-            } catch (e) {
-                console.warn('Editor cleanup error:', e);
-            }
+          editorInstanceRef.current = instance;
+
+          instance.on("editor:closed", () => {
+            onCloseRef.current();
+          });
+
+          instance.on("editor:template:saved", () => {
+            console.log("Template saved");
+          });
         }
-    }
-  }, [placidId, onClose]) // Lisätty onClose dependencyyn
+        setLoading(false);
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Editor initialization error:", err);
+          setError(err.message);
+          setLoading(false);
+        }
+      }
+    };
+
+    const frameId = requestAnimationFrame(() => {
+      initEditor();
+    });
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(frameId);
+
+      if (editorInstanceRef.current) {
+        try {
+          editorInstanceRef.current.destroy();
+          editorInstanceRef.current = null;
+        } catch (e) {
+          console.warn("Editor cleanup error:", e);
+        }
+      }
+    };
+  }, [sdkReady, placidId]);
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <div className={styles.modalHeader}>
-            <h3>Muokkaa mallia</h3>
-            <button onClick={onClose} className={styles.closeButton}>×</button>
+    <div className="placid-editor-modal-overlay">
+      <div className="placid-editor-modal-content">
+        <div className="placid-editor-modal-header">
+          <h3>Muokkaa mallia</h3>
+          <button
+            onClick={onClose}
+            className="placid-editor-close-button"
+            aria-label="Sulje"
+          >
+            ×
+          </button>
         </div>
-        
+
         {error ? (
-          <div className="p-8 text-center">
-            <div style={{ color: '#ef4444', marginBottom: '1rem', fontWeight: 500 }}>
+          <div className="placid-editor-error-container">
+            <div className="placid-editor-error-title">
               Virhe editorin latauksessa
             </div>
-            <div style={{ color: '#374151', fontSize: '0.9rem', whiteSpace: 'pre-wrap' }}>
-              {error}
-            </div>
+            <div className="placid-editor-error-message">{error}</div>
           </div>
         ) : (
-          <div className={styles.editorWrapper}>
-            {loading && <div className="p-8 text-center text-gray-500 absolute inset-0 flex items-center justify-center bg-white z-10">Ladataan editoria...</div>}
-            <div id="editor" ref={containerRef} className={styles.editorFrame}></div>
+          <div className="placid-editor-wrapper">
+            {loading && (
+              <div className="placid-editor-loading-overlay">
+                <div className="placid-editor-loading-text">
+                  <div className="placid-editor-loading-spinner" />
+                  Ladataan editoria...
+                </div>
+              </div>
+            )}
+            <div
+              id="editor"
+              ref={containerRef}
+              className="placid-editor-frame"
+            />
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }

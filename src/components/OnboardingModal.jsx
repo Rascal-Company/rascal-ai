@@ -4,14 +4,23 @@ import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { supabase } from "../lib/supabase";
 import { useConversation } from "@elevenlabs/react";
+import { useOnboardingStatus } from "../hooks/queries";
 import axios from "axios";
 import VoiceOrb from "./VoiceOrb";
-import "./OnboardingModal.css";
 
 const OnboardingModal = () => {
   const { user } = useAuth();
   const toast = useToast();
   const location = useLocation();
+
+  // Cached onboarding status from TanStack Query
+  const {
+    shouldShow: hookShouldShow,
+    role,
+    isLoading: statusLoading,
+    refetch: refetchStatus,
+  } = useOnboardingStatus(user?.id);
+
   const [shouldShow, setShouldShow] = useState(false);
   const [loading, setLoading] = useState(true);
   const [conversationId, setConversationId] = useState(null);
@@ -77,6 +86,9 @@ const OnboardingModal = () => {
             "✅ Webhook sent successfully - N8N will update onboarding_completed and icp_summary",
           );
 
+          // Invalidate cached onboarding status
+          refetchStatus();
+
           // Sulje modaali
           setShouldShow(false);
 
@@ -108,7 +120,7 @@ const OnboardingModal = () => {
     }
   }, [user]);
 
-  // Tarkista pitääkö modaali näyttää
+  // Tarkista pitääkö modaali näyttää (cached from TanStack Query)
   useEffect(() => {
     // Jos käyttäjä ei ole kirjautunut sisään, älä näytä modaalia
     if (!user?.id) {
@@ -139,156 +151,24 @@ const OnboardingModal = () => {
       return;
     }
 
-    const checkOnboardingStatus = async () => {
-      if (!user?.id) {
-        setShouldShow(false);
-        setIsMinimized(false);
-        setLoading(false);
-        return;
-      }
+    // Wait for hook to finish loading
+    if (statusLoading) {
+      return;
+    }
 
-      try {
-        // Tarkista onko käyttäjällä vahva salasana asetettu
-        const {
-          data: { user: authUser },
-        } = await supabase.auth.getUser();
+    // Tarkista onko modal minimoitu localStorageen
+    const skipped = localStorage.getItem(`onboarding_skipped_${user.id}`);
+    if (skipped === "true") {
+      setIsMinimized(true);
+      setShouldShow(false);
+      setLoading(false);
+      return;
+    }
 
-        // Jos käyttäjällä on recovery tai invite token aktiivisena, älä näytä modaalia
-        // Tämä estää modaalin näkymisen salasanan asettamisen aikana
-        if (!authUser?.email_confirmed_at && !authUser?.confirmed_at) {
-          console.log(
-            "⏸️ OnboardingModal: Käyttäjä ei ole vahvistanut sähköpostia, odotetaan...",
-          );
-          setLoading(false);
-          setShouldShow(false);
-          return;
-        }
-
-        // Tarkista käyttäjän rooli org_members taulusta
-        // Vain owner- ja admin-käyttäjät näkevät onboardingin
-        // Kutsutut käyttäjät (member) ohitetaan
-        const { data: orgMember, error: orgError } = await supabase
-          .from("org_members")
-          .select("org_id, role")
-          .eq("auth_user_id", user.id)
-          .maybeSingle();
-
-        let userData = null;
-        let onboardingCompleted = false;
-
-        if (!orgError && orgMember) {
-          // Jos käyttäjä on kutsuttu käyttäjä (member), ei näytetä onboardingia
-          if (orgMember.role === "member") {
-            console.log(
-              "⏸️ OnboardingModal: Käyttäjä on kutsuttu käyttäjä (rooli: member), ei näytetä onboardingia",
-            );
-            setLoading(false);
-            setShouldShow(false);
-            return;
-          }
-
-          // Owner- ja admin-käyttäjät: hae organisaation onboarding_completed
-          const { data: orgUserData, error: orgUserError } = await supabase
-            .from("users")
-            .select("onboarding_completed")
-            .eq("id", orgMember.org_id)
-            .single();
-
-          if (!orgUserError && orgUserData) {
-            userData = orgUserData;
-            // Varmista että onboarding_completed on eksplisiittisesti true
-            // Jos se on false, null tai undefined, näytetään modal
-            onboardingCompleted = orgUserData.onboarding_completed === true;
-            console.log(
-              "🔍 OnboardingModal: Owner/Admin käyttäjä, organisaation onboarding:",
-              {
-                org_id: orgMember.org_id,
-                onboarding_completed: orgUserData.onboarding_completed,
-                onboardingCompleted: onboardingCompleted,
-              },
-            );
-
-            // Jos onboarding on valmis, EI näytetä modaalia
-            if (onboardingCompleted) {
-              console.log(
-                "✅ OnboardingModal: Organisaation onboarding on valmis, modaali EI näy",
-              );
-              setLoading(false);
-              setShouldShow(false);
-              return;
-            }
-          } else {
-            console.warn(
-              "⚠️ OnboardingModal: Organisaatiota ei löydy users taulusta:",
-              orgUserError,
-            );
-            // Jos organisaatiota ei löydy, näytetään modal
-            onboardingCompleted = false;
-          }
-        } else {
-          // Normaali käyttäjä (ei org_members taulussa): hae käyttäjän oma onboarding_completed
-          const { data: normalUserData, error: userError } = await supabase
-            .from("users")
-            .select("onboarding_completed")
-            .eq("auth_user_id", user.id)
-            .maybeSingle();
-
-          if (userError && userError.code === "PGRST116") {
-            // Käyttäjää ei löydy - oletetaan että onboarding ei ole valmis
-            console.log(
-              "ℹ️ OnboardingModal: Käyttäjää ei löydy users taulusta, näytetään onboarding",
-            );
-            onboardingCompleted = false;
-          } else if (userError) {
-            throw userError;
-          } else if (normalUserData) {
-            userData = normalUserData;
-            // Varmista että onboarding_completed on eksplisiittisesti true
-            // Jos se on false, null tai undefined, näytetään modal
-            onboardingCompleted = normalUserData.onboarding_completed === true;
-            console.log("🔍 OnboardingModal: Normaali käyttäjä, onboarding:", {
-              onboarding_completed: normalUserData.onboarding_completed,
-              onboardingCompleted: onboardingCompleted,
-            });
-
-            // Jos onboarding on valmis, EI näytetä modaalia
-            if (onboardingCompleted) {
-              console.log(
-                "✅ OnboardingModal: Käyttäjän onboarding on valmis, modaali EI näy",
-              );
-              setLoading(false);
-              setShouldShow(false);
-              return;
-            }
-          }
-        }
-
-        // Tarkista onko modal minimoitu localStorageen
-        const skipped = localStorage.getItem(`onboarding_skipped_${user.id}`);
-        if (skipped === "true") {
-          setIsMinimized(true);
-          setShouldShow(false); // Älä näytä normaalisti jos minimoitu
-          setLoading(false);
-          return;
-        }
-
-        // Näytä vain jos onboarding ei ole valmis
-        const show = !onboardingCompleted;
-        console.log("🔍 OnboardingModal status check:", {
-          hasUserData: !!userData,
-          onboarding_completed: onboardingCompleted,
-          shouldShow: show,
-        });
-        setShouldShow(show);
-      } catch (error) {
-        console.error("❌ Error checking onboarding status:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkOnboardingStatus();
-  }, [user, location.pathname]);
+    // Use cached status from hook
+    setShouldShow(hookShouldShow);
+    setLoading(false);
+  }, [user, location.pathname, statusLoading, hookShouldShow]);
 
   const handleStartConversation = async () => {
     try {

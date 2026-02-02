@@ -6,7 +6,6 @@ import { supabase } from "../lib/supabase";
 import axios from "axios";
 import { getUserOrgId } from "../lib/getUserOrgId";
 import { useSearchParams } from "react-router-dom";
-import "./SettingsIntegrationsTab.css";
 
 // WordPress Logo SVG Component (WordPress "W" logo)
 const WordPressLogo = ({ size = 40 }) => (

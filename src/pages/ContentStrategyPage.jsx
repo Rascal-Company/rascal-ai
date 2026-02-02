@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import './ContentStrategyPage.css'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../contexts/ToastContext'
 import { getUserOrgId } from '../lib/getUserOrgId'
 import { useStrategyStatus } from '../contexts/StrategyStatusContext'
 import Button from '../components/Button'
-import '../components/ModalComponents.css'
 
 const STRATEGY_URL = import.meta.env.N8N_GET_STRATEGY_URL || 'https://samikiias.app.n8n.cloud/webhook/strategy-89777321'
 
@@ -970,29 +968,19 @@ export default function ContentStrategyPage() {
           <div className="strategy-top-row">
             {/* Yritysanalyysi-kortti */}
             <div className="strategy-card">
-              <div style={{ fontWeight: 700, fontSize: 18, color: '#374151', marginBottom: 12 }}>{t('strategy.companyAnalysis.title')}</div>
-              <div style={{ flex: 1 }}>
+              <div className="strategy-card-title">{t('strategy.companyAnalysis.title')}</div>
+              <div className="strategy-card-body">
                 {companySummary && companySummary.length > 0 ? (
                   <>
-                    <div 
-                      className="strategy-text"
-                      style={{ cursor: 'pointer' }}
+                    <div
+                      className="strategy-text strategy-card-clickable"
                       onClick={() => setViewingCompanySummary(true)}
                     >
                       {companySummary}
                     </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <div className="strategy-card-footer">
                         <button 
-                          style={{
-                            background: '#22c55e',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: 8,
-                            padding: '8px 16px',
-                            fontSize: 14,
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
+                          className="strategy-green-btn"
                           onClick={() => {
                             setEditingCompanySummaryModal(true)
                             setCompanySummaryEditText(companySummary)
@@ -1003,19 +991,10 @@ export default function ContentStrategyPage() {
                       </div>
                   </>
                 ) : (
-                  <div style={{ flex: 1, textAlign: 'center', padding: 24 }}>
-                    <p style={{ margin: '0 0 16px 0', color: '#6b7280' }}>{t('strategy.companyAnalysis.missing')}</p>
+                  <div className="strategy-empty-state">
+                    <p className="strategy-empty-text">{t('strategy.companyAnalysis.missing')}</p>
                     <button
-                      style={{
-                        background: '#22c55e',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '8px 16px',
-                        fontSize: 14,
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
+                      className="strategy-green-btn"
                       onClick={() => {
                         setEditingCompanySummaryModal(true)
                         setCompanySummaryEditText('')
@@ -1030,29 +1009,19 @@ export default function ContentStrategyPage() {
 
             {/* Kohderyhmä-kortti */}
             <div className="strategy-card">
-              <div style={{ fontWeight: 700, fontSize: 18, color: '#374151', marginBottom: 12 }}>{t('strategy.icp.title')}</div>
-              <div style={{ flex: 1 }}>
+              <div className="strategy-card-title">{t('strategy.icp.title')}</div>
+              <div className="strategy-card-body">
                 {icpSummary && icpSummary.length > 0 ? (
                   <>
-                    <div 
-                      className="strategy-text"
-                      style={{ cursor: 'pointer' }}
+                    <div
+                      className="strategy-text strategy-card-clickable"
                       onClick={() => setViewingIcp(true)}
                     >
                       {icpSummary.map((summary) => `- ${summary}`).join('\n')}
                     </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <div className="strategy-card-footer">
                         <button 
-                          style={{
-                            background: '#22c55e',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: 8,
-                            padding: '8px 16px',
-                            fontSize: 14,
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
+                          className="strategy-green-btn"
                           onClick={() => {
                             setEditingIcpModal(true)
                             setIcpEditText(icpSummary.join('\n'))
@@ -1063,19 +1032,10 @@ export default function ContentStrategyPage() {
                       </div>
                   </>
                 ) : (
-                  <div style={{ flex: 1, textAlign: 'center', padding: 24 }}>
-                    <p style={{ margin: '0 0 16px 0', color: '#6b7280' }}>{t('strategy.icp.empty')}</p>
+                  <div className="strategy-empty-state">
+                    <p className="strategy-empty-text">{t('strategy.icp.empty')}</p>
                     <button 
-                      style={{
-                        background: '#22c55e',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '8px 16px',
-                        fontSize: 14,
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
+                      className="strategy-green-btn"
                       onClick={() => {
                         setEditingIcpModal(true)
                         setIcpEditText('')
@@ -1092,29 +1052,19 @@ export default function ContentStrategyPage() {
 
             {/* Tavoitteet-kortti */}
             <div className="strategy-card">
-              <div style={{ fontWeight: 700, fontSize: 18, color: '#374151', marginBottom: 12 }}>{t('strategy.kpi.title', 'Tavoitteet')}</div>
-              <div style={{ flex: 1 }}>
+              <div className="strategy-card-title">{t('strategy.kpi.title', 'Tavoitteet')}</div>
+              <div className="strategy-card-body">
                 {kpiData && kpiData.length > 0 ? (
                   <>
-                    <div 
-                      className="strategy-text"
-                      style={{ cursor: 'pointer' }}
+                    <div
+                      className="strategy-text strategy-card-clickable"
                       onClick={() => setViewingKpi(true)}
                     >
                       {kpiData.map((kpi) => `- ${kpi}`).join('\n')}
                     </div>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                        <div className="strategy-card-footer">
                           <button 
-                            style={{
-                              background: '#22c55e',
-                              color: '#ffffff',
-                              border: 'none',
-                              borderRadius: 8,
-                              padding: '8px 16px',
-                              fontSize: 14,
-                              fontWeight: 600,
-                              cursor: 'pointer'
-                            }}
+                            className="strategy-green-btn"
                             onClick={() => {
                               setEditingKpiModal(true)
                               setKpiEditText(kpiData.join('\n'))
@@ -1125,19 +1075,10 @@ export default function ContentStrategyPage() {
                         </div>
                   </>
                 ) : (
-                  <div style={{ flex: 1, textAlign: 'center', padding: 24 }}>
-                    <p style={{ margin: '0 0 16px 0', color: '#6b7280' }}>{t('strategy.kpi.empty')}</p>
+                  <div className="strategy-empty-state">
+                    <p className="strategy-empty-text">{t('strategy.kpi.empty')}</p>
                     <button 
-                      style={{
-                        background: '#22c55e',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '8px 16px',
-                        fontSize: 14,
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
+                      className="strategy-green-btn"
                       onClick={() => {
                         setEditingKpiModal(true)
                         setKpiEditText('')
@@ -1152,29 +1093,19 @@ export default function ContentStrategyPage() {
 
             {/* TOV-kortti */}
             <div className="strategy-card">
-              <div style={{ fontWeight: 700, fontSize: 18, color: '#374151', marginBottom: 12 }}>🎤 {t('strategy.toneOfVoice.title')}</div>
-              <div style={{ flex: 1 }}>
+              <div className="strategy-card-title">🎤 {t('strategy.toneOfVoice.title')}</div>
+              <div className="strategy-card-body">
                 {tov && tov.length > 0 ? (
                   <>
-                    <div 
-                      className="strategy-text"
-                      style={{ cursor: 'pointer' }}
+                    <div
+                      className="strategy-text strategy-card-clickable"
                       onClick={() => setViewingTov(true)}
                     >
                       {tov}
                     </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 16 }}>
+                      <div className="strategy-card-footer">
                         <button 
-                          style={{
-                            background: '#22c55e',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: 8,
-                            padding: '8px 16px',
-                            fontSize: 14,
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
+                          className="strategy-green-btn"
                           onClick={() => {
                             setEditingTovModal(true)
                             setTovEditText(tov)
@@ -1185,19 +1116,10 @@ export default function ContentStrategyPage() {
                       </div>
                   </>
                 ) : (
-                  <div style={{ flex: 1, textAlign: 'center', padding: 24 }}>
-                    <p style={{ margin: '0 0 16px 0', color: '#6b7280' }}>{t('strategy.toneOfVoice.missing')}</p>
+                  <div className="strategy-empty-state">
+                    <p className="strategy-empty-text">{t('strategy.toneOfVoice.missing')}</p>
                     <button
-                      style={{
-                        background: '#22c55e',
-                        color: '#ffffff',
-                        border: 'none',
-                        borderRadius: 8,
-                        padding: '8px 16px',
-                        fontSize: 14,
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
+                      className="strategy-green-btn"
                       onClick={() => {
                         setEditingTovModal(true)
                         setTovEditText('')
@@ -1224,75 +1146,46 @@ export default function ContentStrategyPage() {
                 const status = getStrategyStatus(item.month || item.Month)
                 return (
                   <div key={item.id} className="strategy-card">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
-                      <div style={{ fontWeight: 700, fontSize: 18, color: '#374151' }}>
+                    <div className="strategy-persona-header">
+                      <div className="strategy-card-title">
                         {formatMonth(item.month || item.Month)}
                       </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <div style={{
-                          background: getStatusColor(status),
-                          color: '#ffffff',
-                          padding: '4px 8px',
-                          borderRadius: 6,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          textTransform: 'uppercase'
-                        }}>
+                      <div className="strategy-persona-actions">
+                        <div
+                          className="text-white py-1 px-2 rounded-md text-xs font-semibold uppercase"
+                          style={{ background: getStatusColor(status) }}
+                        >
                           {getStatusText(status)}
                         </div>
-                        <div style={{
-                          background: item.approved ? '#22c55e' : '#f59e0b',
-                          color: '#ffffff',
-                          padding: '4px 8px',
-                          borderRadius: 6,
-                          fontSize: 12,
-                          fontWeight: 600,
-                          textTransform: 'uppercase'
-                        }}>
+                        <div className={`text-white py-1 px-2 rounded-md text-xs font-semibold uppercase ${
+                          item.approved ? 'bg-green-500' : 'bg-amber-500'
+                        }`}>
                           {item.approved ? t('strategy.status.approved') : t('strategy.status.pending')}
                         </div>
                       </div>
                     </div>
                     
-                    <div style={{ flex: 1 }}>
+                    <div className="strategy-card-body">
                       <div
                         className="strategy-text"
                       >
                         {item.strategy || item.Strategy}
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 12, color: '#9ca3af' }}>
+                      <div className="strategy-persona-footer">
+                        <span className="strategy-persona-date">
                           {new Date(item.created_at || item.createdTime).toLocaleDateString(i18n.language === 'fi' ? 'fi-FI' : 'en-US')}
                         </span>
-                        <div style={{ display: 'flex', gap: '8px' }}>
+                        <div className="strategy-persona-actions">
                           {!item.approved && (
                             <button 
-                              style={{
-                                background: '#f59e0b',
-                                color: '#ffffff',
-                                border: 'none',
-                                borderRadius: 8,
-                                padding: '8px 16px',
-                                fontSize: 14,
-                                fontWeight: 600,
-                                cursor: 'pointer'
-                              }}
+                              className="strategy-amber-btn"
                               onClick={() => handleApproveStrategy(item)}
                             >
                               {t('strategy.buttons.approveStrategy')}
                             </button>
                           )}
                           <button 
-                            style={{
-                              background: '#22c55e',
-                              color: '#ffffff',
-                              border: 'none',
-                              borderRadius: 8,
-                              padding: '8px 16px',
-                              fontSize: 14,
-                              fontWeight: 600,
-                              cursor: 'pointer'
-                            }}
+                            className="strategy-green-btn"
                             onClick={() => handleEdit(item)}
                           >
                             {t('strategy.buttons.edit')}
@@ -1307,10 +1200,10 @@ export default function ContentStrategyPage() {
 
         {/* Tyhjä tila jos ei strategioita */}
         {strategy.length === 0 && (
-          <div className="strategy-card" style={{ textAlign: 'center', padding: 48 }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
-            <h3 style={{ margin: '0 0 8px 0', color: '#374151' }}>{t('strategy.empty.title')}</h3>
-            <p style={{ margin: 0, color: '#6b7280' }}>{t('strategy.empty.description')}</p>
+          <div className="strategy-card strategy-large-empty">
+            <div className="strategy-large-empty-icon">📋</div>
+            <h3 className="strategy-large-empty-title">{t('strategy.empty.title')}</h3>
+            <p className="strategy-large-empty-desc">{t('strategy.empty.description')}</p>
           </div>
         )}
 
@@ -1319,20 +1212,11 @@ export default function ContentStrategyPage() {
         {/* TOV jos ei ole vielä olemassa */}
         {(!tov || tov.length === 0) && (
           <div className="strategy-card">
-            <div style={{ fontWeight: 700, fontSize: 18, color: '#374151', marginBottom: 12 }}>🎤 {t('strategy.toneOfVoice.title')}</div>
-            <div style={{ flex: 1, textAlign: 'center', padding: 24 }}>
-              <p style={{ margin: '0 0 16px 0', color: '#6b7280' }}>{t('strategy.toneOfVoice.missing')}</p>
+            <div className="strategy-card-title">🎤 {t('strategy.toneOfVoice.title')}</div>
+            <div className="strategy-empty-state">
+              <p className="strategy-empty-text">{t('strategy.toneOfVoice.missing')}</p>
               <button
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: 8,
-                  padding: '8px 16px',
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
+                className="strategy-green-btn"
                 onClick={() => {
                   setEditingTov(true)
                   setTovEditText('')
@@ -1345,14 +1229,8 @@ export default function ContentStrategyPage() {
         )}
 
         {error && (
-          <div style={{ 
-            background: '#fef2f2', 
-            border: '1px solid #fecaca', 
-            borderRadius: 8, 
-            padding: 16, 
-            marginTop: 16 
-          }}>
-            <p style={{ margin: 0, color: '#dc2626' }}>{error}</p>
+          <div className="strategy-error-box">
+            <p className="strategy-error-text">{error}</p>
           </div>
         )}
       </div>
@@ -1360,19 +1238,7 @@ export default function ContentStrategyPage() {
       {/* Editointimodaali */}
       {editId && (
         <div 
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               handleCancel()
@@ -1380,34 +1246,15 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
-                <h3 style={{ 
-                  margin: 0, 
-                  fontSize: '20px', 
-                  fontWeight: '700', 
-                  color: '#374151' 
-                }}>
+            <div className="strategy-modal-header">
+              <div className="strategy-modal-title-row">
+                <h3 className="m-0 text-xl font-bold text-gray-700">
                   {t('strategy.buttons.editStrategy')}
                 </h3>
-                <span style={{ fontSize: 13, color: '#6b7280' }}>
+                <span className="text-[13px] text-gray-500">
                   {generatedCountLoading 
                     ? (i18n.language === 'fi' ? 'Ladataan...' : 'Loading...') 
                     : `${generatedCount} ${i18n.language === 'fi' ? 'generoitua sisältöä' : 'generated contents'}`}
@@ -1415,15 +1262,7 @@ export default function ContentStrategyPage() {
               </div>
               <button
                 onClick={handleCancel}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -1435,40 +1274,13 @@ export default function ContentStrategyPage() {
               ref={textareaRef}
               value={editText}
               onChange={e => setEditText(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '300px',
-                padding: '16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '16px',
-                lineHeight: '1.6',
-                fontFamily: 'inherit',
-                background: '#f9fafb',
-                boxSizing: 'border-box',
-                resize: 'vertical'
-              }}
+              className="w-full min-h-[300px] p-4 border-2 border-gray-200 rounded-lg text-base leading-relaxed font-inherit bg-gray-50 box-border resize-y"
               placeholder={t('strategy.strategyCard.placeholder')}
             />
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={() => handleSave(strategy.find(s => s.id === editId))}
@@ -1477,17 +1289,7 @@ export default function ContentStrategyPage() {
               </button>
               {!strategy.find(s => s.id === editId)?.approved && (
                 <button 
-                  style={{
-                    background: '#f59e0b',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '12px 24px',
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
+                  className="strategy-amber-btn-lg"
                   onMouseOver={(e) => e.target.style.background = '#d97706'}
                   onMouseOut={(e) => e.target.style.background = '#f59e0b'}
                   onClick={() => handleSaveAndApprove(strategy.find(s => s.id === editId))}
@@ -1495,20 +1297,8 @@ export default function ContentStrategyPage() {
                   {t('strategy.buttons.saveAndApprove')}
                 </button>
               )}
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={handleCancel}
               >
                 {t('strategy.buttons.cancel')}
@@ -1521,19 +1311,7 @@ export default function ContentStrategyPage() {
       {/* Yritysanalyysi-näyttömodaali */}
       {viewingCompanySummary && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setViewingCompanySummary(false)
@@ -1541,43 +1319,16 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{ 
-                margin: 0, 
-                fontSize: '20px', 
-                fontWeight: '700', 
-                color: '#374151' 
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="m-0 text-xl font-bold text-gray-700">
                 {t('strategy.companyAnalysis.title')}
               </h3>
               <button
                 onClick={() => setViewingCompanySummary(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -1585,34 +1336,13 @@ export default function ContentStrategyPage() {
               </button>
             </div>
             
-            <div style={{
-              fontSize: '16px',
-              lineHeight: '1.7',
-              color: '#374151',
-              whiteSpace: 'pre-line',
-              marginBottom: '20px'
-            }}>
+            <div className="strategy-modal-content">
               {companySummary}
             </div>
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={() => {
@@ -1624,19 +1354,7 @@ export default function ContentStrategyPage() {
                 {t('strategy.buttons.edit')}
               </button>
               <button
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => setViewingCompanySummary(false)}
               >
                 Sulje
@@ -1649,19 +1367,7 @@ export default function ContentStrategyPage() {
       {/* Kohderyhmä-näyttömodaali */}
       {viewingIcp && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setViewingIcp(false)
@@ -1669,43 +1375,16 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{ 
-                margin: 0, 
-                fontSize: '20px', 
-                fontWeight: '700', 
-                color: '#374151' 
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="m-0 text-xl font-bold text-gray-700">
                 {t('strategy.icp.title')}
               </h3>
               <button
                 onClick={() => setViewingIcp(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -1713,38 +1392,17 @@ export default function ContentStrategyPage() {
               </button>
             </div>
             
-            <div style={{
-              fontSize: '16px',
-              lineHeight: '1.7',
-              color: '#374151',
-              whiteSpace: 'pre-line',
-              marginBottom: '20px'
-            }}>
+            <div className="strategy-modal-content">
               {icpSummary.map((summary, index) => (
-                <div key={index} style={{ marginBottom: '12px' }}>
+                <div key={index} className="mb-3">
                   <strong>- {summary}</strong>
                 </div>
               ))}
             </div>
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={() => {
@@ -1755,20 +1413,8 @@ export default function ContentStrategyPage() {
               >
                 {t('strategy.icp.edit')}
               </button>
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => setViewingIcp(false)}
               >
                 Sulje
@@ -1781,19 +1427,7 @@ export default function ContentStrategyPage() {
       {/* Tavoitteet-näyttömodaali */}
       {viewingKpi && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setViewingKpi(false)
@@ -1801,43 +1435,16 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{ 
-                margin: 0, 
-                fontSize: '20px', 
-                fontWeight: '700', 
-                color: '#374151' 
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="m-0 text-xl font-bold text-gray-700">
                 {t('strategy.kpi.title', 'Tavoitteet')}
               </h3>
               <button
                 onClick={() => setViewingKpi(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -1845,38 +1452,17 @@ export default function ContentStrategyPage() {
               </button>
             </div>
             
-            <div style={{
-              fontSize: '16px',
-              lineHeight: '1.7',
-              color: '#374151',
-              whiteSpace: 'pre-line',
-              marginBottom: '20px'
-            }}>
+            <div className="strategy-modal-content">
               {kpiData.map((kpi, index) => (
-                <div key={index} style={{ marginBottom: '12px' }}>
+                <div key={index} className="mb-3">
                   <strong>- {kpi}</strong>
                 </div>
               ))}
             </div>
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={() => {
@@ -1887,20 +1473,8 @@ export default function ContentStrategyPage() {
               >
                 {t('strategy.kpi.edit')}
               </button>
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => setViewingKpi(false)}
               >
                 Sulje
@@ -1913,19 +1487,7 @@ export default function ContentStrategyPage() {
       {/* TOV-näyttömodaali */}
       {viewingTov && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setViewingTov(false)
@@ -1933,43 +1495,16 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{
-                margin: 0,
-                fontSize: '20px',
-                fontWeight: '700',
-                color: '#374151'
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="strategy-modal-title">
                 {t('strategy.toneOfVoice.modalTitle')}
               </h3>
               <button
                 onClick={() => setViewingTov(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -1977,34 +1512,13 @@ export default function ContentStrategyPage() {
               </button>
             </div>
             
-            <div style={{
-              fontSize: '16px',
-              lineHeight: '1.7',
-              color: '#374151',
-              whiteSpace: 'pre-line',
-              marginBottom: '20px'
-            }}>
+            <div className="strategy-modal-content">
               {tov}
             </div>
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={() => {
@@ -2016,19 +1530,7 @@ export default function ContentStrategyPage() {
                 {t('strategy.buttons.edit')}
               </button>
               <button
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => setViewingTov(false)}
               >
                 Sulje
@@ -2041,19 +1543,7 @@ export default function ContentStrategyPage() {
       {/* Yritysanalyysi-muokkaustilamodaali */}
       {editingCompanySummaryModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setEditingCompanySummaryModal(false)
@@ -2061,43 +1551,16 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{
-                margin: 0,
-                fontSize: '20px',
-                fontWeight: '700',
-                color: '#374151'
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="strategy-modal-title">
                 {t('strategy.companyAnalysis.edit')}
               </h3>
               <button
                 onClick={() => setEditingCompanySummaryModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -2109,40 +1572,13 @@ export default function ContentStrategyPage() {
               ref={companySummaryTextareaRef}
               value={companySummaryEditText}
               onChange={e => setCompanySummaryEditText(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '300px',
-                padding: '16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '16px',
-                lineHeight: '1.6',
-                fontFamily: 'inherit',
-                background: '#f9fafb',
-                boxSizing: 'border-box',
-                resize: 'vertical'
-              }}
+              className="w-full min-h-[300px] p-4 border-2 border-gray-200 rounded-lg text-base leading-relaxed font-inherit bg-gray-50 box-border resize-y"
               placeholder="Kirjoita yrityksen analyysi..."
             />
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={async () => {
@@ -2152,20 +1588,8 @@ export default function ContentStrategyPage() {
               >
                 {t('strategy.buttons.save')}
               </button>
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => {
                   setEditingCompanySummaryModal(false)
                   setCompanySummaryEditText(companySummary)
@@ -2181,19 +1605,7 @@ export default function ContentStrategyPage() {
       {/* Kohderyhmä-muokkaustilamodaali */}
       {editingIcpModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setEditingIcpModal(false)
@@ -2201,43 +1613,16 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{ 
-                margin: 0, 
-                fontSize: '20px', 
-                fontWeight: '700', 
-                color: '#374151' 
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="m-0 text-xl font-bold text-gray-700">
                 {t('strategy.icp.title')}
               </h3>
               <button
                 onClick={() => setEditingIcpModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -2249,40 +1634,13 @@ export default function ContentStrategyPage() {
               ref={icpTextareaRef}
               value={icpEditText}
               onChange={e => setIcpEditText(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '300px',
-                padding: '16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '16px',
-                lineHeight: '1.6',
-                fontFamily: 'inherit',
-                background: '#f9fafb',
-                boxSizing: 'border-box',
-                resize: 'vertical'
-              }}
+              className="w-full min-h-[300px] p-4 border-2 border-gray-200 rounded-lg text-base leading-relaxed font-inherit bg-gray-50 box-border resize-y"
               placeholder={t('strategy.icp.placeholder')}
             />
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={async () => {
@@ -2292,20 +1650,8 @@ export default function ContentStrategyPage() {
               >
                 {t('strategy.buttons.save')}
               </button>
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => {
                   setEditingIcpModal(false)
                   setIcpEditText(icpSummary.join('\n'))
@@ -2321,19 +1667,7 @@ export default function ContentStrategyPage() {
       {/* Tavoitteet-muokkaustilamodaali */}
       {editingKpiModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setEditingKpiModal(false)
@@ -2341,43 +1675,16 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{ 
-                margin: 0, 
-                fontSize: '20px', 
-                fontWeight: '700', 
-                color: '#374151' 
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="m-0 text-xl font-bold text-gray-700">
                 {t('strategy.kpi.title', 'Tavoitteet')}
               </h3>
               <button
                 onClick={() => setEditingKpiModal(false)}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -2389,40 +1696,13 @@ export default function ContentStrategyPage() {
               ref={kpiTextareaRef}
               value={kpiEditText}
               onChange={e => setKpiEditText(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '300px',
-                padding: '16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '16px',
-                lineHeight: '1.6',
-                fontFamily: 'inherit',
-                background: '#f9fafb',
-                boxSizing: 'border-box',
-                resize: 'vertical'
-              }}
+              className="w-full min-h-[300px] p-4 border-2 border-gray-200 rounded-lg text-base leading-relaxed font-inherit bg-gray-50 box-border resize-y"
               placeholder={t('strategy.kpi.placeholder')}
             />
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={async () => {
@@ -2432,20 +1712,8 @@ export default function ContentStrategyPage() {
               >
                 {t('strategy.buttons.save')}
               </button>
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => {
                   setEditingKpiModal(false)
                   setKpiEditText(kpiData.join('\n'))
@@ -2461,19 +1729,7 @@ export default function ContentStrategyPage() {
       {/* TOV-muokkaustilamodaali */}
       {editingTovModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2000,
-            padding: '20px'
-          }}
+          className="strategy-modal-overlay"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setEditingTovModal(false)
@@ -2482,30 +1738,11 @@ export default function ContentStrategyPage() {
           }}
         >
           <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '800px',
-              width: '100%',
-              maxHeight: '80vh',
-              overflow: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+            className="strategy-modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{
-                margin: 0,
-                fontSize: '20px',
-                fontWeight: '700',
-                color: '#374151'
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="strategy-modal-title">
                 {t('strategy.toneOfVoice.modalTitle')}
               </h3>
               <button
@@ -2513,15 +1750,7 @@ export default function ContentStrategyPage() {
                   setEditingTovModal(false)
                   navigate('/strategy')
                 }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -2530,32 +1759,15 @@ export default function ContentStrategyPage() {
             </div>
             
             {/* Apu-nappi some-scrapingille ja TOV-analyysille */}
-            <div style={{ marginBottom: '16px' }}>
+            <div className="mb-4">
               <button
                 onClick={() => setTovSocialUrlModal(true)}
                 disabled={analyzingTov}
-                style={{
-                  background: analyzingTov ? '#9ca3af' : '#f59e0b',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '10px 20px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: analyzingTov ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.2s',
-                  width: '100%'
-                }}
-                onMouseOver={(e) => {
-                  if (!analyzingTov) {
-                    e.target.style.background = '#d97706'
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!analyzingTov) {
-                    e.target.style.background = '#f59e0b'
-                  }
-                }}
+                className={`w-full py-2.5 px-5 text-sm font-semibold text-white border-none rounded-lg transition-colors duration-200 ${
+                  analyzingTov
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-amber-500 hover:bg-amber-600 cursor-pointer'
+                }`}
               >
                 {analyzingTov ? t('strategy.toneOfVoice.analyzing') : t('strategy.toneOfVoice.helpButton')}
               </button>
@@ -2565,40 +1777,13 @@ export default function ContentStrategyPage() {
               ref={tovTextareaRef}
               value={tovEditText}
               onChange={e => setTovEditText(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: '300px',
-                padding: '16px',
-                border: '2px solid #e5e7eb',
-                borderRadius: '8px',
-                fontSize: '16px',
-                lineHeight: '1.6',
-                fontFamily: 'inherit',
-                background: '#f9fafb',
-                boxSizing: 'border-box',
-                resize: 'vertical'
-              }}
+              className="w-full min-h-[300px] p-4 border-2 border-gray-200 rounded-lg text-base leading-relaxed font-inherit bg-gray-50 box-border resize-y"
               placeholder={t('placeholders.describeToneOfVoice')}
             />
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              marginTop: '20px', 
-              justifyContent: 'flex-end' 
-            }}>
+            <div className="strategy-modal-footer">
               <button 
-                style={{
-                  background: '#22c55e',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
+                className="strategy-green-btn-lg"
                 onMouseOver={(e) => e.target.style.background = '#16a34a'}
                 onMouseOut={(e) => e.target.style.background = '#22c55e'}
                 onClick={async () => {
@@ -2609,20 +1794,8 @@ export default function ContentStrategyPage() {
               >
                 {t('strategy.buttons.save')}
               </button>
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => {
                   setEditingTovModal(false)
                   setTovEditText(tov)
@@ -2639,19 +1812,7 @@ export default function ContentStrategyPage() {
       {/* Sometilin URL -modaali TOV-analyysille */}
       {tovSocialUrlModal && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 2001,
-            padding: '20px'
-          }}
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[2001] p-5"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               setTovSocialUrlModal(false)
@@ -2660,29 +1821,12 @@ export default function ContentStrategyPage() {
             }
           }}
         >
-          <div 
-            style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '24px',
-              maxWidth: '500px',
-              width: '100%',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-            }}
+          <div
+            className="bg-white rounded-xl p-6 max-w-[500px] w-full shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              marginBottom: '20px' 
-            }}>
-              <h3 style={{
-                margin: 0,
-                fontSize: '20px',
-                fontWeight: '700',
-                color: '#374151'
-              }}>
+            <div className="strategy-modal-header">
+              <h3 className="strategy-modal-title">
                 {t('strategy.toneOfVoice.socialUrlModal.title')}
               </h3>
               <button
@@ -2691,15 +1835,7 @@ export default function ContentStrategyPage() {
                   setTovSocialUrl('')
                   setTovSocialUrlError('')
                 }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  padding: '4px',
-                  borderRadius: '4px'
-                }}
+                className="strategy-modal-close"
                 onMouseOver={(e) => e.target.style.background = '#f3f4f6'}
                 onMouseOut={(e) => e.target.style.background = 'none'}
               >
@@ -2707,14 +1843,8 @@ export default function ContentStrategyPage() {
               </button>
             </div>
             
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{
-                display: 'block',
-                marginBottom: '8px',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151'
-              }}>
+            <div className="mb-5">
+              <label className="block mb-2 text-sm font-semibold text-gray-700">
                 {t('strategy.toneOfVoice.socialUrlModal.label')}
               </label>
               <input
@@ -2722,15 +1852,9 @@ export default function ContentStrategyPage() {
                 value={tovSocialUrl}
                 onChange={(e) => handleSocialUrlChange(e.target.value)}
                 placeholder={t('strategy.toneOfVoice.socialUrlModal.placeholder')}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: `2px solid ${tovSocialUrlError ? '#ef4444' : '#e5e7eb'}`,
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontFamily: 'inherit',
-                  boxSizing: 'border-box'
-                }}
+                className={`w-full p-3 border-2 rounded-lg text-base font-inherit box-border ${
+                  tovSocialUrlError ? 'border-red-500' : 'border-gray-200'
+                }`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && tovSocialUrl.trim() && !tovSocialUrlError) {
                     const validation = validateSocialUrl(tovSocialUrl)
@@ -2742,35 +1866,15 @@ export default function ContentStrategyPage() {
                 autoFocus
               />
               {tovSocialUrlError && (
-                <p style={{
-                  margin: '8px 0 0 0',
-                  fontSize: '14px',
-                  color: '#ef4444'
-                }}>
+                <p className="mt-2 text-sm text-red-500">
                   {tovSocialUrlError}
                 </p>
               )}
             </div>
             
-            <div style={{ 
-              display: 'flex', 
-              gap: '12px', 
-              justifyContent: 'flex-end' 
-            }}>
-              <button 
-                style={{
-                  background: '#6b7280',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => e.target.style.background = '#4b5563'}
-                onMouseOut={(e) => e.target.style.background = '#6b7280'}
+            <div className="flex gap-3 justify-end">
+              <button
+                className="bg-gray-500 hover:bg-gray-600 text-white border-none rounded-lg py-3 px-6 text-base font-semibold cursor-pointer transition-colors duration-200"
                 onClick={() => {
                   setTovSocialUrlModal(false)
                   setTovSocialUrl('')
@@ -2780,27 +1884,11 @@ export default function ContentStrategyPage() {
                 {t('strategy.buttons.cancel')}
               </button>
               <button
-                style={{
-                  background: analyzingTov ? '#9ca3af' : '#f59e0b',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: analyzingTov ? 'not-allowed' : 'pointer',
-                  transition: 'background-color 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  if (!analyzingTov) {
-                    e.target.style.background = '#d97706'
-                  }
-                }}
-                onMouseOut={(e) => {
-                  if (!analyzingTov) {
-                    e.target.style.background = '#f59e0b'
-                  }
-                }}
+                className={`py-3 px-6 text-base font-semibold text-white border-none rounded-lg transition-colors duration-200 ${
+                  analyzingTov
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-amber-500 hover:bg-amber-600 cursor-pointer'
+                }`}
                 disabled={analyzingTov || !tovSocialUrl.trim() || !!tovSocialUrlError}
                 onClick={() => {
                   const validation = validateSocialUrl(tovSocialUrl)

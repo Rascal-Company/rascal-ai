@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import Button from './Button'
 import ConfirmationToast from './ConfirmationToast'
-import './ModalComponents.css'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 
@@ -143,7 +142,7 @@ const AddCallTypeModal = ({
 
   return createPortal(
     <div className="modal-overlay modal-overlay--light" onClick={handleOverlayClick}>
-      <div className="modal-container" style={{ maxWidth: '900px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="modal-container calltype-modal-container">
         <div className="modal-header">
           <h2 className="modal-title">
             {t('calls.modals.addCallType.title')}
@@ -160,7 +159,7 @@ const AddCallTypeModal = ({
         <div className="steps-container">
           {steps.map((step, index) => (
             <React.Fragment key={step.id}>
-              <div className="step-item" onClick={() => setCurrentStep(step.id)} style={{ cursor: 'pointer' }}>
+              <div className="step-item calltype-step-clickable" onClick={() => setCurrentStep(step.id)}>
                 <div className={`step-number ${currentStep >= step.id ? 'active' : ''}`}>
                   {step.id}
                 </div>
@@ -176,9 +175,9 @@ const AddCallTypeModal = ({
         </div>
 
         {/* Content */}
-        <div className="modal-content" style={{ overflowY: 'auto', flex: 1, minHeight: 0 }}>
+        <div className="modal-content calltype-modal-content">
           {currentStep === 1 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="form-column calltype-form-column">
               <div className="form-grid">
                 <div className="form-group">
                   <label className="form-label">
@@ -262,8 +261,8 @@ const AddCallTypeModal = ({
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 24, marginTop: 8 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1f2937', marginBottom: 16, marginTop: 0 }}>
+              <div className="calltype-section-divider">
+                <h3 className="calltype-section-title">
                   {t('calls.modals.addCallType.fields.callSettings')}
                 </h3>
                 <div className="form-grid">
@@ -302,10 +301,10 @@ const AddCallTypeModal = ({
           )}
 
           {currentStep === 2 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="form-column calltype-form-column-sm">
               <div className="form-group">
                 <label className="form-label">{t('calls.modals.addCallType.fields.targetAudience')}</label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.targetAudience')}
                 </p>
                 <input
@@ -319,7 +318,7 @@ const AddCallTypeModal = ({
 
               <div className="form-group">
                 <label className="form-label">{t('calls.modals.addCallType.fields.mainGoal')}</label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.mainGoal')}
                 </p>
                 <textarea
@@ -333,7 +332,7 @@ const AddCallTypeModal = ({
 
               <div className="form-group">
                 <label className="form-label">{t('calls.modals.addCallType.fields.toneStyle')}</label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.toneStyle')}
                 </p>
                 <textarea
@@ -348,12 +347,12 @@ const AddCallTypeModal = ({
           )}
 
           {currentStep === 3 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="form-column calltype-form-column-sm">
               <div className="form-group">
                 <label className="form-label">
                   {t('calls.modals.addCallType.fields.firstSentence')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.firstSentence')}
                 </p>
                 <input
@@ -369,7 +368,7 @@ const AddCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.addCallType.fields.callStart')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.callStart')}
                 </p>
                 <textarea
@@ -385,7 +384,7 @@ const AddCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.addCallType.fields.questions')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.questions')}
                 </p>
                 <textarea
@@ -401,7 +400,7 @@ const AddCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.addCallType.fields.callEnd')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.callEnd')}
                 </p>
                 <textarea
@@ -417,13 +416,13 @@ const AddCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.addCallType.fields.successfulEnd')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.successfulEnd')}
                 </p>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.addCallType.hints.actionPreset')}
                 </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                <div className="calltype-tag-container">
                   {[
                     { key: 'salesCall', label: t('calls.modals.callTypeActionPresets.salesCall.label'), text: t('calls.modals.callTypeActionPresets.salesCall.text') },
                     { key: 'appointment', label: t('calls.modals.callTypeActionPresets.appointment.label'), text: t('calls.modals.callTypeActionPresets.appointment.text') },
@@ -442,25 +441,7 @@ const AddCallTypeModal = ({
                             action: preset.text || '' // Tallennetaan preset-teksti action-kenttään Supabaseen
                           })
                         }}
-                        style={{
-                          padding: '8px 16px',
-                          fontSize: 13,
-                          fontWeight: 500,
-                          background: '#f3f4f6',
-                          border: '1px solid #d1d5db',
-                          borderRadius: 6,
-                          cursor: 'pointer',
-                          color: '#374151',
-                          transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = '#e5e7eb'
-                          e.target.style.borderColor = '#9ca3af'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = '#f3f4f6'
-                          e.target.style.borderColor = '#d1d5db'
-                        }}
+                        className="calltype-preset-btn"
                       >
                         {preset.label}
                       </button>
@@ -472,16 +453,15 @@ const AddCallTypeModal = ({
                   readOnly
                   placeholder={t('calls.modals.callTypeActionPresets.universal.text')}
                   rows={4}
-                  className="form-textarea"
-                  style={{ backgroundColor: '#f9fafb', cursor: 'not-allowed' }}
+                  className="form-textarea calltype-input-disabled"
                 />
               </div>
             </div>
           )}
 
           {currentStep === 4 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+            <div className="form-column calltype-form-column">
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.addCallType.fields.summary')}
@@ -494,12 +474,12 @@ const AddCallTypeModal = ({
                     className="form-textarea"
                   />
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.summary')}</div>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.addCallType.fields.successAssessment')}
@@ -512,8 +492,8 @@ const AddCallTypeModal = ({
                     className="form-textarea"
                   />
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.successAssessment')}</div>
                 </div>
               </div>
@@ -521,8 +501,8 @@ const AddCallTypeModal = ({
           )}
 
           {currentStep === 5 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+            <div className="form-column calltype-form-column-sm">
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.addCallType.fields.firstSms')}
@@ -538,27 +518,26 @@ const AddCallTypeModal = ({
                     placeholder={t('calls.modals.addCallType.placeholders.firstSms')}
                     rows={4}
                     maxLength={160}
-                    className="form-textarea"
-                    style={{ resize: 'none', overflowY: 'auto', maxHeight: '120px' }}
+                    className="form-textarea calltype-textarea-fixed"
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, fontSize: 12 }}>
-                    <span style={{ color: '#6b7280' }}>
+                  <div className="calltype-char-count-row">
+                    <span className="calltype-char-count">
                       {t('calls.modals.sms.counter', { count: newCallType.first_sms?.length || 0 })}
                     </span>
                     {newCallType.first_sms && newCallType.first_sms.length > 140 && (
-                      <span style={{ color: '#f59e0b' }}>
+                      <span className="calltype-char-warning">
                         ⚠️ {t('calls.modals.sms.longMessage', { parts: newCallType.first_sms.length > 150 ? 2 : 1 })}
                       </span>
                     )}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.firstSms')}</div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.addCallType.fields.afterCallSms')}
@@ -574,27 +553,26 @@ const AddCallTypeModal = ({
                     placeholder={t('calls.modals.addCallType.placeholders.afterCallSms')}
                     rows={4}
                     maxLength={160}
-                    className="form-textarea"
-                    style={{ resize: 'none', overflowY: 'auto', maxHeight: '120px' }}
+                    className="form-textarea calltype-textarea-fixed"
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, fontSize: 12 }}>
-                    <span style={{ color: '#6b7280' }}>
+                  <div className="calltype-char-count-row">
+                    <span className="calltype-char-count">
                       {t('calls.modals.sms.counter', { count: newCallType.after_call_sms?.length || 0 })}
                     </span>
                     {newCallType.after_call_sms && newCallType.after_call_sms.length > 140 && (
-                      <span style={{ color: '#f59e0b' }}>
+                      <span className="calltype-char-warning">
                         ⚠️ {t('calls.modals.sms.longMessage', { parts: newCallType.after_call_sms.length > 150 ? 2 : 1 })}
                       </span>
                     )}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.afterCallSms')}</div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.addCallType.fields.missedCallSms')}
@@ -610,22 +588,21 @@ const AddCallTypeModal = ({
                     placeholder={t('calls.modals.addCallType.placeholders.missedCallSms')}
                     rows={4}
                     maxLength={160}
-                    className="form-textarea"
-                    style={{ resize: 'none', overflowY: 'auto', maxHeight: '120px' }}
+                    className="form-textarea calltype-textarea-fixed"
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, fontSize: 12 }}>
-                    <span style={{ color: '#6b7280' }}>
+                  <div className="calltype-char-count-row">
+                    <span className="calltype-char-count">
                       {t('calls.modals.sms.counter', { count: newCallType.missed_call_sms?.length || 0 })}
                     </span>
                     {newCallType.missed_call_sms && newCallType.missed_call_sms.length > 140 && (
-                      <span style={{ color: '#f59e0b' }}>
+                      <span className="calltype-char-warning">
                         ⚠️ {t('calls.modals.sms.longMessage', { parts: newCallType.missed_call_sms.length > 150 ? 2 : 1 })}
                       </span>
                     )}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.missedCallSms')}</div>
                 </div>
               </div>
@@ -633,26 +610,21 @@ const AddCallTypeModal = ({
           )}
 
           {currentStep === 6 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ textAlign: 'center', marginBottom: 16 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1f2937', margin: '0 0 8px 0' }}>
+            <div className="form-column calltype-form-column-sm">
+              <div className="calltype-summary-center">
+                <h3 className="calltype-summary-title">
                   {t('calls.modals.addCallType.aiEnhancement.title')}
                 </h3>
-                <p style={{ fontSize: 14, color: '#6b7280', margin: 0, lineHeight: 1.4 }}>
+                <p className="calltype-summary-desc">
                   {t('calls.modals.addCallType.aiEnhancement.description')}
                 </p>
               </div>
               
-              <div style={{ 
-                background: '#f8fafc', 
-                border: '1px solid #e2e8f0', 
-                borderRadius: 8, 
-                padding: 16
-              }}>
-                <div style={{ fontSize: 13, color: '#374151', marginBottom: 8, fontWeight: 500 }}>
+              <div className="calltype-ai-benefits-box">
+                <div className="calltype-summary-label">
                   {t('calls.modals.addCallType.aiEnhancement.benefits.title')}
                 </div>
-                <ul style={{ fontSize: 12, color: '#6b7280', margin: 0, paddingLeft: 16, lineHeight: 1.4 }}>
+                <ul className="calltype-summary-list">
                   <li>{t('calls.modals.addCallType.aiEnhancement.benefits.optimize')}</li>
                   <li>{t('calls.modals.addCallType.aiEnhancement.benefits.improve')}</li>
                   <li>{t('calls.modals.addCallType.aiEnhancement.benefits.suggest')}</li>
@@ -661,18 +633,7 @@ const AddCallTypeModal = ({
               
               <Button
                 onClick={handleAIEnhancement}
-                style={{
-                  background: '#f97316',
-                  color: '#fff',
-                  padding: '8px 16px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  borderRadius: 6,
-                  border: 'none',
-                  cursor: 'pointer',
-                  width: 'auto',
-                  alignSelf: 'center'
-                }}
+                className="calltype-ai-btn"
               >
                 {t('calls.modals.addCallType.aiEnhancement.cta')}
               </Button>

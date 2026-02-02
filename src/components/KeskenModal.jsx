@@ -9,7 +9,6 @@ import ErrorDisplay from './KeskenModal/ErrorDisplay'
 import ModalActions from './KeskenModal/ModalActions'
 import CaptionEditor from './KeskenModal/CaptionEditor'
 import MediaPreview from './KeskenModal/MediaPreview'
-import './KeskenModal.css'
 
 const KeskenModal = ({ 
   show, 

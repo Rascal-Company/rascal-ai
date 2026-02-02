@@ -1,6 +1,5 @@
 import React from 'react'
 import packageJson from '../../package.json'
-import './VersionInfo.css'
 
 export default function VersionInfo({ style = {} }) {
   const version = packageJson.version

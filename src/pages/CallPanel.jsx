@@ -8,7 +8,6 @@ import AddCallTypeModal from "../components/AddCallTypeModal";
 import EditCallTypeModal from "../components/EditCallTypeModal";
 import EditInboundSettingsModal from "../components/EditInboundSettingsModal";
 import CRM from "../components/crm.jsx";
-import "./CallPanel.css";
 import CallStats from "./CallStats";
 import CallsTab from "../components/calls/CallsTab";
 import CallLogsTab from "../components/calls/CallLogsTab";
@@ -24,7 +23,6 @@ import { useToast } from "../contexts/ToastContext";
 import { getUserOrgId } from "../lib/getUserOrgId";
 import axios from "axios";
 import PageMeta from "../components/PageMeta";
-import "../components/ModalComponents.css";
 import { useFeatures } from "../hooks/useFeatures";
 import ExportCallLogsModal from "../components/ExportCallLogsModal";
 
@@ -2931,26 +2929,11 @@ export default function CallPanel() {
         image="/hero.png"
       />
       <div className="callpanel-container">
-        <div
-          className="callpanel-wrapper"
-          style={{ width: "100%", maxWidth: "none" }}
-        >
-          <div
-            className="callpanel-root"
-            style={{ width: "100%", maxWidth: "none" }}
-          >
+        <div className="callpanel-wrapper">
+          <div className="callpanel-root w-full max-w-none">
             {/* Tabs (3 per rivi) */}
-            <div
-              className="callpanel-tabs"
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
-                gap: 8,
-                position: "relative",
-                zIndex: 3,
-              }}
-            >
-              <div style={{ display: "contents" }}>
+            <div className="callpanel-tabs callpanel-tabs-grid">
+              <div className="callpanel-tabs-row">
                 <Button
                   onClick={() => handleTabChange("calls")}
                   variant={activeTab === "calls" ? "primary" : "secondary"}
@@ -2960,7 +2943,7 @@ export default function CallPanel() {
                     height="16"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    style={{ marginRight: "8px" }}
+                    className="callpanel-icon"
                   >
                     <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
                   </svg>
@@ -2975,7 +2958,7 @@ export default function CallPanel() {
                     height="16"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    style={{ marginRight: "8px" }}
+                    className="callpanel-icon"
                   >
                     <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" />
                   </svg>
@@ -2990,14 +2973,14 @@ export default function CallPanel() {
                     height="16"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    style={{ marginRight: "8px" }}
+                    className="callpanel-icon"
                   >
                     <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM9 11H7V9h2v2zm4 0h-2V9h2v2zm4 0h-2V9h2v2z" />
                   </svg>
                   {t("calls.tabs.messages")}
                 </Button>
               </div>
-              <div style={{ display: "contents" }}>
+              <div className="callpanel-tabs-row">
                 <Button
                   onClick={() => handleTabChange("textmessages")}
                   variant={
@@ -3009,7 +2992,7 @@ export default function CallPanel() {
                     height="16"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    style={{ marginRight: "8px" }}
+                    className="callpanel-icon"
                   >
                     <path d="M17 1.01L3 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H3V5h14v14z" />
                     <path d="M7 7h10v2H7zM7 11h7v2H7z" />
@@ -3025,7 +3008,7 @@ export default function CallPanel() {
                     height="16"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    style={{ marginRight: "8px" }}
+                    className="callpanel-icon"
                   >
                     <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
                   </svg>
@@ -3041,7 +3024,7 @@ export default function CallPanel() {
                       height="16"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      style={{ marginRight: "8px" }}
+                      className="callpanel-icon"
                     >
                       <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z" />
                     </svg>
@@ -3084,108 +3067,43 @@ export default function CallPanel() {
             )}
 
             {activeTab === "logs" && (
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 16,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-                  padding: 32,
-                  width: "100%",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 24,
-                  }}
-                >
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color: "#1f2937",
-                    }}
-                  >
+              <div className="callpanel-card">
+                <div className="callpanel-card-header">
+                  <h2 className="callpanel-card-title">
                     {t("calls.tabs.logs")}
                   </h2>
-                  <div style={{ display: "flex", gap: 12 }}>
-                    <Button
+                  <div className="callpanel-card-actions">
+                    <button
                       type="button"
                       onClick={() => setShowExportModal(true)}
-                      variant="secondary"
-                      style={{
-                        padding: "8px 16px",
-                        fontSize: 14,
-                        background: "#10b981",
-                        color: "#fff",
-                      }}
+                      className="callpanel-btn-export"
                     >
                       Export CSV
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                       type="button"
                       onClick={() => {
                         fetchCallLogs();
                       }}
                       disabled={loadingCallLogs}
-                      variant="secondary"
-                      style={{
-                        padding: "8px 16px",
-                        fontSize: 14,
-                        background: loadingCallLogs ? "#9ca3af" : "#3b82f6",
-                        color: "#fff",
-                      }}
+                      className="callpanel-btn-refresh"
                     >
                       {loadingCallLogs
                         ? t("calls.logsTab.buttons.refreshing")
                         : t("calls.logsTab.buttons.refresh")}
-                    </Button>
+                    </button>
                   </div>
                 </div>
 
                 {/* Filtterit */}
-                <div
-                  style={{
-                    background: "#f8fafc",
-                    padding: 24,
-                    borderRadius: 12,
-                    border: "1px solid #e2e8f0",
-                    marginBottom: 32,
-                  }}
-                >
-                  <h3
-                    style={{
-                      margin: "0 0 16px 0",
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: "#374151",
-                    }}
-                  >
+                <div className="callpanel-filters">
+                  <h3 className="callpanel-filters-title">
                     {t("calls.logsTab.filters.title")}
                   </h3>
 
-                  <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fit, minmax(200px, 1fr))",
-                      gap: 16,
-                      marginBottom: 16,
-                    }}
-                  >
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          marginBottom: 8,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
-                      >
+                  <div className="callpanel-filters-grid">
+                    <div className="callpanel-filter-group">
+                      <label className="callpanel-filter-label">
                         {t("calls.logsTab.filters.searchLabel")}
                       </label>
                       <input
@@ -3195,42 +3113,18 @@ export default function CallPanel() {
                         placeholder={t(
                           "calls.logsTab.filters.searchPlaceholder",
                         )}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          border: "1px solid #d1d5db",
-                          borderRadius: 6,
-                          fontSize: 14,
-                          color: "#1f2937",
-                          background: "#fff",
-                        }}
+                        className="callpanel-filter-input"
                       />
                     </div>
 
-                    <div>
-                      <label
-                        style={{
-                          display: "block",
-                          marginBottom: 8,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
-                      >
+                    <div className="callpanel-filter-group">
+                      <label className="callpanel-filter-label">
                         {t("calls.logsTab.filters.statusLabel")}
                       </label>
                       <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          border: "1px solid #d1d5db",
-                          borderRadius: 6,
-                          fontSize: 14,
-                          color: "#1f2937",
-                          background: "#fff",
-                        }}
+                        className="callpanel-filter-select"
                       >
                         <option value="">
                           {t("calls.logsTab.filters.all")}
@@ -3258,28 +3152,14 @@ export default function CallPanel() {
 
                     <div>
                       <label
-                        style={{
-                          display: "block",
-                          marginBottom: 8,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
+                        className="callpanel-filter-label"
                       >
                         {t("calls.logsTab.filters.typeLabel")}
                       </label>
                       <select
                         value={callTypeFilter}
                         onChange={(e) => setCallTypeFilter(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          border: "1px solid #d1d5db",
-                          borderRadius: 6,
-                          fontSize: 14,
-                          color: "#1f2937",
-                          background: "#fff",
-                        }}
+                        className="callpanel-filter-select"
                       >
                         <option value="">
                           {t("calls.logsTab.filters.all")}
@@ -3294,28 +3174,14 @@ export default function CallPanel() {
 
                     <div>
                       <label
-                        style={{
-                          display: "block",
-                          marginBottom: 8,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
+                        className="callpanel-filter-label"
                       >
                         {t("calls.messagesTab.table.direction")}
                       </label>
                       <select
                         value={directionFilter}
                         onChange={(e) => setDirectionFilter(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          border: "1px solid #d1d5db",
-                          borderRadius: 6,
-                          fontSize: 14,
-                          color: "#1f2937",
-                          background: "#fff",
-                        }}
+                        className="callpanel-filter-select"
                       >
                         <option value="">
                           {t("calls.logsTab.filters.all")}
@@ -3331,28 +3197,14 @@ export default function CallPanel() {
 
                     <div>
                       <label
-                        style={{
-                          display: "block",
-                          marginBottom: 8,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
+                        className="callpanel-filter-label"
                       >
                         {t("calls.logsTab.filters.wantsContactLabel")}
                       </label>
                       <select
                         value={wantsContactFilter}
                         onChange={(e) => setWantsContactFilter(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          border: "1px solid #d1d5db",
-                          borderRadius: 6,
-                          fontSize: 14,
-                          color: "#1f2937",
-                          background: "#fff",
-                        }}
+                        className="callpanel-filter-select"
                       >
                         <option value="">
                           {t("calls.logsTab.filters.all")}
@@ -3368,23 +3220,11 @@ export default function CallPanel() {
                   </div>
 
                   <div
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "repeat(auto-fit, minmax(200px, 1fr))",
-                      gap: 16,
-                      marginBottom: 16,
-                    }}
+                    className="callpanel-filters-grid"
                   >
                     <div>
                       <label
-                        style={{
-                          display: "block",
-                          marginBottom: 8,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
+                        className="callpanel-filter-label"
                       >
                         {t("calls.logsTab.filters.dateFrom")}
                       </label>
@@ -3392,27 +3232,13 @@ export default function CallPanel() {
                         type="date"
                         value={dateFrom}
                         onChange={(e) => setDateFrom(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          border: "1px solid #d1d5db",
-                          borderRadius: 6,
-                          fontSize: 14,
-                          color: "#1f2937",
-                          background: "#fff",
-                        }}
+                        className="callpanel-filter-select"
                       />
                     </div>
 
                     <div>
                       <label
-                        style={{
-                          display: "block",
-                          marginBottom: 8,
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#374151",
-                        }}
+                        className="callpanel-filter-label"
                       >
                         {t("calls.logsTab.filters.dateTo")}
                       </label>
@@ -3420,30 +3246,22 @@ export default function CallPanel() {
                         type="date"
                         value={dateTo}
                         onChange={(e) => setDateTo(e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          border: "1px solid #d1d5db",
-                          borderRadius: 6,
-                          fontSize: 14,
-                          color: "#1f2937",
-                          background: "#fff",
-                        }}
+                        className="callpanel-filter-select"
                       />
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", gap: 12 }}>
+                  <div className="callpanel-flex-row">
                     <Button
                       onClick={handleSearch}
                       disabled={loadingCallLogs}
-                      style={{ fontSize: 14, fontWeight: 500, marginRight: 8 }}
+                      className="callpanel-search-btn"
                     >
                       {t("calls.logsTab.filters.searchButton")}
                     </Button>
                     <Button
                       onClick={clearFilters}
-                      style={{ fontSize: 14, fontWeight: 500 }}
+                      className="callpanel-clear-btn"
                       variant="secondary"
                     >
                       🗑️ {t("calls.logsTab.filters.clearButton")}
@@ -3453,292 +3271,79 @@ export default function CallPanel() {
 
                 {/* Tilastot */}
                 <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                    gap: 24,
-                    marginBottom: 32,
-                  }}
+                  className="callpanel-stats-grid"
                 >
                   {/* Soittoyritykset - ensimmäinen kortti */}
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#6366f1",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.totalCalls}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("dashboard.campaigns.stats.calledCalls")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value indigo">{stats.totalCalls}</div>
+                    <div className="callpanel-stat-label">{t("dashboard.campaigns.stats.calledCalls")}</div>
                   </div>
 
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#22c55e",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.answered}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.logsTab.filters.statusOptions.success")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value green">{stats.answered}</div>
+                    <div className="callpanel-stat-label">{t("calls.logsTab.filters.statusOptions.success")}</div>
                   </div>
 
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#10b981",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.successful}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.logsTab.filters.statusOptions.successful")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value emerald">{stats.successful}</div>
+                    <div className="callpanel-stat-label">{t("calls.logsTab.filters.statusOptions.successful")}</div>
                   </div>
 
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#ef4444",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.failed}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.logsTab.filters.statusOptions.failed")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value red">{stats.failed}</div>
+                    <div className="callpanel-stat-label">{t("calls.logsTab.filters.statusOptions.failed")}</div>
                   </div>
 
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#f59e0b",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.pending}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.logsTab.filters.statusOptions.pending")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value amber">{stats.pending}</div>
+                    <div className="callpanel-stat-label">{t("calls.logsTab.filters.statusOptions.pending")}</div>
                   </div>
 
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#3b82f6",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.inProgress}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.logsTab.filters.statusOptions.inProgress")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value blue">{stats.inProgress}</div>
+                    <div className="callpanel-stat-label">{t("calls.logsTab.filters.statusOptions.inProgress")}</div>
                   </div>
 
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#6366f1",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.totalLogs}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.callPanel.stats.totalLogs")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value indigo">{stats.totalLogs}</div>
+                    <div className="callpanel-stat-label">{t("calls.callPanel.stats.totalLogs")}</div>
                   </div>
 
                   {/* Outbound/Inbound tilastot */}
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#1d4ed8",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.outbound}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.messagesTab.direction.outbound")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value blue">{stats.outbound}</div>
+                    <div className="callpanel-stat-label">{t("calls.messagesTab.direction.outbound")}</div>
                   </div>
 
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#92400e",
-                        marginBottom: 8,
-                      }}
-                    >
-                      {stats.inbound}
-                    </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.messagesTab.direction.inbound")}
-                    </div>
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value amber">{stats.inbound}</div>
+                    <div className="callpanel-stat-label">{t("calls.messagesTab.direction.inbound")}</div>
                   </div>
 
                   {/* Hinta-tilastot */}
-                  <div
-                    style={{
-                      background: "#f8fafc",
-                      padding: 24,
-                      borderRadius: 12,
-                      border: "1px solid #e2e8f0",
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: 32,
-                        fontWeight: 700,
-                        color: "#059669",
-                        marginBottom: 8,
-                      }}
-                    >
-                      €
-                      {callLogs
-                        .reduce((total, log) => {
-                          const price = parseFloat(log.price) || 0;
-                          return total + price;
-                        }, 0)
-                        .toFixed(2)}
+                  <div className="callpanel-stat-card">
+                    <div className="callpanel-stat-value emerald">
+                      €{callLogs.reduce((total, log) => total + (parseFloat(log.price) || 0), 0).toFixed(2)}
                     </div>
-                    <div style={{ fontSize: 14, color: "#6b7280" }}>
-                      {t("calls.callPanel.stats.totalPrice")}
-                    </div>
+                    <div className="callpanel-stat-label">{t("calls.callPanel.stats.totalPrice")}</div>
                   </div>
                 </div>
 
                 {/* Virheviesti */}
                 {callLogsError && (
-                  <div
-                    style={{
-                      background: "#fef2f2",
-                      border: "1px solid #fecaca",
-                      borderRadius: 12,
-                      padding: 16,
-                      marginBottom: 24,
-                      color: "#dc2626",
-                      fontSize: 14,
-                    }}
-                  >
+                  <div className="callpanel-toast error">
                     ❌ {callLogsError}
                   </div>
                 )}
 
                 {/* Puheluloki lista */}
                 <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 16,
-                    }}
-                  >
-                    <h3
-                      style={{
-                        margin: 0,
-                        fontSize: 18,
-                        fontWeight: 600,
-                        color: "#374151",
-                      }}
-                    >
+                  <div className="callpanel-section-header">
+                    <h3 className="callpanel-section-title">
                       {t("calls.callPanel.history.title")}
                     </h3>
                     {totalCount > 0 && (
-                      <div style={{ fontSize: 14, color: "#6b7280" }}>
+                      <div className="callpanel-stat-label">
                         {t("calls.callPanel.history.totalCalls", {
                           count: totalCount,
                         })}
@@ -3747,198 +3352,63 @@ export default function CallPanel() {
                   </div>
 
                   {loadingCallLogs ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <div className="callpanel-empty-state">
                       {t("calls.callPanel.history.loading")}
                     </div>
                   ) : callLogs.length === 0 ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <div className="callpanel-empty-state">
                       {t("calls.callPanel.history.empty")}
                     </div>
                   ) : (
-                    <div style={{ overflowX: "auto", marginBottom: 24 }}>
-                      <table
-                        style={{
-                          width: "100%",
-                          borderCollapse: "collapse",
-                          fontSize: 14,
-                        }}
-                      >
+                    <div className="callpanel-table-wrapper">
+                      <table className="callpanel-table">
                         <thead>
-                          <tr
-                            style={{ background: "#f3f4f6", color: "#374151" }}
-                          >
+                          <tr>
+                            <th>{t("calls.callPanel.table.name")}</th>
+                            <th>{t("calls.callPanel.table.phoneNumber")}</th>
+                            <th>{t("calls.callPanel.table.email")}</th>
+                            <th>{t("calls.callPanel.table.summary")}</th>
+                            <th>{t("calls.callPanel.table.callType")}</th>
                             <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.callPanel.table.name")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.callPanel.table.phoneNumber")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.callPanel.table.email")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.callPanel.table.summary")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.callPanel.table.callType")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                userSelect: "none",
-                                transition: "background-color 0.2s",
-                              }}
+                              className="sortable"
                               onClick={() => handleSort("call_date")}
                               title={t("accessibility.sortByDate")}
-                              onMouseOver={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#e5e7eb")
-                              }
-                              onMouseOut={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#f3f4f6")
-                              }
                             >
                               {t("calls.callPanel.table.date")}
                               {sortField === "call_date" && (
-                                <span style={{ marginLeft: 4, fontSize: 12 }}>
+                                <span className="sort-indicator">
                                   {sortDirection === "asc" ? "↑" : "↓"}
                                 </span>
                               )}
                             </th>
+                            <th>{t("calls.callPanel.table.answered")}</th>
+                            <th>{t("calls.callPanel.table.wantsContact")}</th>
+                            <th>{t("calls.messagesTab.table.direction")}</th>
                             <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.callPanel.table.answered")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.callPanel.table.wantsContact")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {t("calls.messagesTab.table.direction")}
-                            </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "left",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                userSelect: "none",
-                                transition: "background-color 0.2s",
-                              }}
+                              className="sortable"
                               onClick={() => handleSort("duration")}
                               title={t("accessibility.sortByDuration")}
-                              onMouseOver={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#e5e7eb")
-                              }
-                              onMouseOut={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#f3f4f6")
-                              }
                             >
                               {t("calls.callPanel.table.duration")}
                               {sortField === "duration" && (
-                                <span style={{ marginLeft: 4, fontSize: 12 }}>
+                                <span className="sort-indicator">
                                   {sortDirection === "asc" ? "↑" : "↓"}
                                 </span>
                               )}
                             </th>
                             <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "center",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                userSelect: "none",
-                                transition: "background-color 0.2s",
-                              }}
+                              className="sortable text-center"
                               onClick={() => handleSort("call_status")}
                               title={t("accessibility.sortByStatus")}
-                              onMouseOver={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#e5e7eb")
-                              }
-                              onMouseOut={(e) =>
-                                (e.currentTarget.style.backgroundColor =
-                                  "#f3f4f6")
-                              }
                             >
                               {t("calls.callPanel.table.status")}
                               {sortField === "call_status" && (
-                                <span style={{ marginLeft: 4, fontSize: 12 }}>
+                                <span className="sort-indicator">
                                   {sortDirection === "asc" ? "↑" : "↓"}
                                 </span>
                               )}
                             </th>
-                            <th
-                              style={{
-                                padding: "8px",
-                                textAlign: "right",
-                                fontWeight: 600,
-                              }}
-                            >
+                            <th className="text-right">
                               {t("calls.callPanel.table.attempts")}
                             </th>
                           </tr>
@@ -3948,52 +3418,22 @@ export default function CallPanel() {
                             <tr
                               key={`${log.id}-${index}`}
                               onClick={() => fetchLogDetail(log)}
-                              style={{
-                                background: "#fff",
-                                cursor: "pointer",
-                                borderBottom: "1px solid #e5e7eb",
-                                transition: "background 0.15s",
-                              }}
-                              onMouseOver={(e) =>
-                                (e.currentTarget.style.background = "#f3f4f6")
-                              }
-                              onMouseOut={(e) =>
-                                (e.currentTarget.style.background = "#fff")
-                              }
                             >
-                              <td
-                                style={{
-                                  padding: "8px",
-                                  fontWeight: 500,
-                                  color: "#1f2937",
-                                }}
-                              >
+                              <td className="name-cell">
                                 {log.customer_name ||
                                   t("calls.callPanel.unknownName")}
                               </td>
-                              <td style={{ padding: "8px", color: "#1f2937" }}>
-                                {log.phone_number || "-"}
-                              </td>
-                              <td style={{ padding: "8px", color: "#1f2937" }}>
-                                {log.email || "-"}
-                              </td>
-                              <td
-                                style={{
-                                  padding: "8px",
-                                  color: "#1f2937",
-                                  fontSize: 13,
-                                }}
-                              >
+                              <td>{log.phone_number || "-"}</td>
+                              <td>{log.email || "-"}</td>
+                              <td className="summary-cell">
                                 {log.summary
                                   ? log.summary.length > 50
                                     ? log.summary.substring(0, 50) + "..."
                                     : log.summary
                                   : "-"}
                               </td>
-                              <td style={{ padding: "8px", color: "#1f2937" }}>
-                                {log.call_type || "-"}
-                              </td>
-                              <td style={{ padding: "8px", color: "#1f2937" }}>
+                              <td>{log.call_type || "-"}</td>
+                              <td>
                                 {log.call_date
                                   ? new Date(log.call_date).toLocaleDateString(
                                       "fi-FI",
@@ -4009,63 +3449,28 @@ export default function CallPanel() {
                                         }))
                                   : "-"}
                               </td>
-                              <td style={{ padding: "8px", color: "#1f2937" }}>
+                              <td>
                                 {log.answered
                                   ? t("calls.callPanel.badges.answered.yes")
                                   : t("calls.callPanel.badges.answered.no")}
                               </td>
-                              <td
-                                style={{ padding: "8px", textAlign: "center" }}
-                              >
+                              <td className="text-center">
                                 {log.wants_contact === true ? (
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      padding: "3px 10px",
-                                      borderRadius: 8,
-                                      fontSize: 12,
-                                      fontWeight: 600,
-                                      background: "#dcfce7",
-                                      color: "#166534",
-                                      minWidth: 80,
-                                    }}
-                                  >
+                                  <span className="callpanel-badge success">
                                     ✅{" "}
                                     {t(
                                       "calls.callPanel.badges.wantsContact.yes",
                                     )}
                                   </span>
                                 ) : log.wants_contact === false ? (
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      padding: "3px 10px",
-                                      borderRadius: 8,
-                                      fontSize: 12,
-                                      fontWeight: 600,
-                                      background: "#fef2f2",
-                                      color: "#dc2626",
-                                      minWidth: 80,
-                                    }}
-                                  >
+                                  <span className="callpanel-badge danger">
                                     ❌{" "}
                                     {t(
                                       "calls.callPanel.badges.wantsContact.no",
                                     )}
                                   </span>
                                 ) : (
-                                  <span
-                                    style={{
-                                      display: "inline-block",
-                                      padding: "3px 10px",
-                                      borderRadius: 8,
-                                      fontSize: 12,
-                                      fontWeight: 600,
-                                      background: "#f3f4f6",
-                                      color: "#6b7280",
-                                      minWidth: 80,
-                                    }}
-                                  >
+                                  <span className="callpanel-badge neutral">
                                     ⚪{" "}
                                     {t(
                                       "calls.callPanel.badges.wantsContact.undefined",
@@ -4073,26 +3478,9 @@ export default function CallPanel() {
                                   </span>
                                 )}
                               </td>
-                              <td
-                                style={{ padding: "8px", textAlign: "center" }}
-                              >
+                              <td className="text-center">
                                 <span
-                                  style={{
-                                    display: "inline-block",
-                                    padding: "3px 10px",
-                                    borderRadius: 8,
-                                    fontSize: 12,
-                                    fontWeight: 600,
-                                    background:
-                                      log.direction === "outbound"
-                                        ? "#dbeafe"
-                                        : "#fef3c7",
-                                    color:
-                                      log.direction === "outbound"
-                                        ? "#1d4ed8"
-                                        : "#92400e",
-                                    minWidth: 80,
-                                  }}
+                                  className={`callpanel-badge ${log.direction === "outbound" ? "info" : "warning"}`}
                                 >
                                   {log.direction === "outbound"
                                     ? t(
@@ -4103,59 +3491,28 @@ export default function CallPanel() {
                                       )}
                                 </span>
                               </td>
-                              <td style={{ padding: "8px", color: "#1f2937" }}>
+                              <td>
                                 {log.duration
                                   ? formatDuration(log.duration)
                                   : "-"}
                               </td>
-                              <td
-                                style={{ padding: "8px", textAlign: "center" }}
-                              >
+                              <td className="text-center">
                                 <span
-                                  style={{
-                                    display: "inline-block",
-                                    padding: "3px 10px",
-                                    borderRadius: 8,
-                                    fontSize: 12,
-                                    fontWeight: 600,
-                                    background:
-                                      log.call_date && log.call_time
-                                        ? "#e0f2fe"
-                                        : log.call_status === "done" &&
-                                            log.call_outcome === "cancelled"
-                                          ? "#fee2e2"
-                                          : log.call_status === "done" &&
-                                              log.call_outcome === "voice mail"
-                                            ? "#fef3c7"
-                                            : log.call_status === "done" &&
-                                                log.answered
-                                              ? "#dcfce7"
-                                              : log.call_status === "pending"
-                                                ? "#f3f4f6"
-                                                : log.call_status ===
-                                                    "in progress"
-                                                  ? "#dbeafe"
-                                                  : "#fef2f2",
-                                    color:
-                                      log.call_date && log.call_time
-                                        ? "#0369a1"
-                                        : log.call_status === "done" &&
-                                            log.call_outcome === "cancelled"
-                                          ? "#b91c1c"
-                                          : log.call_status === "done" &&
-                                              log.call_outcome === "voice mail"
-                                            ? "#92400e"
-                                            : log.call_status === "done" &&
-                                                log.answered
-                                              ? "#166534"
-                                              : log.call_status === "pending"
-                                                ? "#6b7280"
-                                                : log.call_status ===
-                                                    "in progress"
-                                                  ? "#1d4ed8"
-                                                  : "#dc2626",
-                                    minWidth: 60,
-                                  }}
+                                  className={`callpanel-badge ${
+                                    log.call_date && log.call_time && log.call_status === "pending"
+                                      ? "info"
+                                      : log.call_status === "done" && log.call_outcome === "cancelled"
+                                        ? "danger"
+                                        : log.call_status === "done" && log.call_outcome === "voice mail"
+                                          ? "warning"
+                                          : log.call_status === "done" && log.answered
+                                            ? "success"
+                                            : log.call_status === "pending"
+                                              ? "neutral"
+                                              : log.call_status === "in progress"
+                                                ? "info"
+                                                : "danger"
+                                  }`}
                                 >
                                   {log.call_date &&
                                   log.call_time &&
@@ -4197,27 +3554,11 @@ export default function CallPanel() {
                                                   )}
                                 </span>
                               </td>
-                              <td
-                                style={{
-                                  padding: "8px",
-                                  textAlign: "right",
-                                  whiteSpace: "nowrap",
-                                }}
-                              >
+                              <td className="text-right">
                                 {log.call_status === "pending" ? (
-                                  <span
-                                    style={{ color: "#9ca3af", fontSize: 14 }}
-                                  >
-                                    —
-                                  </span>
+                                  <span className="callpanel-text-muted">—</span>
                                 ) : (
-                                  <span
-                                    style={{
-                                      color: "#1f2937",
-                                      fontSize: 14,
-                                      fontWeight: 500,
-                                    }}
-                                  >
+                                  <span className="callpanel-attempt-count">
                                     {log.attempt_count != null
                                       ? log.attempt_count
                                       : 1}
@@ -4235,41 +3576,14 @@ export default function CallPanel() {
             )}
 
             {activeTab === "manage" && (
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 16,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-                  padding: 32,
-                  width: "100%",
-                }}
-              >
+              <div className="callpanel-card">
                 {/* Toast-viestit */}
                 {successMessage && (
-                  <div
-                    style={{
-                      background: "#dcfce7",
-                      border: "1px solid #bbf7d0",
-                      borderRadius: 8,
-                      padding: 16,
-                      marginBottom: 24,
-                      color: "#166534",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
+                  <div className="callpanel-toast success">
                     <span>✅ {successMessage}</span>
                     <button
                       onClick={() => setSuccessMessage("")}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#166534",
-                        cursor: "pointer",
-                        fontSize: 18,
-                        padding: 0,
-                      }}
+                      className="callpanel-toast-close"
                     >
                       ×
                     </button>
@@ -4277,62 +3591,24 @@ export default function CallPanel() {
                 )}
 
                 {errorMessage && (
-                  <div
-                    style={{
-                      background: "#fef2f2",
-                      border: "1px solid #fecaca",
-                      borderRadius: 8,
-                      padding: 16,
-                      marginBottom: 24,
-                      color: "#dc2626",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
+                  <div className="callpanel-toast error">
                     <span>❌ {errorMessage}</span>
                     <button
                       onClick={() => setErrorMessage("")}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#dc2626",
-                        cursor: "pointer",
-                        fontSize: 18,
-                        padding: 0,
-                      }}
+                      className="callpanel-toast-close"
                     >
                       ×
                     </button>
                   </div>
                 )}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 24,
-                  }}
-                >
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color: "#1f2937",
-                    }}
-                  >
+                <div className="callpanel-manage-header">
+                  <h2 className="callpanel-manage-title">
                     {t("calls.manageTab.header.title")}
                   </h2>
                   <Button
                     type="button"
                     onClick={openAddModal}
                     variant="primary"
-                    style={{
-                      padding: "12px 24px",
-                      fontSize: 14,
-                      fontWeight: 600,
-                    }}
                   >
                     {t("calls.manageTab.cta.addNew")}
                   </Button>
@@ -4340,50 +3616,22 @@ export default function CallPanel() {
 
                 {/* Olemassa olevat puhelun tyypit */}
                 <div>
-                  <h3
-                    style={{
-                      margin: "0 0 16px 0",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      color: "#374151",
-                    }}
-                  >
+                  <h3 className="callpanel-section-title">
                     {t("calls.manageTab.existing.title")}
                   </h3>
 
                   {loadingCallTypes ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <div className="callpanel-empty-state">
                       {t("calls.manageTab.loading")}
                     </div>
                   ) : callTypes.length === 0 ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <div className="callpanel-empty-state">
                       {t("calls.manageTab.empty")}
                     </div>
                   ) : (
                     <>
-                      <div style={{ marginBottom: 16 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: 8,
-                            alignItems: "center",
-                            fontSize: 12,
-                            color: "#6b7280",
-                            marginBottom: 8,
-                          }}
-                        >
+                      <div className="mb-4">
+                        <div className="callpanel-sort-controls">
                           <span>{t("calls.manageTab.sort.label")}</span>
                           <button
                             onClick={() =>
@@ -4397,15 +3645,7 @@ export default function CallPanel() {
                                 ),
                               )
                             }
-                            style={{
-                              background: "#f3f4f6",
-                              border: "1px solid #e5e7eb",
-                              borderRadius: 6,
-                              padding: "4px 8px",
-                              fontSize: 11,
-                              cursor: "pointer",
-                              color: "#374151",
-                            }}
+                            className="callpanel-sort-btn"
                           >
                             {t("calls.manageTab.sort.byStatus")}
                           </button>
@@ -4417,96 +3657,36 @@ export default function CallPanel() {
                                 ),
                               )
                             }
-                            style={{
-                              background: "#f3f4f6",
-                              border: "1px solid #e5e7eb",
-                              borderRadius: 6,
-                              padding: "4px 8px",
-                              fontSize: 11,
-                              cursor: "pointer",
-                              color: "#374151",
-                            }}
+                            className="callpanel-sort-btn"
                           >
                             🔤 {t("calls.manageTab.sort.byName")}
                           </button>
                         </div>
                       </div>
-                      <div style={{ display: "grid", gap: 12 }}>
+                      <div className="callpanel-types-grid">
                         {callTypes.map((type, index) => (
                           <div
                             key={type.id || index}
                             onClick={() => openEditModal(type)}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              padding: "16px",
-                              background: "#f9fafb",
-                              border: "1px solid #e5e7eb",
-                              borderRadius: 8,
-                              cursor: "pointer",
-                              transition: "all 0.2s ease",
-                            }}
-                            onMouseOver={(e) =>
-                              (e.currentTarget.style.background = "#f3f4f6")
-                            }
-                            onMouseOut={(e) =>
-                              (e.currentTarget.style.background = "#f9fafb")
-                            }
+                            className="callpanel-type-card"
                           >
                             <div>
-                              <div
-                                style={{
-                                  fontWeight: 600,
-                                  color: "#374151",
-                                  marginBottom: 4,
-                                }}
-                              >
+                              <div className="callpanel-type-name">
                                 {type.label}
                               </div>
-                              <div
-                                style={{
-                                  fontSize: 12,
-                                  color: "#6b7280",
-                                  marginBottom: 4,
-                                }}
-                              >
+                              <div className="callpanel-text-small">
                                 {t("calls.manageTab.item.identifier")}{" "}
-                                <code
-                                  style={{
-                                    background: "#f3f4f6",
-                                    padding: "2px 4px",
-                                    borderRadius: 4,
-                                  }}
-                                >
+                                <code className="callpanel-code">
                                   {type.value}
                                 </code>
                                 <span
-                                  style={{
-                                    marginLeft: 12,
-                                    padding: "4px 8px",
-                                    borderRadius: 12,
-                                    fontSize: 10,
-                                    fontWeight: 600,
-                                    background:
-                                      type.status === "Active"
-                                        ? "#dcfce7"
-                                        : type.status === "Draft"
-                                          ? "#fef3c7"
-                                          : "#f3f4f6",
-                                    color:
-                                      type.status === "Active"
-                                        ? "#166534"
-                                        : type.status === "Draft"
-                                          ? "#92400e"
-                                          : "#6b7280",
-                                    border:
-                                      type.status === "Active"
-                                        ? "1px solid #bbf7d0"
-                                        : type.status === "Draft"
-                                          ? "1px solid #fed7aa"
-                                          : "1px solid #e5e7eb",
-                                  }}
+                                  className={`callpanel-type-status-inline ${
+                                    type.status === "Active"
+                                      ? "active"
+                                      : type.status === "Draft"
+                                        ? "draft"
+                                        : "inactive"
+                                  }`}
                                 >
                                   {type.status === "Active"
                                     ? t("calls.manageTab.item.statusActive")
@@ -4516,32 +3696,19 @@ export default function CallPanel() {
                                 </span>
                               </div>
                               {type.description && (
-                                <div style={{ fontSize: 12, color: "#6b7280" }}>
+                                <div className="callpanel-text-small">
                                   {type.description}
                                 </div>
                               )}
                             </div>
-                            <div
-                              style={{
-                                display: "flex",
-                                gap: 8,
-                                alignItems: "center",
-                              }}
-                            >
+                            <div className="callpanel-type-actions">
                               <Button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleCopyCallType(type);
                                 }}
                                 variant="secondary"
-                                style={{
-                                  background: "#3b82f6",
-                                  color: "#fff",
-                                  padding: "4px 8px",
-                                  fontSize: 12,
-                                  fontWeight: 500,
-                                  cursor: "pointer",
-                                }}
+                                className="callpanel-copy-btn"
                                 title="Kopioi puhelun tyyppi"
                               >
                                 Kopioi
@@ -4553,18 +3720,7 @@ export default function CallPanel() {
                                 }}
                                 disabled={deletingCallTypes.has(type.id)}
                                 variant="secondary"
-                                style={{
-                                  background: deletingCallTypes.has(type.id)
-                                    ? "#9ca3af"
-                                    : "#ef4444",
-                                  color: "#fff",
-                                  padding: "4px 8px",
-                                  fontSize: 12,
-                                  fontWeight: 500,
-                                  cursor: deletingCallTypes.has(type.id)
-                                    ? "not-allowed"
-                                    : "pointer",
-                                }}
+                                className={`callpanel-delete-btn ${deletingCallTypes.has(type.id) ? "disabled" : ""}`}
                                 title={
                                   deletingCallTypes.has(type.id)
                                     ? t("calls.manageTab.item.deletingTitle")
@@ -4578,7 +3734,7 @@ export default function CallPanel() {
                                 )}
                               </Button>
                             </div>
-                            <div style={{ color: "#6b7280", fontSize: 14 }}>
+                            <div className="callpanel-text-muted">
                               {t("calls.manageTab.item.edit")}
                             </div>
                           </div>
@@ -4600,45 +3756,18 @@ export default function CallPanel() {
             )}
 
             {activeTab === "textmessages" && (
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 16,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-                  padding: 32,
-                  width: "100%",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: 24,
-                  }}
-                >
-                  <h2
-                    style={{
-                      margin: 0,
-                      fontSize: 24,
-                      fontWeight: 700,
-                      color: "#1f2937",
-                    }}
-                  >
+              <div className="callpanel-card">
+                <div className="callpanel-manage-header">
+                  <h2 className="callpanel-manage-title">
                     {t("calls.textMessagesTab.header")}
                   </h2>
-                  <div style={{ display: "flex", gap: 12 }}>
+                  <div className="callpanel-flex-row">
                     <Button
                       type="button"
                       onClick={() => fetchCallTypes()}
                       disabled={loadingCallTypes}
                       variant="secondary"
-                      style={{
-                        padding: "8px 16px",
-                        fontSize: 14,
-                        background: loadingCallTypes ? "#9ca3af" : "#3b82f6",
-                        color: "#fff",
-                      }}
+                      className={`callpanel-refresh-btn ${loadingCallTypes ? "disabled" : ""}`}
                     >
                       {loadingCallTypes
                         ? t("calls.textMessagesTab.buttons.refreshing")
@@ -4649,26 +3778,12 @@ export default function CallPanel() {
 
                 {/* Tekstiviestit lista */}
                 <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 16,
-                    }}
-                  >
-                    <h3
-                      style={{
-                        margin: 0,
-                        fontSize: 18,
-                        fontWeight: 600,
-                        color: "#374151",
-                      }}
-                    >
+                  <div className="callpanel-section-header">
+                    <h3 className="callpanel-section-title">
                       {t("calls.textMessagesTab.sectionTitle")}
                     </h3>
                     {callTypes.length > 0 && (
-                      <div style={{ fontSize: 14, color: "#6b7280" }}>
+                      <div className="callpanel-stat-label">
                         {t("calls.textMessagesTab.showingCount", {
                           count: callTypes.length,
                         })}
@@ -4677,99 +3792,37 @@ export default function CallPanel() {
                   </div>
 
                   {loadingCallTypes ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <div className="callpanel-empty-state">
                       {t("calls.textMessagesTab.loadingTypes")}
                     </div>
                   ) : callTypes.length === 0 ? (
-                    <div
-                      style={{
-                        textAlign: "center",
-                        padding: 32,
-                        color: "#6b7280",
-                      }}
-                    >
+                    <div className="callpanel-empty-state">
                       {t("calls.textMessagesTab.empty")}
                     </div>
                   ) : (
-                    <div style={{ display: "grid", gap: 16 }}>
+                    <div className="callpanel-types-grid">
                       {callTypes.map((type, index) => (
                         <div
                           key={type.id || index}
-                          style={{
-                            background: "#f8fafc",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: 12,
-                            padding: 20,
-                            transition: "all 0.2s",
-                          }}
-                          onMouseOver={(e) =>
-                            (e.currentTarget.style.background = "#f1f5f9")
-                          }
-                          onMouseOut={(e) =>
-                            (e.currentTarget.style.background = "#f8fafc")
-                          }
+                          className="callpanel-sms-card"
                         >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "flex-start",
-                              marginBottom: 16,
-                            }}
-                          >
+                          <div className="callpanel-sms-header">
                             <div>
-                              <h4
-                                style={{
-                                  margin: "0 0 8px 0",
-                                  fontSize: 18,
-                                  fontWeight: 600,
-                                  color: "#1f2937",
-                                }}
-                              >
+                              <h4 className="callpanel-sms-title">
                                 {type.label ||
                                   type.name ||
                                   type.callType ||
                                   t("calls.textMessagesTab.card.unnamed")}
                               </h4>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  gap: 8,
-                                  alignItems: "center",
-                                  marginBottom: 8,
-                                }}
-                              >
+                              <div className="callpanel-sms-meta">
                                 <span
-                                  style={{
-                                    padding: "4px 8px",
-                                    borderRadius: 12,
-                                    fontSize: 10,
-                                    fontWeight: 600,
-                                    background:
-                                      type.status === "Active"
-                                        ? "#dcfce7"
-                                        : type.status === "Draft"
-                                          ? "#fef3c7"
-                                          : "#f3f4f6",
-                                    color:
-                                      type.status === "Active"
-                                        ? "#166534"
-                                        : type.status === "Draft"
-                                          ? "#92400e"
-                                          : "#6b7280",
-                                    border:
-                                      type.status === "Active"
-                                        ? "1px solid #bbf7d0"
-                                        : type.status === "Draft"
-                                          ? "1px solid #fed7aa"
-                                          : "1px solid #e5e7eb",
-                                  }}
+                                  className={`callpanel-type-status-inline ${
+                                    type.status === "Active"
+                                      ? "active"
+                                      : type.status === "Draft"
+                                        ? "draft"
+                                        : "inactive"
+                                  }`}
                                 >
                                   {type.status === "Active"
                                     ? t(
@@ -4783,17 +3836,9 @@ export default function CallPanel() {
                                           "calls.textMessagesTab.card.statusUnknown",
                                         )}
                                 </span>
-                                <span
-                                  style={{ fontSize: 12, color: "#6b7280" }}
-                                >
+                                <span className="callpanel-text-small">
                                   {t("calls.textMessagesTab.card.identifier")}{" "}
-                                  <code
-                                    style={{
-                                      background: "#f3f4f6",
-                                      padding: "2px 4px",
-                                      borderRadius: 4,
-                                    }}
-                                  >
+                                  <code className="callpanel-code">
                                     {type.value || type.callType}
                                   </code>
                                 </span>
@@ -4805,28 +3850,14 @@ export default function CallPanel() {
                                 setShowEditModal(true);
                               }}
                               variant="secondary"
-                              style={{
-                                background: "#3b82f6",
-                                color: "#fff",
-                                padding: "6px 12px",
-                                fontSize: 12,
-                                fontWeight: 500,
-                              }}
+                              className="callpanel-edit-btn"
                             >
                               {t("calls.textMessagesTab.card.edit")}
                             </Button>
                           </div>
 
-                          <div style={{ marginBottom: 16 }}>
-                            <label
-                              style={{
-                                display: "block",
-                                marginBottom: 8,
-                                fontWeight: 500,
-                                fontSize: 14,
-                                color: "#374151",
-                              }}
-                            >
+                          <div className="callpanel-sms-form-group">
+                            <label className="callpanel-sms-label">
                               {t("calls.textMessagesTab.card.messageLabel")}
                             </label>
                             <textarea
@@ -4850,33 +3881,17 @@ export default function CallPanel() {
                               )}
                               rows={4}
                               maxLength={160}
-                              style={{
-                                width: "100%",
-                                padding: "12px",
-                                border: "1px solid #d1d5db",
-                                borderRadius: 8,
-                                fontSize: 14,
-                                resize: "vertical",
-                                fontFamily: "inherit",
-                              }}
+                              className="callpanel-sms-textarea"
                             />
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginTop: 4,
-                                fontSize: 12,
-                              }}
-                            >
-                              <span style={{ color: "#6b7280" }}>
+                            <div className="callpanel-sms-counter">
+                              <span className="callpanel-text-muted">
                                 {type.first_sms
                                   ? `${type.first_sms.length}/160 ${t("calls.textMessagesTab.card.counterSuffix")}`
                                   : `0/160 ${t("calls.textMessagesTab.card.counterSuffix")}`}
                               </span>
                               {type.first_sms &&
                                 type.first_sms.length > 140 && (
-                                  <span style={{ color: "#f59e0b" }}>
+                                  <span className="callpanel-text-warning">
                                     {t("calls.textMessagesTab.card.longHint", {
                                       parts:
                                         type.first_sms.length > 150 ? 2 : 1,
@@ -4886,20 +3901,14 @@ export default function CallPanel() {
                             </div>
                           </div>
 
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <div style={{ fontSize: 12, color: "#6b7280" }}>
+                          <div className="callpanel-sms-footer">
+                            <div className="callpanel-sms-stats">
                               {type.first_sms ? (
-                                <span style={{ color: "#059669" }}>
+                                <span className="callpanel-text-success">
                                   {t("calls.textMessagesTab.card.defined")}
                                 </span>
                               ) : (
-                                <span style={{ color: "#dc2626" }}>
+                                <span className="callpanel-text-danger">
                                   {t("calls.textMessagesTab.card.notDefined")}
                                 </span>
                               )}
@@ -4932,16 +3941,7 @@ export default function CallPanel() {
                                 !type.first_sms || type.first_sms.trim() === ""
                               }
                               variant="primary"
-                              style={{
-                                padding: "6px 12px",
-                                fontSize: 12,
-                                fontWeight: 500,
-                                opacity:
-                                  !type.first_sms ||
-                                  type.first_sms.trim() === ""
-                                    ? 0.5
-                                    : 1,
-                              }}
+                              className={`callpanel-sms-save-btn ${!type.first_sms || type.first_sms.trim() === "" ? "disabled" : ""}`}
                             >
                               {t("calls.textMessagesTab.card.save")}
                             </Button>

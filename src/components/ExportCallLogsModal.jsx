@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import Button from './Button'
-import './ExportCallLogsModal.css'
 
 const ExportCallLogsModal = ({ isOpen, onClose, callLogs, formatDuration, onSuccess, onError }) => {
   const [exportFields, setExportFields] = useState({

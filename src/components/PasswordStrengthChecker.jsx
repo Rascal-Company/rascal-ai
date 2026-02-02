@@ -1,5 +1,4 @@
 import React from 'react'
-import './PasswordStrengthChecker.css'
 
 function checkPasswordStrength(password) {
   const lengthValid = password.length >= 8

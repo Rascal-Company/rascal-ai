@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import './AuthComponents.css'
 
 export default function SignIn({ onClose, onForgotClick }) {
   const { t } = useTranslation('common')

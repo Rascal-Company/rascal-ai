@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import './ColorPicker.css';
 
 // HSL to RGB conversion
 const hslToRgb = (h, s, l) => {

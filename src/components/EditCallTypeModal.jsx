@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Button from './Button'
 import ConfirmationToast from './ConfirmationToast'
-import './ModalComponents.css'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 
@@ -134,7 +133,7 @@ const EditCallTypeModal = ({
 
   return createPortal(
     <div className="modal-overlay modal-overlay--light" onClick={handleOverlayClick}>
-      <div className="modal-container edit-call-type-modal" style={{ maxWidth: '900px', maxHeight: '90vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="modal-container edit-call-type-modal calltype-modal-container">
         <div className="modal-header">
           <h2 className="modal-title">
             {t('calls.modals.editCallType.title')}
@@ -151,7 +150,7 @@ const EditCallTypeModal = ({
         <div className="steps-container">
           {steps.map((step, index) => (
             <React.Fragment key={step.id}>
-              <div className="step-item" onClick={() => setCurrentStep(step.id)} style={{ cursor: 'pointer' }}>
+              <div className="step-item calltype-step-clickable" onClick={() => setCurrentStep(step.id)}>
                 <div className={`step-number ${currentStep >= step.id ? 'active' : ''}`}>
                   {step.id}
                 </div>
@@ -167,9 +166,9 @@ const EditCallTypeModal = ({
         </div>
 
         {/* Sisältö */}
-        <div className="modal-content" style={{ overflowY: 'auto', flex: 1, minHeight: 0 }}>
+        <div className="modal-content calltype-modal-content">
           {currentStep === 1 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="form-column calltype-form-column">
               <div className="form-grid">
                 <div className="form-group">
                   <label className="form-label">
@@ -251,8 +250,8 @@ const EditCallTypeModal = ({
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 24, marginTop: 8 }}>
-                <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1f2937', marginBottom: 16, marginTop: 0 }}>
+              <div className="calltype-section-divider">
+                <h3 className="calltype-section-title">
                   {t('calls.modals.editCallType.fields.callSettings')}
                 </h3>
                 <div className="form-grid">
@@ -291,10 +290,10 @@ const EditCallTypeModal = ({
           )}
 
           {currentStep === 2 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="form-column calltype-form-column">
               <div className="form-group">
                 <label className="form-label">{t('calls.modals.editCallType.fields.targetAudience')}</label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.targetAudience')}
                 </p>
                 <input
@@ -308,7 +307,7 @@ const EditCallTypeModal = ({
 
               <div className="form-group">
                 <label className="form-label">{t('calls.modals.editCallType.fields.mainGoal')}</label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.mainGoal')}
                 </p>
                 <textarea
@@ -322,7 +321,7 @@ const EditCallTypeModal = ({
 
               <div className="form-group">
                 <label className="form-label">{t('calls.modals.editCallType.fields.toneStyle')}</label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.toneStyle')}
                 </p>
                 <textarea
@@ -337,12 +336,12 @@ const EditCallTypeModal = ({
           )}
 
           {currentStep === 3 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            <div className="form-column calltype-form-column">
               <div className="form-group">
                 <label className="form-label">
                   {t('calls.modals.editCallType.fields.firstSentence')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.firstSentence')}
                 </p>
                 <input
@@ -358,7 +357,7 @@ const EditCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.editCallType.fields.callStart')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.callStart')}
                 </p>
                 <textarea
@@ -374,7 +373,7 @@ const EditCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.editCallType.fields.questions')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.questions')}
                 </p>
                 <textarea
@@ -390,7 +389,7 @@ const EditCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.editCallType.fields.callEnd')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.callEnd')}
                 </p>
                 <textarea
@@ -406,13 +405,13 @@ const EditCallTypeModal = ({
                 <label className="form-label">
                   {t('calls.modals.editCallType.fields.successfulEnd')}
                 </label>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.successfulEnd')}
                 </p>
-                <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 8, marginTop: 0 }}>
+                <p className="calltype-help-text">
                   {t('calls.modals.editCallType.hints.actionPreset')}
                 </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+                <div className="calltype-tag-container">
                   {['salesCall', 'appointment', 'eventInvite', 'followUp', 'leadQualification', 'universal'].map((presetKey) => (
                     <button
                       key={presetKey}
@@ -423,25 +422,7 @@ const EditCallTypeModal = ({
                           action: t(`calls.modals.callTypeActionPresets.${presetKey}.text`)
                         })
                       }}
-                      style={{
-                        padding: '8px 16px',
-                        fontSize: 13,
-                        fontWeight: 500,
-                        background: '#f3f4f6',
-                        border: '1px solid #d1d5db',
-                        borderRadius: 6,
-                        cursor: 'pointer',
-                        color: '#374151',
-                        transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.background = '#e5e7eb'
-                        e.target.style.borderColor = '#9ca3af'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.background = '#f3f4f6'
-                        e.target.style.borderColor = '#d1d5db'
-                      }}
+                      className="calltype-preset-btn"
                     >
                       {t(`calls.modals.callTypeActionPresets.${presetKey}.label`)}
                     </button>
@@ -452,16 +433,15 @@ const EditCallTypeModal = ({
                   readOnly
                   placeholder={t('calls.modals.editCallType.placeholders.successfulEnd')}
                   rows={4}
-                  className="form-textarea"
-                  style={{ backgroundColor: '#f9fafb', cursor: 'not-allowed' }}
+                  className="form-textarea calltype-input-disabled"
                 />
               </div>
             </div>
           )}
 
           {currentStep === 4 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+            <div className="form-column calltype-form-column">
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.editCallType.fields.summary')}
@@ -474,12 +454,12 @@ const EditCallTypeModal = ({
                     className="form-textarea"
                   />
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.summary')}</div>
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.editCallType.fields.successAssessment')}
@@ -492,8 +472,8 @@ const EditCallTypeModal = ({
                     className="form-textarea"
                   />
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.successAssessment')}</div>
                 </div>
               </div>
@@ -501,8 +481,8 @@ const EditCallTypeModal = ({
           )}
 
           {currentStep === 5 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+            <div className="form-column calltype-form-column">
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.editCallType.fields.firstSms')}
@@ -518,27 +498,26 @@ const EditCallTypeModal = ({
                     placeholder={t('calls.modals.editCallType.placeholders.firstSms')}
                     rows={4}
                     maxLength={160}
-                    className="form-textarea"
-                    style={{ resize: 'none', overflowY: 'auto', maxHeight: '120px' }}
+                    className="form-textarea calltype-textarea-fixed"
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, fontSize: 12 }}>
-                    <span style={{ color: '#6b7280' }}>
+                  <div className="calltype-char-count-row">
+                    <span className="calltype-char-count">
                       {t('calls.modals.sms.counter', { count: editingCallType.first_sms?.length || 0 })}
                     </span>
                     {editingCallType.first_sms && editingCallType.first_sms.length > 140 && (
-                      <span style={{ color: '#f59e0b' }}>
+                      <span className="calltype-char-warning">
                         ⚠️ {t('calls.modals.sms.longMessage', { parts: editingCallType.first_sms.length > 150 ? 2 : 1 })}
                       </span>
                     )}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.firstSms')}</div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.editCallType.fields.afterCallSms')}
@@ -554,27 +533,26 @@ const EditCallTypeModal = ({
                     placeholder={t('calls.modals.editCallType.placeholders.afterCallSms')}
                     rows={4}
                     maxLength={160}
-                    className="form-textarea"
-                    style={{ resize: 'none', overflowY: 'auto', maxHeight: '120px' }}
+                    className="form-textarea calltype-textarea-fixed"
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, fontSize: 12 }}>
-                    <span style={{ color: '#6b7280' }}>
+                  <div className="calltype-char-count-row">
+                    <span className="calltype-char-count">
                       {t('calls.modals.sms.counter', { count: editingCallType.after_call_sms?.length || 0 })}
                     </span>
                     {editingCallType.after_call_sms && editingCallType.after_call_sms.length > 140 && (
-                      <span style={{ color: '#f59e0b' }}>
+                      <span className="calltype-char-warning">
                         ⚠️ {t('calls.modals.sms.longMessage', { parts: editingCallType.after_call_sms.length > 150 ? 2 : 1 })}
                       </span>
                     )}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.afterCallSms')}</div>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 20, alignItems: 'start' }}>
+              <div className="calltype-two-col-grid">
                 <div className="form-group">
                   <label className="form-label">
                     {t('calls.modals.editCallType.fields.missedCallSms')}
@@ -590,22 +568,21 @@ const EditCallTypeModal = ({
                     placeholder={t('calls.modals.editCallType.placeholders.missedCallSms')}
                     rows={4}
                     maxLength={160}
-                    className="form-textarea"
-                    style={{ resize: 'none', overflowY: 'auto', maxHeight: '120px' }}
+                    className="form-textarea calltype-textarea-fixed"
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4, fontSize: 12 }}>
-                    <span style={{ color: '#6b7280' }}>
+                  <div className="calltype-char-count-row">
+                    <span className="calltype-char-count">
                       {t('calls.modals.sms.counter', { count: editingCallType.missed_call_sms?.length || 0 })}
                     </span>
                     {editingCallType.missed_call_sms && editingCallType.missed_call_sms.length > 140 && (
-                      <span style={{ color: '#f59e0b' }}>
+                      <span className="calltype-char-warning">
                         ⚠️ {t('calls.modals.sms.longMessage', { parts: editingCallType.missed_call_sms.length > 150 ? 2 : 1 })}
                       </span>
                     )}
                   </div>
                 </div>
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: 16, fontSize: 13, color: '#374151' }}>
-                  <div style={{ fontWeight: 600, marginBottom: 6 }}>{t('calls.modals.callTypeMiniExamples.title')}</div>
+                <div className="calltype-example-box">
+                  <div className="calltype-example-title">{t('calls.modals.callTypeMiniExamples.title')}</div>
                   <div>{t('calls.modals.callTypeMiniExamples.missedCallSms')}</div>
                 </div>
               </div>
@@ -613,26 +590,21 @@ const EditCallTypeModal = ({
           )}
 
           {currentStep === 6 && (
-            <div className="form-column" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-              <div style={{ textAlign: 'center', marginBottom: 16 }}>
-                <h3 style={{ fontSize: 18, fontWeight: 600, color: '#1f2937', margin: '0 0 8px 0' }}>
+            <div className="form-column calltype-form-column">
+              <div className="calltype-summary-center">
+                <h3 className="calltype-summary-title">
                   {t('calls.modals.editCallType.aiEnhancement.title')}
                 </h3>
-                <p style={{ fontSize: 14, color: '#6b7280', margin: 0, lineHeight: 1.4 }}>
+                <p className="calltype-summary-desc">
                   {t('calls.modals.editCallType.aiEnhancement.description')}
                 </p>
               </div>
               
-              <div style={{ 
-                background: '#f8fafc', 
-                border: '1px solid #e2e8f0', 
-                borderRadius: 8, 
-                padding: 16
-              }}>
-                <div style={{ fontSize: 13, color: '#374151', marginBottom: 8, fontWeight: 500 }}>
+              <div className="calltype-ai-benefits-box">
+                <div className="calltype-summary-label">
                   {t('calls.modals.editCallType.aiEnhancement.benefits.title')}
                 </div>
-                <ul style={{ fontSize: 12, color: '#6b7280', margin: 0, paddingLeft: 16, lineHeight: 1.4 }}>
+                <ul className="calltype-summary-list">
                   <li>{t('calls.modals.editCallType.aiEnhancement.benefits.optimize')}</li>
                   <li>{t('calls.modals.editCallType.aiEnhancement.benefits.improve')}</li>
                   <li>{t('calls.modals.editCallType.aiEnhancement.benefits.suggest')}</li>
@@ -641,18 +613,7 @@ const EditCallTypeModal = ({
               
               <Button
                 onClick={handleAIEnhancement}
-                style={{
-                  background: '#f97316',
-                  color: '#fff',
-                  padding: '8px 16px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  borderRadius: 6,
-                  border: 'none',
-                  cursor: 'pointer',
-                  width: 'auto',
-                  alignSelf: 'center'
-                }}
+                className="calltype-ai-btn"
               >
                 {t('calls.modals.editCallType.aiEnhancement.cta')}
               </Button>

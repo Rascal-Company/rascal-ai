@@ -5,7 +5,6 @@ import { supabase } from '../lib/supabase'
 import { getCurrentUser, isAdmin as checkIsAdmin } from '../utils/userApi'
 import { useAuth } from '../contexts/AuthContext'
 import { useFeatures } from '../hooks/useFeatures'
-import './MobileNavigation.css'
 
 export default function MobileNavigation() {
   const { t } = useTranslation('common')
@@ -20,7 +19,6 @@ export default function MobileNavigation() {
   const menuItems = [
     { label: t('sidebar.labels.dashboard'), path: '/dashboard', feature: null },
     { label: t('sidebar.labels.campaigns'), path: '/campaigns', feature: 'Campaigns' },
-    { label: t('sidebar.labels.segments'), path: '/segments', feature: 'Segments' },
     { label: t('sidebar.labels.posts'), path: '/posts', feature: 'Social Media' },
     { label: t('sidebar.labels.blogNewsletter'), path: '/blog-newsletter', feature: 'Social Media' },
     { label: t('sidebar.labels.strategy'), path: '/strategy', feature: 'Social Media' },

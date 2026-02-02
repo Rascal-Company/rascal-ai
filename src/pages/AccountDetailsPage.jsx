@@ -8,7 +8,6 @@ import PostsTab from '../components/AccountDetailsTabs/PostsTab'
 import CallTypesTab from '../components/AccountDetailsTabs/CallTypesTab'
 import FeaturesTab from '../components/AccountDetailsTabs/FeaturesTab'
 import SocialMediaTab from '../components/AccountDetailsTabs/SocialMediaTab'
-import './AccountDetailsPage.css'
 
 export default function AccountDetailsPage() {
   const { id } = useParams()

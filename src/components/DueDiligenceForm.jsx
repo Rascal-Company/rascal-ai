@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Button from './Button'
-import './DueDiligenceForm.css'
 
 export default function DueDiligenceForm({ onSuccess, onCancel }) {
   const { t } = useTranslation('common')

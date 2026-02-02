@@ -4,8 +4,6 @@ import axios from 'axios'
 import { supabase } from '../lib/supabase'
 import { getUserOrgId } from '../lib/getUserOrgId'
 import { useAuth } from '../contexts/AuthContext'
-import '../components/Kuvapankki.css'
-import './KuvapankkiPage.css'
 
 export default function KuvapankkiPage() {
   const { user } = useAuth()

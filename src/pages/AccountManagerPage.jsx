@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import { getCurrentUser } from "../utils/userApi";
 import { useAuth } from "../contexts/AuthContext";
-import "./AccountManagerPage.css";
 
 export default function AccountManagerPage() {
   const { t } = useTranslation("common");

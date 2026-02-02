@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useMixpostIntegration } from './SocialMedia/hooks/useMixpostIntegration';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '../contexts/ToastContext';
-import './SocialMediaConnect.css';
 
 // CSS-animaatio spin-efektille
 const spinAnimation = `

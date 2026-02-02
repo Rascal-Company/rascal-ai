@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { Bell, BellRing } from 'lucide-react'
 import { useNotifications } from '../contexts/NotificationContext'
 import NotificationPanel from './NotificationPanel'
-import './NotificationBell.css'
 
 const NotificationBell = () => {
   const { unreadCount, fetchUnreadCount } = useNotifications()

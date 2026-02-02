@@ -49,54 +49,45 @@ export default function CampaignCard({ campaign, onStatusChange, onDelete }) {
 
   return (
     <>
-      <div onClick={() => setOpen(true)} style={{
-        border: '1px solid #e5e7eb',
-        borderRadius: 8,
-        background: '#fff',
-        boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-        transition: 'box-shadow 0.2s ease',
-        cursor: 'pointer'
-      }}>
-        <div style={{ padding: 16, paddingBottom: 8 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ fontSize: 18, fontWeight: 600 }}>{campaign.name}</div>
-            <span style={{
-              borderRadius: 999,
-              padding: '4px 10px',
-              fontSize: 12,
-              border: '1px solid #e5e7eb',
-              background: status === 'active' ? '#EEF2FF' : '#F3F4F6',
-              color: '#374151'
-            }}>{statusLabel}</span>
+      <div
+        onClick={() => setOpen(true)}
+        className="border border-gray-200 rounded-lg bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md"
+      >
+        <div className="p-4 pb-2">
+          <div className="flex justify-between items-start">
+            <div className="text-lg font-semibold">{campaign.name}</div>
+            <span className={`rounded-full py-1 px-2.5 text-xs border border-gray-200 text-gray-700 ${
+              status === 'active' ? 'bg-indigo-50' : 'bg-gray-100'
+            }`}>{statusLabel}</span>
           </div>
           {campaign.description && (
-            <div style={{ marginTop: 6, color: '#6b7280', fontSize: 14 }}>{campaign.description}</div>
+            <div className="mt-1.5 text-gray-500 text-sm">{campaign.description}</div>
           )}
         </div>
-        <div style={{ padding: 16, borderTop: '1px solid #f3f4f6' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 12, fontSize: 14 }}>
+        <div className="p-4 border-t border-gray-100">
+          <div className="grid grid-cols-5 gap-3 text-sm">
             <div>
-              <div style={{ color: '#6b7280' }}>{t('campaigns.card.callAttempts')}</div>
-              <div style={{ fontWeight: 600 }}>{attemptCount}</div>
+              <div className="text-gray-500">{t('campaigns.card.callAttempts')}</div>
+              <div className="font-semibold">{attemptCount}</div>
             </div>
             <div>
-              <div style={{ color: '#6b7280' }}>{t('campaigns.stats.calledCalls')}</div>
-              <div style={{ fontWeight: 600 }}>{calledCalls}</div>
+              <div className="text-gray-500">{t('campaigns.stats.calledCalls')}</div>
+              <div className="font-semibold">{calledCalls}</div>
             </div>
             <div>
-              <div style={{ color: '#6b7280' }}>{t('campaigns.card.successful')}</div>
-              <div style={{ fontWeight: 600 }}>{successfulCalls}</div>
+              <div className="text-gray-500">{t('campaigns.card.successful')}</div>
+              <div className="font-semibold">{successfulCalls}</div>
             </div>
             <div>
-              <div style={{ color: '#6b7280' }}>{t('campaigns.card.answerRateShort')}</div>
-              <div style={{ fontWeight: 600 }}>{answerRate}%</div>
+              <div className="text-gray-500">{t('campaigns.card.answerRateShort')}</div>
+              <div className="font-semibold">{answerRate}%</div>
             </div>
             <div>
-              <div style={{ color: '#6b7280' }}>{t('campaigns.stats.totalCallLogs')}</div>
-              <div style={{ fontWeight: 600 }}>{totalCalls}</div>
+              <div className="text-gray-500">{t('campaigns.stats.totalCallLogs')}</div>
+              <div className="font-semibold">{totalCalls}</div>
             </div>
           </div>
-          <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }} onClick={(e) => e.stopPropagation()}>
+          <div className="mt-3 flex gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={async () => {
@@ -114,15 +105,11 @@ export default function CampaignCard({ campaign, onStatusChange, onDelete }) {
                 }
               }}
               disabled={pausing || status === 'paused'}
-              style={{
-                background: status === 'paused' ? '#e5e7eb' : '#f59e0b',
-                color: status === 'paused' ? '#6b7280' : '#111827',
-                border: '1px solid #e5e7eb',
-                borderRadius: 8,
-                padding: '8px 12px',
-                fontWeight: 700,
-                cursor: pausing || status === 'paused' ? 'not-allowed' : 'pointer'
-              }}
+              className={`border border-gray-200 rounded-lg py-2 px-3 font-bold ${
+                status === 'paused'
+                  ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                  : 'bg-amber-500 text-gray-900 cursor-pointer'
+              } ${pausing ? 'cursor-not-allowed' : ''}`}
             >
               {pausing ? t('campaigns.card.pausing') : status === 'paused' ? t('campaigns.card.pausedButton') : t('campaigns.card.pauseButton')}
             </button>
@@ -130,28 +117,22 @@ export default function CampaignCard({ campaign, onStatusChange, onDelete }) {
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
               disabled={deleting}
-              style={{
-                background: '#dc2626',
-                color: '#fff',
-                border: 'none',
-                borderRadius: 8,
-                padding: '8px 12px',
-                fontWeight: 700,
-                cursor: deleting ? 'not-allowed' : 'pointer'
-              }}
+              className={`bg-red-600 text-white border-none rounded-lg py-2 px-3 font-bold ${
+                deleting ? 'cursor-not-allowed' : 'cursor-pointer'
+              }`}
             >
               {deleting ? t('campaigns.card.deleting') : t('campaigns.card.deleteButton')}
             </button>
-            {pauseError && <div style={{ color: '#dc2626', alignSelf: 'center' }}>{pauseError}</div>}
-            {deleteError && <div style={{ color: '#dc2626', alignSelf: 'center' }}>{deleteError}</div>}
+            {pauseError && <div className="text-red-600 self-center">{pauseError}</div>}
+            {deleteError && <div className="text-red-600 self-center">{deleteError}</div>}
           </div>
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f3f4f6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ color: '#6b7280', fontSize: 14 }}>{t('campaigns.card.remaining')}</div>
-            <div style={{ fontWeight: 700 }}>{remainingCalls} / {totalCalls}</div>
+          <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <div className="text-gray-500 text-sm">{t('campaigns.card.remaining')}</div>
+            <div className="font-bold">{remainingCalls} / {totalCalls}</div>
           </div>
           {campaign.call_types?.name && (
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #f3f4f6' }}>
-              <div style={{ fontSize: 12, color: '#6b7280' }}>{t('campaigns.card.script')}: {campaign.call_types.name}</div>
+            <div className="mt-3 pt-3 border-t border-gray-100">
+              <div className="text-xs text-gray-500">{t('campaigns.card.script')}: {campaign.call_types.name}</div>
             </div>
           )}
         </div>
@@ -172,21 +153,15 @@ export default function CampaignCard({ campaign, onStatusChange, onDelete }) {
               <button className="modal-close-btn" onClick={() => setShowDeleteConfirm(false)} type="button">×</button>
             </div>
             <div className="modal-content">
-              <p style={{ marginBottom: 16 }}>{t('campaigns.card.deleteConfirmMessage', { name: campaign.name })}</p>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <p className="mb-4">{t('campaigns.card.deleteConfirmMessage', { name: campaign.name })}</p>
+              <div className="flex gap-3 justify-end">
                 <button
                   type="button"
                   onClick={() => setShowDeleteConfirm(false)}
                   disabled={deleting}
-                  style={{
-                    background: '#e5e7eb',
-                    color: '#374151',
-                    border: '1px solid #d1d5db',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    cursor: deleting ? 'not-allowed' : 'pointer'
-                  }}
+                  className={`bg-gray-200 text-gray-700 border border-gray-300 rounded-lg py-2 px-4 font-semibold ${
+                    deleting ? 'cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                 >
                   {t('campaigns.card.cancelButton')}
                 </button>
@@ -206,21 +181,15 @@ export default function CampaignCard({ campaign, onStatusChange, onDelete }) {
                     }
                   }}
                   disabled={deleting}
-                  style={{
-                    background: '#dc2626',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '8px 16px',
-                    fontWeight: 600,
-                    cursor: deleting ? 'not-allowed' : 'pointer'
-                  }}
+                  className={`bg-red-600 text-white border-none rounded-lg py-2 px-4 font-semibold ${
+                    deleting ? 'cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                 >
                   {deleting ? t('campaigns.card.deleting') : t('campaigns.card.deleteButton')}
                 </button>
               </div>
               {deleteError && (
-                <div style={{ marginTop: 12, padding: 12, border: '1px solid #fecaca', background: '#fef2f2', color: '#991b1b', borderRadius: 8 }}>
+                <div className="mt-3 p-3 border border-red-200 bg-red-50 text-red-800 rounded-lg">
                   {deleteError}
                 </div>
               )}

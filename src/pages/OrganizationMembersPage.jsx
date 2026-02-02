@@ -5,7 +5,6 @@ import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import Button from "../components/Button";
-import styles from "./OrganizationMembersPage.module.css";
 
 const OrganizationMembersPage = () => {
   const { t } = useTranslation("common");
@@ -225,12 +224,12 @@ const OrganizationMembersPage = () => {
     (organization.role !== "owner" && organization.role !== "admin")
   ) {
     return (
-      <div className={styles.container}>
-        <div className={styles.pageHeader}>
+      <div className="org-members-container">
+        <div className="org-members-page-header">
           <h1>{t("orgMembers.pageTitle")}</h1>
         </div>
-        <div className={styles.card}>
-          <div className={styles.errorMessage}>
+        <div className="org-members-card">
+          <div className="org-members-error-message">
             <h2>{t("orgMembers.noPermissionsTitle")}</h2>
             <p>{t("orgMembers.noPermissionsMessage")}</p>
           </div>
@@ -256,8 +255,8 @@ const OrganizationMembersPage = () => {
   });
 
   return (
-    <div className={styles.container}>
-      <div className={styles.pageHeader}>
+    <div className="org-members-container">
+      <div className="org-members-page-header">
         <h1>{t("orgMembers.pageTitle")}</h1>
         {canInvite && (
           <Button
@@ -271,13 +270,15 @@ const OrganizationMembersPage = () => {
         )}
       </div>
 
-      {error && <div className={styles.errorMessage}>{error}</div>}
+      {error && <div className="org-members-error-message">{error}</div>}
 
       {showInviteForm && canInvite && (
-        <div className={styles.card}>
-          <h2 className={styles.cardTitle}>{t("orgMembers.inviteNewUser")}</h2>
-          <form onSubmit={handleInvite} className={styles.form}>
-            <div className={styles.formGroup}>
+        <div className="org-members-card">
+          <h2 className="org-members-card-title">
+            {t("orgMembers.inviteNewUser")}
+          </h2>
+          <form onSubmit={handleInvite} className="org-members-form">
+            <div className="org-members-form-group">
               <label htmlFor="email">{t("orgMembers.emailLabel")}</label>
               <input
                 type="email"
@@ -286,16 +287,16 @@ const OrganizationMembersPage = () => {
                 onChange={(e) => setInviteEmail(e.target.value)}
                 required
                 placeholder={t("orgMembers.emailPlaceholder")}
-                className={styles.input}
+                className="org-members-input"
               />
             </div>
-            <div className={styles.formGroup}>
+            <div className="org-members-form-group">
               <label htmlFor="role">{t("orgMembers.roleLabel")}</label>
               <select
                 id="role"
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
-                className={styles.select}
+                className="org-members-select"
               >
                 <option value="member">{t("orgMembers.roleMember")}</option>
                 <option value="admin">{t("orgMembers.roleAdmin")}</option>
@@ -304,7 +305,7 @@ const OrganizationMembersPage = () => {
                 )}
               </select>
             </div>
-            <div className={styles.formActions}>
+            <div className="org-members-form-actions">
               <Button type="submit" variant="primary" disabled={inviting}>
                 {inviting ? t("orgMembers.inviting") : t("orgMembers.invite")}
               </Button>
@@ -324,17 +325,21 @@ const OrganizationMembersPage = () => {
         </div>
       )}
 
-      <div className={styles.card}>
-        <h2 className={styles.cardTitle}>{t("orgMembers.membersTitle")}</h2>
+      <div className="org-members-card">
+        <h2 className="org-members-card-title">
+          {t("orgMembers.membersTitle")}
+        </h2>
         {loading ? (
-          <div className={styles.loading}>{t("common.loading")}</div>
+          <div className="org-members-loading">{t("common.loading")}</div>
         ) : (
-          <div className={styles.membersList}>
+          <div className="org-members-list">
             {members.length === 0 ? (
-              <p className={styles.emptyState}>{t("orgMembers.noMembers")}</p>
+              <p className="org-members-empty-state">
+                {t("orgMembers.noMembers")}
+              </p>
             ) : (
-              <div className={styles.tableWrapper}>
-                <table className={styles.membersTable}>
+              <div className="org-members-table-wrapper">
+                <table className="org-members-table">
                   <thead>
                     <tr>
                       <th>{t("orgMembers.emailColumn")}</th>
@@ -397,7 +402,7 @@ const OrganizationMembersPage = () => {
                                     e.target.value,
                                   )
                                 }
-                                className={styles.roleSelect}
+                                className="org-members-role-select"
                               >
                                 <option value="member">
                                   {t("orgMembers.roleMember")}
@@ -413,7 +418,7 @@ const OrganizationMembersPage = () => {
                               </select>
                             ) : (
                               <span
-                                className={`${styles.roleBadge} ${styles[`role${memberRole.charAt(0).toUpperCase() + memberRole.slice(1)}`]}`}
+                                className={`org-members-role-badge org-members-role-${memberRole}`}
                               >
                                 {memberRole === "owner"
                                   ? t("orgMembers.roleOwner")
@@ -463,7 +468,7 @@ const OrganizationMembersPage = () => {
                                 </Button>
                               )}
                               {isCurrentUser && (
-                                <span className={styles.currentUserBadge}>
+                                <span className="org-members-current-user-badge">
                                   {t("orgMembers.you")}
                                 </span>
                               )}

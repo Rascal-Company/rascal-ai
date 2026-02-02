@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import { getCurrentUser } from "../utils/userApi";
-import styles from "./Sidebar.module.css";
+// CSS Module removed - styles moved to main.css
 import { useAuth } from "../contexts/AuthContext";
 import { useFeatures } from "../hooks/useFeatures";
 import NotificationBell from "./NotificationBell";
@@ -204,36 +204,6 @@ const getMenuItems = (t) => [
           strokeLinecap="round"
           strokeLinejoin="round"
         />
-      </svg>
-    ),
-  },
-  {
-    label: t("sidebar.labels.segments"),
-    path: "/segments",
-    icon: (
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M12 3v18"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M3 12h18"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="7" cy="7" r="2" stroke="currentColor" strokeWidth="2" />
-        <circle cx="17" cy="17" r="2" stroke="currentColor" strokeWidth="2" />
       </svg>
     ),
   },
@@ -635,8 +605,8 @@ export default function Sidebar() {
 
   const menu = (
     <>
-      <div className={styles["profile-section"]}>
-        <div className={styles["profile-avatar"]}>
+      <div className="sidebar-profile-section">
+        <div className="sidebar-profile-avatar">
           <img
             src={logoUrl || DEFAULT_LOGO_URL}
             alt={logoUrl ? "Company Logo" : "Rascal AI"}
@@ -653,36 +623,36 @@ export default function Sidebar() {
           />
         </div>
         {organization?.data?.company_name && (
-          <span className={styles["company-name"]}>
+          <span className="sidebar-company-name">
             {organization.data.company_name}
           </span>
         )}
-        <span className={styles["profile-name"]}>
+        <span className="sidebar-profile-name">
           {user?.email || "user@example.com"}
         </span>
-        <div className={styles["language-selector"]}>
+        <div className="sidebar-language-selector">
           <button
-            className={styles["lang-btn"]}
+            className="sidebar-lang-btn"
             type="button"
             onClick={() => setLanguage("fi")}
           >
             {t("lang.shortFi")}
           </button>
-          <span className={styles["lang-separator"]}>/</span>
+          <span className="sidebar-lang-separator">/</span>
           <button
-            className={styles["lang-btn"]}
+            className="sidebar-lang-btn"
             type="button"
             onClick={() => setLanguage("en")}
           >
             {t("lang.shortEn")}
           </button>
         </div>
-        <div className={styles["notification-bell-wrapper"]}>
+        <div className="sidebar-notification-bell-wrapper">
           <NotificationBell />
         </div>
       </div>
       {/* Dashboard */}
-      <ul className={styles["nav-menu"]}>
+      <ul className="sidebar-nav-menu">
         {menuItems
           .filter((i) => i.path === "/dashboard")
           .map((item) => {
@@ -690,12 +660,12 @@ export default function Sidebar() {
             const moderatorOnly = item.moderatorOnly && !isModerator;
             if (adminOnly || moderatorOnly) return null;
             return (
-              <li className={styles["nav-item"]} key={item.path}>
+              <li className="sidebar-nav-item" key={item.path}>
                 <button
-                  className={`${styles["nav-link"]} ${location.pathname.startsWith(item.path) ? styles["active"] : ""}`}
+                  className={`sidebar-nav-link ${location.pathname.startsWith(item.path) ? "active" : ""}`}
                   onClick={() => navigate(item.path)}
                 >
-                  <span className={styles["nav-icon"]}>{item.icon}</span>
+                  <span className="sidebar-nav-icon">{item.icon}</span>
                   {item.label}
                 </button>
               </li>
@@ -705,19 +675,19 @@ export default function Sidebar() {
 
       {/* Markkinointi */}
       <button
-        className={styles["section-header"]}
+        className="sidebar-section-header"
         onClick={() => toggleSection("markkinointi")}
         type="button"
       >
         <span>{t("sidebar.sections.marketing")}</span>
         <span
-          className={`${styles["chevron"]} ${openSections.markkinointi ? styles["open"] : ""}`}
+          className={`sidebar-chevron ${openSections.markkinointi ? "open" : ""}`}
         >
           ▾
         </span>
       </button>
       {openSections.markkinointi && (
-        <ul className={styles["nav-menu"]}>
+        <ul className="sidebar-nav-menu">
           {menuItems
             .filter((i) =>
               [
@@ -750,12 +720,12 @@ export default function Sidebar() {
               )
                 return null;
               return (
-                <li className={styles["nav-item"]} key={item.path}>
+                <li className="sidebar-nav-item" key={item.path}>
                   <button
-                    className={`${styles["nav-link"]} ${location.pathname.startsWith(item.path) ? styles["active"] : ""}`}
+                    className={`sidebar-nav-link ${location.pathname.startsWith(item.path) ? "active" : ""}`}
                     onClick={() => navigate(item.path)}
                   >
-                    <span className={styles["nav-icon"]}>{item.icon}</span>
+                    <span className="sidebar-nav-icon">{item.icon}</span>
                     {item.label}
                   </button>
                 </li>
@@ -766,22 +736,22 @@ export default function Sidebar() {
 
       {/* Myynti */}
       <button
-        className={styles["section-header"]}
+        className="sidebar-section-header"
         onClick={() => toggleSection("myynti")}
         type="button"
       >
         <span>{t("sidebar.sections.sales")}</span>
         <span
-          className={`${styles["chevron"]} ${openSections.myynti ? styles["open"] : ""}`}
+          className={`sidebar-chevron ${openSections.myynti ? "open" : ""}`}
         >
           ▾
         </span>
       </button>
       {openSections.myynti && (
-        <ul className={styles["nav-menu"]}>
+        <ul className="sidebar-nav-menu">
           {menuItems
             .filter((i) =>
-              ["/campaigns", "/segments", "/calls", "/lead-scraping"].includes(
+              ["/campaigns", "/calls", "/lead-scraping"].includes(
                 i.path,
               ),
             )
@@ -792,19 +762,17 @@ export default function Sidebar() {
               // Feature-gating: Myynti
               if (item.path === "/campaigns" && !hasFeature("Campaigns"))
                 return null;
-              if (item.path === "/segments" && !hasFeature("Segments"))
-                return null;
               if (item.path === "/calls" && !hasFeature("Phone Calls"))
                 return null;
               if (item.path === "/lead-scraping" && !hasFeature("Leads"))
                 return null;
               return (
-                <li className={styles["nav-item"]} key={item.path}>
+                <li className="sidebar-nav-item" key={item.path}>
                   <button
-                    className={`${styles["nav-link"]} ${location.pathname.startsWith(item.path) ? styles["active"] : ""}`}
+                    className={`sidebar-nav-link ${location.pathname.startsWith(item.path) ? "active" : ""}`}
                     onClick={() => navigate(item.path)}
                   >
-                    <span className={styles["nav-icon"]}>{item.icon}</span>
+                    <span className="sidebar-nav-icon">{item.icon}</span>
                     {item.label}
                   </button>
                 </li>
@@ -817,31 +785,31 @@ export default function Sidebar() {
       {canShowTools && (
         <>
           <button
-            className={styles["section-header"]}
+            className="sidebar-section-header"
             onClick={() => toggleSection("tyokalut")}
             type="button"
           >
             <span>{t("sidebar.sections.tools")}</span>
             <span
-              className={`${styles["chevron"]} ${openSections.tyokalut ? styles["open"] : ""}`}
+              className={`sidebar-chevron ${openSections.tyokalut ? "open" : ""}`}
             >
               ▾
             </span>
           </button>
           {openSections.tyokalut && (
-            <ul className={styles["nav-menu"]}>
+            <ul className="sidebar-nav-menu">
               {publicToolItems.filter(isItemVisible).map((item) => {
                 // Feature-gating: tarkista kaikille kohteille joilla on feature-kenttä
                 if (item.feature && !hasFeature(item.feature)) {
                   return null;
                 }
                 return (
-                  <li className={styles["nav-item"]} key={item.path}>
+                  <li className="sidebar-nav-item" key={item.path}>
                     <button
-                      className={`${styles["nav-link"]} ${location.pathname.startsWith(item.path) ? styles["active"] : ""}`}
+                      className={`sidebar-nav-link ${location.pathname.startsWith(item.path) ? "active" : ""}`}
                       onClick={() => navigate(item.path)}
                     >
-                      <span className={styles["nav-icon"]}>{item.icon}</span>
+                      <span className="sidebar-nav-icon">{item.icon}</span>
                       {item.label}
                     </button>
                   </li>
@@ -858,26 +826,26 @@ export default function Sidebar() {
       {canShowAdmin && (
         <>
           <button
-            className={styles["section-header"]}
+            className="sidebar-section-header"
             onClick={() => toggleSection("yllapito")}
             type="button"
           >
             <span>{t("sidebar.sections.admin")}</span>
             <span
-              className={`${styles["chevron"]} ${openSections.yllapito ? styles["open"] : ""}`}
+              className={`sidebar-chevron ${openSections.yllapito ? "open" : ""}`}
             >
               ▾
             </span>
           </button>
           {openSections.yllapito && (
-            <ul className={styles["nav-menu"]}>
+            <ul className="sidebar-nav-menu">
               {adminItems.filter(isItemVisible).map((item) => (
-                <li className={styles["nav-item"]} key={item.path}>
+                <li className="sidebar-nav-item" key={item.path}>
                   <button
-                    className={`${styles["nav-link"]} ${location.pathname.startsWith(item.path) ? styles["active"] : ""}`}
+                    className={`sidebar-nav-link ${location.pathname.startsWith(item.path) ? "active" : ""}`}
                     onClick={() => navigate(item.path)}
                   >
-                    <span className={styles["nav-icon"]}>{item.icon}</span>
+                    <span className="sidebar-nav-icon">{item.icon}</span>
                     {item.label}
                   </button>
                 </li>
@@ -886,12 +854,12 @@ export default function Sidebar() {
           )}
         </>
       )}
-      <div className={styles["settings-section"]}>
+      <div className="sidebar-settings-section">
         <button
-          className={styles["nav-link"]}
+          className="sidebar-nav-link"
           onClick={() => navigate("/help")}
         >
-          <span className={styles["nav-icon"]}>
+          <span className="sidebar-nav-icon">
             <svg
               width="20"
               height="20"
@@ -930,10 +898,10 @@ export default function Sidebar() {
           {t("sidebar.helpCenter")}
         </button>
         <button
-          className={styles["nav-link"]}
+          className="sidebar-nav-link"
           onClick={() => navigate("/settings")}
         >
-          <span className={styles["nav-icon"]}>
+          <span className="sidebar-nav-icon">
             <svg
               width="20"
               height="20"
@@ -961,10 +929,10 @@ export default function Sidebar() {
         </button>
         <button
           onClick={handleLogout}
-          className={styles["logout-btn"]}
+          className="sidebar-logout-btn"
           type="button"
         >
-          <span className={styles["nav-icon"]}>
+          <span className="sidebar-nav-icon">
             <svg
               width="20"
               height="20"
@@ -1015,7 +983,7 @@ export default function Sidebar() {
     <>
       {/* Desktop sidebar - näytetään vain desktopilla */}
       <div
-        className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}
+        className={`sidebar ${isCollapsed ? "collapsed" : ""}`}
         onMouseEnter={() => setIsCollapsed(false)}
         onMouseLeave={() => setIsCollapsed(true)}
       >

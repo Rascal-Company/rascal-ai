@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import './CallStats.css'
 
 const STATUS_COLORS = {
   odottaa: '#a0aec0', // harmaa

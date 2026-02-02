@@ -3,8 +3,6 @@ import { createPortal } from "react-dom";
 import Button from "./Button";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
-import "./ModalComponents.css";
-import "./StrategyConfirmationModal.css";
 
 const StrategyConfirmationModal = ({
   isOpen,

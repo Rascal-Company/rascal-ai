@@ -3,7 +3,6 @@ import { supabase } from "../lib/supabase";
 import { getUserOrgId } from "../lib/getUserOrgId";
 import { useAuth } from "../contexts/AuthContext";
 import Button from "./Button";
-import "./CarouselSegmentsEditor.css";
 
 export default function CarouselSegmentsEditor({
   segments = [],

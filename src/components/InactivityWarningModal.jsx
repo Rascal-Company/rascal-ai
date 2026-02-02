@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import { useAutoLogout } from '../contexts/AutoLogoutContext'
 import { formatTime } from '../utils/inactivityUtils'
-import './InactivityWarningModal.css'
 
 const InactivityWarningModal = () => {
   const { 

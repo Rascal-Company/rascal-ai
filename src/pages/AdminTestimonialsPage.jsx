@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Sidebar from '../components/Sidebar'
 import MobileNavigation from '../components/MobileNavigation'
-import './AdminBlogPage.css'
 import { supabase } from '../lib/supabase'
 
 export default function AdminTestimonialsPage({ embedded = false }) {

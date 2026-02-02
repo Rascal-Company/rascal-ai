@@ -10,8 +10,6 @@ import { useNextMonthQuota } from "../hooks/useNextMonthQuota";
 import Button from "../components/Button";
 import ReactMarkdown from "react-markdown";
 import axios from "axios";
-import "../components/ModalComponents.css";
-import "./BlogNewsletterPage.css";
 
 // Data muunnos funktio Supabase datasta
 const transformSupabaseData = (supabaseData, t) => {
@@ -140,7 +138,7 @@ function ContentCard({
                   e.target.nextSibling.style.display = "flex";
                 }}
               />
-              <div className="placeholder-fallback" style={{ display: "none" }}>
+              <div className="placeholder-fallback hidden">
                 <div className="placeholder-icon">📄</div>
                 <div className="placeholder-text">
                   {t("blogNewsletter.placeholders.noImage")}
@@ -190,7 +188,7 @@ function ContentCard({
               <Button
                 variant="secondary"
                 onClick={() => onView(content)}
-                style={{ fontSize: "11px", padding: "6px 10px" }}
+                className="text-[11px] py-1.5 px-2.5"
               >
                 {t("blogNewsletter.actions.view")}
               </Button>
@@ -203,7 +201,7 @@ function ContentCard({
                   <Button
                     variant="secondary"
                     onClick={() => onEdit(content)}
-                    style={{ fontSize: "11px", padding: "6px 10px" }}
+                    className="text-[11px] py-1.5 px-2.5"
                   >
                     {t("blogNewsletter.actions.edit")}
                   </Button>
@@ -219,11 +217,7 @@ function ContentCard({
                     variant="primary"
                     onClick={() => onPublish(content)}
                     disabled={isPublishing}
-                    style={{
-                      backgroundColor: "#22c55e",
-                      fontSize: "11px",
-                      padding: "6px 10px",
-                    }}
+                    className="bg-green-500 text-[11px] py-1.5 px-2.5"
                   >
                     {isPublishing
                       ? t("blogNewsletter.actions.publishing")
@@ -235,11 +229,7 @@ function ContentCard({
                 <Button
                   variant="secondary"
                   onClick={() => onArchive(content)}
-                  style={{
-                    backgroundColor: "#e5e7eb",
-                    fontSize: "11px",
-                    padding: "6px 10px",
-                  }}
+                  className="bg-gray-200 text-[11px] py-1.5 px-2.5"
                 >
                   {t("blogNewsletter.actions.archive")}
                 </Button>
@@ -997,10 +987,7 @@ export default function BlogNewsletterPage() {
               }
             }}
           >
-            <div
-              className="modal-container"
-              style={{ maxWidth: "900px", height: "80vh" }}
-            >
+            <div className="modal-container max-w-[900px] h-[80vh]">
               <div className="modal-header">
                 <h2 className="modal-title">
                   {t("blogNewsletter.createModal.title")}
@@ -1096,10 +1083,7 @@ export default function BlogNewsletterPage() {
               }
             }}
           >
-            <div
-              className="modal-container"
-              style={{ maxWidth: "900px", height: "80vh" }}
-            >
+            <div className="modal-container max-w-[900px] h-[80vh]">
               <div className="modal-header">
                 <h2 className="modal-title">{viewingContent.title}</h2>
                 <button
@@ -1124,19 +1108,11 @@ export default function BlogNewsletterPage() {
                           e.target.nextSibling.style.display = "flex";
                         }}
                       />
-                      <div
-                        className="view-thumbnail-placeholder"
-                        style={{ display: "none" }}
-                      >
+                      <div className="view-thumbnail-placeholder hidden">
                         <img
                           src="/placeholder.png"
                           alt="Placeholder"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            borderRadius: "12px",
-                          }}
+                          className="w-full h-full object-cover rounded-xl"
                         />
                       </div>
                     </div>
@@ -1145,12 +1121,7 @@ export default function BlogNewsletterPage() {
                       <img
                         src="/placeholder.png"
                         alt="Placeholder"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          borderRadius: "12px",
-                        }}
+                        className="w-full h-full object-cover rounded-xl"
                       />
                     </div>
                   )}
@@ -1176,7 +1147,7 @@ export default function BlogNewsletterPage() {
                     ) : viewingContent.caption ? (
                       <ReactMarkdown>{viewingContent.caption}</ReactMarkdown>
                     ) : (
-                      <p style={{ color: "#666", fontStyle: "italic" }}>
+                      <p className="text-gray-500 italic">
                         {t("blogNewsletter.placeholders.noContent")}
                       </p>
                     )}
@@ -1185,45 +1156,19 @@ export default function BlogNewsletterPage() {
                   {/* Näytä lisätietoja jos saatavilla */}
                   {viewingContent.idea &&
                     viewingContent.idea !== viewingContent.title && (
-                      <div
-                        style={{
-                          marginTop: "20px",
-                          padding: "16px",
-                          backgroundColor: "#f8f9fa",
-                          borderRadius: "8px",
-                        }}
-                      >
-                        <h4
-                          style={{
-                            margin: "0 0 8px 0",
-                            fontSize: "14px",
-                            color: "#666",
-                          }}
-                        >
+                      <div className="mt-5 p-4 bg-gray-50 rounded-lg">
+                        <h4 className="m-0 mb-2 text-sm text-gray-500">
                           {t("blogNewsletter.viewModal.originalIdea")}
                         </h4>
-                        <p style={{ margin: "0", fontSize: "14px" }}>
+                        <p className="m-0 text-sm">
                           {viewingContent.idea}
                         </p>
                       </div>
                     )}
 
                   {/* Näytä status */}
-                  <div
-                    style={{
-                      marginTop: "16px",
-                      padding: "12px",
-                      backgroundColor: "#f1f5f9",
-                      borderRadius: "6px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        color: "#475569",
-                      }}
-                    >
+                  <div className="mt-4 p-3 bg-slate-100 rounded-md">
+                    <span className="text-xs font-semibold text-slate-600">
                       {t("blogNewsletter.viewModal.status")}{" "}
                       {viewingContent.status}
                     </span>
@@ -1253,11 +1198,7 @@ export default function BlogNewsletterPage() {
                             handlePublishContent(viewingContent);
                           }}
                           disabled={publishingId === viewingContent.id}
-                          style={{
-                            marginRight: "8px",
-                            backgroundColor: "#22c55e",
-                            borderColor: "#16a34a",
-                          }}
+                          className="mr-2 bg-green-500 border-green-600"
                         >
                           {publishingId === viewingContent.id
                             ? t("blogNewsletter.actions.publishing")
@@ -1301,10 +1242,7 @@ export default function BlogNewsletterPage() {
               }
             }}
           >
-            <div
-              className="modal-container"
-              style={{ maxWidth: "900px", height: "80vh" }}
-            >
+            <div className="modal-container max-w-[900px] h-[80vh]">
               <div className="modal-header">
                 <h2 className="modal-title">{editingContent.title}</h2>
                 <button
@@ -1332,19 +1270,11 @@ export default function BlogNewsletterPage() {
                           e.target.nextSibling.style.display = "flex";
                         }}
                       />
-                      <div
-                        className="view-thumbnail-placeholder"
-                        style={{ display: "none" }}
-                      >
+                      <div className="view-thumbnail-placeholder hidden">
                         <img
                           src="/placeholder.png"
                           alt="Placeholder"
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            borderRadius: "12px",
-                          }}
+                          className="w-full h-full object-cover rounded-xl"
                         />
                       </div>
                     </div>
@@ -1353,12 +1283,7 @@ export default function BlogNewsletterPage() {
                       <img
                         src="/placeholder.png"
                         alt="Placeholder"
-                        style={{
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover",
-                          borderRadius: "12px",
-                        }}
+                        className="w-full h-full object-cover rounded-xl"
                       />
                     </div>
                   )}
@@ -1384,34 +1309,22 @@ export default function BlogNewsletterPage() {
                   }}
                 >
                   <div className="form-group">
-                    <label className="form-label" style={{ display: "none" }}>
+                    <label className="form-label hidden">
                       Otsikko
                     </label>
                     <input
                       name="title"
                       type="text"
                       required
-                      className="form-input"
+                      className="form-input border-none outline-none bg-transparent p-0 text-xl font-semibold mb-2"
                       defaultValue={editingContent.title}
                       placeholder={t("placeholders.contentTitle")}
-                      style={{
-                        border: "none",
-                        outline: "none",
-                        background: "transparent",
-                        padding: 0,
-                        fontSize: "20px",
-                        fontWeight: 600,
-                        marginBottom: "8px",
-                      }}
                     />
                   </div>
                   {/* Tyyppi näkyvissä (read-only) */}
                   <div className="form-group">
                     <label className="form-label">Tyyppi</label>
-                    <div
-                      className="form-input"
-                      style={{ pointerEvents: "none", opacity: 0.8 }}
-                    >
+                    <div className="form-input pointer-events-none opacity-80">
                       {editingContent.type === "Blog" ? "Blog" : "Newsletter"}
                     </div>
                   </div>
@@ -1425,19 +1338,10 @@ export default function BlogNewsletterPage() {
                       placeholder="Blogiteksti markdownina"
                     />
                   </div>
-                  <div className="form-group" style={{ marginTop: "8px" }}>
-                    <div
-                      style={{
-                        background: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "8px",
-                        padding: "10px",
-                        fontSize: "12px",
-                        color: "#475569",
-                      }}
-                    >
+                  <div className="form-group mt-2">
+                    <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-xs text-slate-600">
                       <strong>Markdown-vinkit:</strong>
-                      <div style={{ marginTop: "6px" }}>
+                      <div className="mt-1.5">
                         <code># Otsikko 1</code>, <code>## Otsikko 2</code>,{" "}
                         <code>### Otsikko 3</code>
                       </div>
@@ -1447,10 +1351,7 @@ export default function BlogNewsletterPage() {
                   {editingContent.meta_description && (
                     <div className="form-group">
                       <label className="form-label">Meta Description</label>
-                      <div
-                        className="form-textarea"
-                        style={{ pointerEvents: "none", opacity: 0.8 }}
-                      >
+                      <div className="form-textarea pointer-events-none opacity-80">
                         {editingContent.meta_description}
                       </div>
                     </div>

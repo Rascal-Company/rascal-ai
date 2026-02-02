@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Button from './Button'
 import { useTranslation } from 'react-i18next'
-import './ModalComponents.css'
 
 const EditInboundSettingsModal = ({ 
   showModal, 

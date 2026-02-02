@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import './AccountDetailsModal.css'
 
 export default function AccountDetailsModal({ account, onClose }) {
   const [accountDetails, setAccountDetails] = useState(null)

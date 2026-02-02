@@ -221,24 +221,8 @@ const CRM = ({
 
   return (
     <>
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 16,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-          padding: 32,
-          width: "100%",
-        }}
-      >
-        <h2
-          style={{
-            margin: 0,
-            fontSize: 24,
-            fontWeight: 700,
-            color: "#1f2937",
-            marginBottom: 24,
-          }}
-        >
+      <div className="bg-white rounded-2xl shadow-md p-8 w-full">
+        <h2 className="m-0 text-2xl font-bold text-gray-800 mb-6">
           Kontaktihaku
         </h2>
         <form
@@ -246,30 +230,11 @@ const CRM = ({
             e.preventDefault();
             handleMikaSearch();
           }}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-            marginBottom: 24,
-          }}
+          className="flex flex-col gap-4 mb-6"
         >
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr 1fr",
-              gap: 12,
-            }}
-          >
+          <div className="grid grid-cols-3 gap-3">
             <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: 4,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: "#374151",
-                }}
-              >
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Nimi
               </label>
               <input
@@ -277,25 +242,11 @@ const CRM = ({
                 value={mikaSearchName}
                 onChange={(e) => setMikaSearchName(e.target.value)}
                 placeholder="Syötä nimi..."
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: 8,
-                  fontSize: 16,
-                }}
+                className="w-full p-3 border border-gray-300 rounded-lg text-base"
               />
             </div>
             <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: 4,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: "#374151",
-                }}
-              >
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Tehtävänimike
               </label>
               <input
@@ -303,25 +254,11 @@ const CRM = ({
                 value={mikaSearchTitle}
                 onChange={(e) => setMikaSearchTitle(e.target.value)}
                 placeholder="Syötä tehtävänimike..."
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: 8,
-                  fontSize: 16,
-                }}
+                className="w-full p-3 border border-gray-300 rounded-lg text-base"
               />
             </div>
             <div>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: 4,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: "#374151",
-                }}
-              >
+              <label className="block mb-1 text-sm font-medium text-gray-700">
                 Organisaatio
               </label>
               <input
@@ -329,73 +266,36 @@ const CRM = ({
                 value={mikaSearchOrganization}
                 onChange={(e) => setMikaSearchOrganization(e.target.value)}
                 placeholder="Syötä organisaatio..."
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  border: "1px solid #d1d5db",
-                  borderRadius: 8,
-                  fontSize: 16,
-                }}
+                className="w-full p-3 border border-gray-300 rounded-lg text-base"
               />
             </div>
           </div>
           <Button
             type="submit"
             variant="primary"
-            style={{
-              padding: "12px 24px",
-              fontSize: 16,
-              fontWeight: 600,
-              alignSelf: "flex-start",
-            }}
+            className="py-3 px-6 text-base font-semibold self-start"
             disabled={mikaSearchLoading || loadingMikaContacts}
           >
             {mikaSearchLoading ? "Haetaan..." : "Hae"}
           </Button>
         </form>
         {loadingMikaContacts && (
-          <div
-            style={{ textAlign: "center", color: "#6b7280", marginBottom: 16 }}
-          >
+          <div className="text-center text-gray-500 mb-4">
             Ladataan kontakteja...
           </div>
         )}
         {mikaContactsError && (
-          <div
-            style={{
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
-              borderRadius: 12,
-              padding: 16,
-              color: "#dc2626",
-              fontSize: 14,
-              marginBottom: 16,
-            }}
-          >
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm mb-4">
             ❌ {mikaContactsError}
           </div>
         )}
         {mikaSearchResults.length > 0 ? (
-          <div style={{ marginTop: 16 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 16,
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: 18,
-                  fontWeight: 600,
-                  color: "#374151",
-                  margin: 0,
-                }}
-              >
+          <div className="mt-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-700 m-0">
                 Hakutulokset ({mikaSearchResults.length})
               </h3>
-              <div style={{ display: "flex", gap: 8 }}>
+              <div className="flex gap-2">
                 <Button
                   onClick={() => {
                     const selectedRaw = mikaSearchResults
@@ -414,49 +314,26 @@ const CRM = ({
                   }}
                   variant="secondary"
                   disabled={selectedContactIds.size === 0}
-                  style={{
-                    padding: "10px 16px",
-                    fontSize: 14,
-                    fontWeight: 600,
-                  }}
+                  className="py-2.5 px-4 text-sm font-semibold"
                 >
                   Lisää valitut massapuheluihin
                 </Button>
                 <Button
                   onClick={() => setShowCallTypeModal(true)}
                   variant="primary"
-                  style={{
-                    padding: "10px 20px",
-                    fontSize: 14,
-                    fontWeight: 600,
-                    background: "#10b981",
-                    color: "white",
-                    border: "none",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                  }}
+                  className="py-2.5 px-5 text-sm font-semibold bg-emerald-500 text-white border-none rounded-md cursor-pointer"
                 >
                   Aloitetaan puhelut ({mikaSearchResults.length})
                 </Button>
               </div>
             </div>
-            <div style={{ display: "grid", gap: 16 }}>
+            <div className="grid gap-4">
               {mikaSearchResults.map((contact, idx) => (
                 <div
                   key={contact.id || idx}
-                  style={{
-                    background: "#f9fafb",
-                    border: "1px solid #e5e7eb",
-                    borderRadius: 8,
-                    padding: 16,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 8,
-                  }}
+                  className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex flex-col gap-2"
                 >
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: 8 }}
-                  >
+                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={selectedContactIds.has(contact.id || idx)}
@@ -468,63 +345,48 @@ const CRM = ({
                         setSelectedContactIds(next);
                       }}
                     />
-                    <div style={{ fontWeight: 600, fontSize: 16 }}>
+                    <div className="font-semibold text-base">
                       {contact.name || "Nimetön"}
                     </div>
                   </div>
-                  <div style={{ color: "#6b7280", fontSize: 14 }}>
+                  <div className="text-gray-500 text-sm">
                     <strong>Tehtävänimike:</strong>{" "}
                     {contact.custom_fields && contact.custom_fields[0]
                       ? contact.custom_fields[0]
                       : "Ei määritelty"}
                   </div>
-                  <div style={{ color: "#6b7280", fontSize: 14 }}>
+                  <div className="text-gray-500 text-sm">
                     <strong>Organisaatio:</strong>{" "}
                     {contact.organization?.name || "Ei määritelty"}
                   </div>
-                  <div style={{ color: "#6b7280", fontSize: 14 }}>
+                  <div className="text-gray-500 text-sm">
                     <strong>Osoite:</strong>{" "}
                     {contact.organization?.address || "Ei määritelty"}
                   </div>
-                  <div style={{ color: "#6b7280", fontSize: 14 }}>
+                  <div className="text-gray-500 text-sm">
                     <strong>Sähköposti:</strong>{" "}
                     {contact.primary_email ||
                       (contact.emails && contact.emails[0]) ||
                       "-"}
                   </div>
-                  <div style={{ color: "#6b7280", fontSize: 14 }}>
+                  <div className="text-gray-500 text-sm">
                     <strong>Puhelin:</strong>{" "}
                     {contact.phones && contact.phones[0]
                       ? contact.phones[0]
                       : "-"}
                   </div>
                   {contact.result_score && (
-                    <div
-                      style={{
-                        color: "#059669",
-                        fontSize: 12,
-                        fontStyle: "italic",
-                      }}
-                    >
+                    <div className="text-emerald-600 text-xs italic">
                       Hakupisteet: {Math.round(contact.result_score * 100)}%
                     </div>
                   )}
-                  <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+                  <div className="mt-2 flex gap-2">
                     <Button
                       onClick={() => {
                         handleMikaMassCall(contact);
                       }}
                       variant="primary"
-                      style={{
-                        padding: "8px 16px",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        background: "#3b82f6",
-                        color: "white",
-                        border: "none",
-                        borderRadius: 6,
-                        cursor: "pointer",
-                      }}
+                      className="py-2 px-4 text-sm font-semibold bg-blue-500 text-white border-none rounded-md cursor-pointer"
                       disabled={!contact.phones || contact.phones.length === 0}
                     >
                       Lisää massapuheluihin
@@ -532,16 +394,7 @@ const CRM = ({
                     <Button
                       onClick={() => handleMikaSingleCall(contact)}
                       variant="secondary"
-                      style={{
-                        padding: "8px 16px",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        background: "#f3f4f6",
-                        color: "#374151",
-                        border: "1px solid #d1d5db",
-                        borderRadius: 6,
-                        cursor: "pointer",
-                      }}
+                      className="py-2 px-4 text-sm font-semibold bg-gray-100 text-gray-700 border border-gray-300 rounded-md cursor-pointer"
                       disabled={!contact.phones || contact.phones.length === 0}
                     >
                       Yksittäinen soitto
@@ -552,7 +405,7 @@ const CRM = ({
             </div>
           </div>
         ) : (
-          <div style={{ color: "#6b7280", fontSize: 15, marginTop: 24 }}>
+          <div className="text-gray-500 text-[15px] mt-6">
             {(mikaSearchName || mikaSearchTitle || mikaSearchOrganization) &&
               !mikaSearchLoading &&
               "Ei tuloksia haulla."}
@@ -572,11 +425,10 @@ const CRM = ({
           >
             <div
               onClick={(e) => e.stopPropagation()}
-              className="modal-container"
-              style={{ maxWidth: "500px" }}
+              className="modal-container max-w-[500px]"
             >
               <div className="modal-header">
-                <h2 className="modal-title" style={{ fontSize: 20 }}>
+                <h2 className="modal-title text-xl">
                   Valitse puhelun tyyppi ja ääni
                 </h2>
                 <Button
@@ -588,7 +440,7 @@ const CRM = ({
                 </Button>
               </div>
               <div className="modal-body">
-                <p style={{ marginBottom: 16, color: "#6b7280" }}>
+                <p className="mb-4 text-gray-500">
                   Valitse puhelun tyyppi ja ääni{" "}
                   {selectedContactsForModal.length > 0
                     ? selectedContactsForModal.length
@@ -599,8 +451,7 @@ const CRM = ({
                 <select
                   value={selectedCallTypeForMika}
                   onChange={(e) => setSelectedCallTypeForMika(e.target.value)}
-                  className="select"
-                  style={{ width: "100%", marginBottom: 16 }}
+                  className="select w-full mb-4"
                 >
                   <option value="">Valitse puhelun tyyppi...</option>
                   {callTypes.map((type) => (
@@ -613,8 +464,7 @@ const CRM = ({
                 <select
                   value={selectedVoiceForMika}
                   onChange={(e) => setSelectedVoiceForMika(e.target.value)}
-                  className="select"
-                  style={{ width: "100%", marginBottom: 16 }}
+                  className="select w-full mb-4"
                 >
                   {voiceOptions.map((voice) => (
                     <option key={voice.value} value={voice.value}>
@@ -622,13 +472,7 @@ const CRM = ({
                     </option>
                   ))}
                 </select>
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 8,
-                    justifyContent: "flex-end",
-                  }}
-                >
+                <div className="flex gap-2 justify-end">
                   <Button
                     onClick={() => setShowCallTypeModal(false)}
                     variant="secondary"

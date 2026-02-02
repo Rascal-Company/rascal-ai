@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useAutoLogout } from '../contexts/AutoLogoutContext'
-import { 
-  TIMEOUT_OPTIONS, 
-  saveTimeoutPreference, 
+import {
+  TIMEOUT_OPTIONS,
+  saveTimeoutPreference,
   getTimeoutPreference,
-  getContextTimeout 
+  getContextTimeout
 } from '../utils/inactivityUtils'
 import { useLocation } from 'react-router-dom'
-import './TimeoutSettings.css'
 import { useTranslation } from 'react-i18next'
 
 const TimeoutSettings = () => {

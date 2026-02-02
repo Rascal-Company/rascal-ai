@@ -1,7 +1,12 @@
-# Ignore test files from Vercel builds (these are not API endpoints)
+# Test files - not API endpoints
+**/*.spec.js
+**/*.spec.ts
+**/*.test.js
+**/*.test.ts
 api/_test/
-api/analytics/dashboard-stats.spec.js
+api/_lib/
+api/_middleware/
 
-# Ignore duplicate directories if they exist
+# Duplicate directories
 api/integrations/elevenlabs 2/
 api/integrations/mixpost 2/

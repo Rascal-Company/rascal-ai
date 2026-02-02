@@ -57,7 +57,7 @@ export default function MassCallModal({
       >
         <div className="modal-header">
           <h2 className="modal-title">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" className="masscall-icon">
               <path d="M4.5 16.5c-1.5 1.5-1.5 4 0 5.5s4 1.5 5.5 0L12 20l2-2M20 6l-8.5 8.5a2.83 2.83 0 0 1-4 0 2.83 2.83 0 0 1 0-4L16 2"/>
             </svg>
             {t('calls.modals.mass.title')}
@@ -147,9 +147,9 @@ function Step1SheetValidation({
 }) {
   return (
     <div>
-      <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12, color: '#1f2937', backgroundColor: 'transparent' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+      <div className="masscall-section">
+        <h3 className="masscall-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" className="masscall-icon">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
             <polyline points="14,2 14,8 20,8"/>
             <line x1="16" y1="13" x2="8" y2="13"/>
@@ -158,7 +158,7 @@ function Step1SheetValidation({
           </svg>
           {t('calls.modals.mass.step1.title')}
         </h3>
-        <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 16 }}>
+        <p className="masscall-section-desc">
           {t('calls.modals.mass.step1.desc')}
         </p>
       </div>
@@ -169,17 +169,16 @@ function Step1SheetValidation({
         value={massCallSheetUrl}
         onChange={e => setMassCallSheetUrl(e.target.value)}
         placeholder={t('calls.modals.mass.step1.placeholderUrl')}
-        className="input"
-        style={{ width: '100%', marginBottom: 16 }}
+        className="input w-full mb-4"
       />
 
       {massCallError && (
-        <div className="status-error" style={{ marginBottom: 16 }}>
+        <div className="status-error mb-4">
           {massCallError}
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+      <div className="masscall-actions-end">
         <Button onClick={onClose} variant="secondary">
           {t('calls.common.cancel')}
         </Button>
@@ -219,21 +218,21 @@ function Step2Settings({
 
   return (
     <div>
-      <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12, color: '#1f2937', backgroundColor: 'transparent' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+      <div className="masscall-section">
+        <h3 className="masscall-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" className="masscall-icon">
             <circle cx="12" cy="12" r="3"/>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
           </svg>
           {t('calls.modals.mass.step2.title')}
         </h3>
-        <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 16 }}>
+        <p className="masscall-section-desc">
           {t('calls.modals.mass.step2.desc')}
         </p>
 
-        <div style={{ display: 'grid', gap: 16, marginTop: 8 }}>
+        <div className="masscall-grid">
           {/* Campaign and Call type row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="masscall-grid-2col">
             <div>
               <label className="label">{t('calls.modals.mass.step2.campaign.label')}</label>
               <select value={massCallCampaignId} onChange={e => setMassCallCampaignId(e.target.value)} className="select">
@@ -256,7 +255,7 @@ function Step2Settings({
           </div>
 
           {/* Voice and SMS toggles row */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <div className="masscall-grid-2col">
             <div>
               <label className="label">{t('calls.modals.mass.step2.voice.label')}</label>
               <select
@@ -270,11 +269,11 @@ function Step2Settings({
               </select>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <label style={{ fontWeight: 600, fontSize: 14, marginBottom: 8 }}>{t('calls.modals.mass.step2.sms.title')}</label>
+            <div className="masscall-flex-col">
+              <label className="masscall-label">{t('calls.modals.mass.step2.sms.title')}</label>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <label style={{ fontWeight: 500, fontSize: 13, minWidth: 120 }}>{t('calls.modals.mass.step2.sms.before')}</label>
+              <div className="masscall-flex-row">
+                <label className="masscall-label-sm">{t('calls.modals.mass.step2.sms.before')}</label>
                 <label className="switch">
                   <input
                     type="checkbox"
@@ -285,8 +284,8 @@ function Step2Settings({
                 </label>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <label style={{ fontWeight: 500, fontSize: 13, minWidth: 120 }}>{t('calls.modals.mass.step2.sms.after')}</label>
+              <div className="masscall-flex-row">
+                <label className="masscall-label-sm">{t('calls.modals.mass.step2.sms.after')}</label>
                 <label className="switch">
                   <input
                     type="checkbox"
@@ -297,8 +296,8 @@ function Step2Settings({
                 </label>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <label style={{ fontWeight: 500, fontSize: 13, minWidth: 120 }}>{t('calls.modals.mass.step2.sms.missed')}</label>
+              <div className="masscall-flex-row">
+                <label className="masscall-label-sm">{t('calls.modals.mass.step2.sms.missed')}</label>
                 <label className="switch">
                   <input
                     type="checkbox"
@@ -314,20 +313,20 @@ function Step2Settings({
           {/* SMS preview */}
           {(massCallSmsFirst || massCallSmsAfterCall || massCallSmsMissedCall) && selectedCallType && (
             <div className="sms-preview-container">
-              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 6 }}>{t('calls.modals.mass.step2.sms.preview')}</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className="masscall-preview-label">{t('calls.modals.mass.step2.sms.preview')}</div>
+              <div className="masscall-preview-container">
                 {massCallSmsFirst && selectedCallType.first_sms && (
-                  <div style={{ padding: 8, background: '#f3f4f6', borderRadius: 6, fontSize: 12 }}>
+                  <div className="masscall-preview-box">
                     <strong>{t('calls.modals.mass.step2.sms.before')}:</strong> {selectedCallType.first_sms}
                   </div>
                 )}
                 {massCallSmsAfterCall && selectedCallType.after_call_sms && (
-                  <div style={{ padding: 8, background: '#f3f4f6', borderRadius: 6, fontSize: 12 }}>
+                  <div className="masscall-preview-box">
                     <strong>{t('calls.modals.mass.step2.sms.after')}:</strong> {selectedCallType.after_call_sms}
                   </div>
                 )}
                 {massCallSmsMissedCall && selectedCallType.missed_call_sms && (
-                  <div style={{ padding: 8, background: '#f3f4f6', borderRadius: 6, fontSize: 12 }}>
+                  <div className="masscall-preview-box">
                     <strong>{t('calls.modals.mass.step2.sms.missed')}:</strong> {selectedCallType.missed_call_sms}
                   </div>
                 )}
@@ -337,8 +336,8 @@ function Step2Settings({
         </div>
 
         {massCallValidationResult && (
-          <div className="status-success" style={{ marginTop: 8, marginBottom: 16 }}>
-            <div style={{ fontWeight: 600 }}>{t('calls.modals.mass.step1.validationOk')}</div>
+          <div className="status-success mt-2 mb-4">
+            <div className="masscall-validation-title">{t('calls.modals.mass.step1.validationOk')}</div>
             <div><strong>{t('calls.modals.mass.step1.found.phones', { count: massCallValidationResult.phoneCount })}</strong></div>
             {massCallValidationResult.emailCount > 0 && (
               <div><strong>{t('calls.modals.mass.step1.found.emails', { count: massCallValidationResult.emailCount })}</strong></div>
@@ -350,7 +349,7 @@ function Step2Settings({
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 12, justifyContent: 'space-between' }}>
+      <div className="masscall-actions-between">
         <Button onClick={() => setMassCallStep(1)} variant="secondary">
           {t('calls.modals.mass.step2.back')}
         </Button>
@@ -380,36 +379,36 @@ function Step3Schedule({
 }) {
   return (
     <div>
-      <div style={{ marginBottom: 20 }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 12, color: '#1f2937', backgroundColor: 'transparent' }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" style={{ marginRight: '8px', verticalAlign: 'middle' }}>
+      <div className="masscall-section">
+        <h3 className="masscall-section-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" className="masscall-icon">
             <circle cx="12" cy="12" r="10"/>
             <polyline points="12,6 12,12 16,14"/>
           </svg>
           {t('calls.modals.mass.step3.title')}
         </h3>
-        <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 16 }}>
+        <p className="masscall-section-desc">
           {t('calls.modals.mass.step3.desc')}
         </p>
       </div>
 
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+      <div className="flex gap-3 mb-5">
         <Button
           onClick={handleMassCallStart}
           disabled={massCallStarting}
           variant="primary"
-          style={{ flex: 1, padding: '16px 24px', fontSize: 16, fontWeight: 600 }}
+          className="flex-1 px-6 py-4 text-base font-semibold"
         >
           {massCallStarting ? t('calls.modals.mass.step3.startNow.starting') : t('calls.modals.mass.step3.startNow.label')}
         </Button>
       </div>
 
-      <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: 20, marginTop: 20 }}>
-        <h4 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12, color: '#374151' }}>
+      <div className="masscall-divider-section">
+        <h4 className="masscall-subsection-title">
           {t('calls.modals.mass.step3.orSchedule')}
         </h4>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+        <div className="masscall-grid-2col-sm">
           <div>
             <label className="label">{t('calls.modals.mass.step3.date')}</label>
             <input
@@ -422,9 +421,9 @@ function Step3Schedule({
           </div>
           <div>
             <label className="label">{t('calls.modals.mass.step3.time')}</label>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="masscall-test-row">
               <select
-                className="select"
+                className="select flex-1"
                 value={(massCallScheduledTime || '').split(':')[0] || ''}
                 onChange={e => {
                   const hour = String(e.target.value || '').padStart(2, '0')
@@ -432,7 +431,6 @@ function Step3Schedule({
                   const mm = parseInt(minute, 10) >= 30 ? '30' : '00'
                   setMassCallScheduledTime(hour ? `${hour}:${mm}` : '')
                 }}
-                style={{ flex: 1 }}
               >
                 <option value="">--</option>
                 {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(hh => (
@@ -440,14 +438,13 @@ function Step3Schedule({
                 ))}
               </select>
               <select
-                className="select"
+                className="select w-[100px]"
                 value={(massCallScheduledTime || '').split(':')[1] || ''}
                 onChange={e => {
                   const minute = e.target.value === '30' ? '30' : '00'
                   const hour = (massCallScheduledTime || '').split(':')[0] || ''
                   setMassCallScheduledTime(hour ? `${String(hour).padStart(2, '0')}:${minute}` : '')
                 }}
-                style={{ width: 100 }}
               >
                 <option value="">--</option>
                 <option value="00">00</option>
@@ -461,13 +458,13 @@ function Step3Schedule({
           onClick={handleMassCallSchedule}
           disabled={massCallScheduling || !massCallScheduledDate || !massCallScheduledTime}
           variant="secondary"
-          style={{ width: '100%', padding: '12px 24px' }}
+          className="w-full px-6 py-3"
         >
           {massCallScheduling ? t('calls.modals.mass.step3.schedule.scheduling') : t('calls.modals.mass.step3.schedule.label')}
         </Button>
       </div>
 
-      <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-start', marginTop: 20 }}>
+      <div className="masscall-actions-start">
         <Button onClick={() => setMassCallStep(2)} variant="secondary">
           {t('calls.modals.mass.step3.back')}
         </Button>

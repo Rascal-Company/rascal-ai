@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import CallDetailModal from '../components/calls/CallDetailModal'
-import './VastaajaPage.css'
 
 export default function VastaajaPage() {
   const { t } = useTranslation('common')

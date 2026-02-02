@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react'
 import Button from '../Button'
 import ConfirmPopover from '../ConfirmPopover'
-import './PostCard.css'
 
 function PostCard({ post, onEdit, onDelete, onDuplicate, onPublish, onSchedule, onMoveToNext, onDragStart, onDragEnd, isDragging, hideActions = false, t }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)

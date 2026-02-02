@@ -1,6 +1,5 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import "./UserInfoModal.css";
 
 export default function UserInfoModal({
   isOpen,

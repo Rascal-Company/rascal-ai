@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import './MixpostAnalyticsIframe.css'
 
 const MixpostAnalyticsIframe = () => {
   const [workspaceConfig, setWorkspaceConfig] = useState(null)

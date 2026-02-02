@@ -6,8 +6,6 @@ import { supabase } from '../lib/supabase'
 import { getCurrentUser, isAdmin } from '../utils/userApi'
 import { useAuth } from '../contexts/AuthContext'
 import Button from '../components/Button'
-import '../components/ModalComponents.css'
-import './AdminPage.css'
 
 export default function AdminPage() {
   const { t } = useTranslation('common')

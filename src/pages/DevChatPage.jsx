@@ -4,7 +4,6 @@ import axios from 'axios'
 import ReactMarkdown from 'react-markdown'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import './AIChatPage.css'
 
 export default function DevChatPage() {
   const { t } = useTranslation('common')

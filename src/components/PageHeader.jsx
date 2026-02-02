@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import './PageHeader.css'
 
 export default function PageHeader({ title, background = 'var(--brand-dark)', color = '#fff', children }) {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;

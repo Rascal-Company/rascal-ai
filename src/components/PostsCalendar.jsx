@@ -343,45 +343,24 @@ export default function PostsCalendar({
         <div className="calendar-header-right">
           {/* Näkymän valinta - piilotetaan mobiilissa */}
           {!isMobile && (
-            <div style={{ 
-              display: 'flex', 
-              gap: '4px', 
-              marginRight: '12px',
-              backgroundColor: '#f3f4f6',
-              borderRadius: '6px',
-              padding: '2px'
-            }}>
+            <div className="flex gap-1 mr-3 bg-gray-100 rounded-md p-0.5">
               <button
                 onClick={() => setViewType('month')}
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '14px',
-                  fontWeight: viewType === 'month' ? '600' : '400',
-                  color: viewType === 'month' ? '#111827' : '#6b7280',
-                  backgroundColor: viewType === 'month' ? '#ffffff' : 'transparent',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: viewType === 'month' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none'
-                }}
+                className={`py-1.5 px-3 text-sm border-none rounded cursor-pointer transition-all duration-200 ${
+                  viewType === 'month'
+                    ? 'font-semibold text-gray-900 bg-white shadow-sm'
+                    : 'font-normal text-gray-500 bg-transparent'
+                }`}
               >
                 {t('calendar.view.month')}
               </button>
               <button
                 onClick={() => setViewType('week')}
-                style={{
-                  padding: '6px 12px',
-                  fontSize: '14px',
-                  fontWeight: viewType === 'week' ? '600' : '400',
-                  color: viewType === 'week' ? '#111827' : '#6b7280',
-                  backgroundColor: viewType === 'week' ? '#ffffff' : 'transparent',
-                  border: 'none',
-                  borderRadius: '4px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  boxShadow: viewType === 'week' ? '0 1px 2px rgba(0,0,0,0.1)' : 'none'
-                }}
+                className={`py-1.5 px-3 text-sm border-none rounded cursor-pointer transition-all duration-200 ${
+                  viewType === 'week'
+                    ? 'font-semibold text-gray-900 bg-white shadow-sm'
+                    : 'font-normal text-gray-500 bg-transparent'
+                }`}
               >
                 {t('calendar.view.week')}
               </button>
@@ -389,15 +368,11 @@ export default function PostsCalendar({
           )}
           
           {onRefresh && (
-            <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               onClick={onRefresh}
               disabled={refreshing}
-              style={{ 
-                marginRight: '8px',
-                fontSize: '14px',
-                padding: '8px 12px'
-              }}
+              className="mr-2 text-sm py-2 px-3"
             >
               {refreshing ? t('ui.buttons.refreshing') : t('ui.buttons.refresh')}
             </Button>
@@ -408,7 +383,7 @@ export default function PostsCalendar({
         </div>
       </div>
 
-      <div className="calendar-grid" style={viewType === 'day' ? { gridTemplateColumns: '1fr' } : undefined}>
+      <div className={`calendar-grid ${viewType === 'day' ? 'grid-cols-1' : ''}`}>
         {/* Viikonpäivien otsikot - piilotetaan päivänäkymässä */}
         {viewType !== 'day' && weekdayLabels.map(label => (
           <div key={label} className="calendar-weekday">{label}</div>
@@ -421,10 +396,9 @@ export default function PostsCalendar({
               if (viewType === 'day' && ci > 0) return null
               
               return (
-                <div 
-                  key={ci} 
-                  className={`calendar-cell ${cell ? (cell.key === todayKey ? 'calendar-cell--today' : '') : 'calendar-cell--empty'}`}
-                  style={viewType === 'day' ? { gridColumn: '1 / -1' } : undefined}
+                <div
+                  key={ci}
+                  className={`calendar-cell ${cell ? (cell.key === todayKey ? 'calendar-cell--today' : '') : 'calendar-cell--empty'} ${viewType === 'day' ? 'col-span-full' : ''}`}
                   onMouseEnter={() => cell && setHoveredDate(cell.key)}
                   onMouseLeave={() => setHoveredDate(null)}
                 >
@@ -491,12 +465,12 @@ export default function PostsCalendar({
                 <button className="modal-close" onClick={handleCloseScheduleModal}>×</button>
               </div>
               <div className="modal-body">
-                <p style={{ marginBottom: '16px', color: '#6b7280' }}>
+                <p className="mb-4 text-gray-500">
                   Valitse postaus joka aikataulutetaan päivälle: <strong>{selectedDate}</strong>
                 </p>
                 <div className="schedule-posts-list">
                   {readyPosts.length === 0 ? (
-                    <p style={{ padding: '20px', textAlign: 'center', color: '#6b7280' }}>
+                    <p className="p-5 text-center text-gray-500">
                       Ei valmiita postauksia
                     </p>
                   ) : (
@@ -541,8 +515,8 @@ export default function PostsCalendar({
                 <button className="modal-close" onClick={handleCloseTimeModal}>×</button>
               </div>
               <div className="modal-body">
-                <div style={{ marginBottom: '24px' }}>
-                  <div className="schedule-post-item" style={{ cursor: 'default', pointerEvents: 'none' }}>
+                <div className="mb-6">
+                  <div className="schedule-post-item cursor-default pointer-events-none">
                     <div className="schedule-post-thumbnail">
                       {selectedPost.post.thumbnail ? (
                         <img src={selectedPost.post.thumbnail} alt={selectedPost.post.title} />
@@ -560,87 +534,46 @@ export default function PostsCalendar({
                   </div>
                 </div>
                 
-                <div style={{ marginBottom: '16px' }}>
-                  <p style={{ marginBottom: '8px', color: '#6b7280', fontSize: '14px' }}>
+                <div className="mb-4">
+                  <p className="mb-2 text-gray-500 text-sm">
                     Päivämäärä: <strong>{selectedPost.dateKey}</strong>
                   </p>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: '24px' }}>
-                  <label className="form-label" style={{ 
-                    display: 'block', 
-                    marginBottom: '8px', 
-                    fontSize: '14px', 
-                    fontWeight: '600', 
-                    color: '#111827' 
-                  }}>
+                <div className="form-group mb-6">
+                  <label className="form-label block mb-2 text-sm font-semibold text-gray-900">
                     Julkaisuaika
                   </label>
                   <input
                     type="time"
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      fontSize: '16px',
-                      outline: 'none',
-                      transition: 'border-color 0.2s'
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
-                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                    className="w-full p-3 border border-gray-300 rounded-lg text-base outline-none transition-colors duration-200 focus:border-blue-500"
                   />
                 </div>
 
                 {/* Somekanavat */}
-                <div className="form-group" style={{ marginBottom: '24px' }}>
-                  <h3 style={{ 
-                    marginTop: 0, 
-                    marginBottom: '12px', 
-                    fontSize: '16px', 
-                    fontWeight: '600', 
-                    color: '#111827' 
-                  }}>
+                <div className="form-group mb-6">
+                  <h3 className="mt-0 mb-3 text-base font-semibold text-gray-900">
                     Kanavat
                   </h3>
-                  <div style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    gap: '12px', 
-                    maxHeight: '300px', 
-                    overflowY: 'auto' 
-                  }}>
+                  <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto">
                     {loadingAccounts ? (
-                      <div style={{ 
-                        padding: '20px', 
-                        textAlign: 'center', 
-                        color: '#6b7280',
-                        backgroundColor: '#f9fafb',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px'
-                      }}>
+                      <div className="p-5 text-center text-gray-500 bg-gray-50 border border-gray-200 rounded-lg">
                         Ladataan tilejä...
                       </div>
                     ) : socialAccounts && socialAccounts.length > 0 ? (
                       socialAccounts.map((account) => {
                         const isSelected = selectedAccounts.includes(account.mixpost_account_uuid)
                         return (
-                          <div 
+                          <div
                             key={account.mixpost_account_uuid}
                             onClick={() => toggleAccount(account.mixpost_account_uuid)}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '12px',
-                              padding: '12px',
-                              backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
-                              border: isSelected ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                              borderRadius: '8px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s'
-                            }}
+                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all duration-200 ${
+                              isSelected
+                                ? 'bg-blue-50 border-2 border-blue-500'
+                                : 'bg-white border border-gray-200'
+                            }`}
                           >
                             <input
                               type="checkbox"
@@ -650,29 +583,20 @@ export default function PostsCalendar({
                                 toggleAccount(account.mixpost_account_uuid)
                               }}
                               onClick={(e) => e.stopPropagation()}
-                              style={{
-                                width: '18px',
-                                height: '18px',
-                                cursor: 'pointer'
-                              }}
+                              className="w-[18px] h-[18px] cursor-pointer"
                             />
                             {account.profile_image_url && (
-                              <img 
-                                src={account.profile_image_url} 
+                              <img
+                                src={account.profile_image_url}
                                 alt={account.account_name}
-                                style={{
-                                  width: '40px',
-                                  height: '40px',
-                                  borderRadius: '50%',
-                                  objectFit: 'cover'
-                                }}
+                                className="w-10 h-10 rounded-full object-cover"
                               />
                             )}
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontWeight: '600', fontSize: '14px', color: '#111827' }}>
+                            <div className="flex-1">
+                              <div className="font-semibold text-sm text-gray-900">
                                 {account.account_name}
                               </div>
-                              <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                              <div className="text-xs text-gray-500">
                                 {account.provider} • {account.username ? `@${account.username}` : account.account_name}
                               </div>
                             </div>
@@ -680,28 +604,14 @@ export default function PostsCalendar({
                         )
                       })
                     ) : (
-                      <div style={{ 
-                        padding: '20px', 
-                        textAlign: 'center', 
-                        color: '#6b7280',
-                        backgroundColor: '#f9fafb',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px'
-                      }}>
+                      <div className="p-5 text-center text-gray-500 bg-gray-50 border border-gray-200 rounded-lg">
                         Ei yhdistettyjä sometilejä
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="modal-actions" style={{ 
-                  display: 'flex', 
-                  justifyContent: 'flex-end', 
-                  gap: '12px', 
-                  marginTop: '24px',
-                  paddingTop: '24px',
-                  borderTop: '1px solid #e5e7eb'
-                }}>
+                <div className="modal-actions flex justify-end gap-3 mt-6 pt-6 border-t border-gray-200">
                   <Button variant="secondary" onClick={handleCloseTimeModal}>
                     Peruuta
                   </Button>

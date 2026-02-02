@@ -4,8 +4,6 @@ import { useAuth } from '../contexts/AuthContext'
 import { usePosts } from '../contexts/PostsContext'
 import { supabase } from '../lib/supabase'
 import Button from '../components/Button'
-import '../components/ModalComponents.css'
-import './ManagePostsPage.css'
 
 // Dummy data for initial state
 const initialPosts = [

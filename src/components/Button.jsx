@@ -1,5 +1,4 @@
-import React from 'react'
-import './Button.css'
+import React from "react";
 
 /**
  * Yhtenäinen nappikomponentti Rascal AI -sovellukseen.
@@ -9,49 +8,55 @@ import './Button.css'
  *  - type: button/submit/reset
  *  - disabled: disabloitu vai ei
  *  - variant: 'primary' | 'secondary' | 'danger' (väriteema)
- *  - style: mahdollisuus ylikirjoittaa tyyliä
+ *  - size: 'sm' | 'md' | 'lg' (koko)
+ *  - loading: näytä loading-tila
+ *  - fullWidthMobile: täysi leveys mobiilissa
+ *  - className: lisäluokat
  */
 export default function Button({
   children,
   onClick,
-  type = 'button',
+  type = "button",
   disabled = false,
-  variant = 'primary',
-  style = {},
+  variant = "primary",
+  size = "md",
+  loading = false,
+  fullWidthMobile = false,
+  className = "",
   ...rest
 }) {
-  // Väriteemat
-  const variants = {
-    primary: {
-      background: disabled ? '#9ca3af' : '#ff6600',
-      color: '#fff',
-      border: 'none',
-    },
-    secondary: {
-      background: '#fff',
-      color: '#ff6600',
-      border: '1.5px solid #ff6600',
-    },
-    danger: {
-      background: disabled ? '#fca5a5' : '#dc2626',
-      color: '#fff',
-      border: 'none',
-    }
-  }
+  const sizeClasses = {
+    sm: "btn-sm",
+    md: "",
+    lg: "btn-lg",
+  };
+
+  const variantClasses = {
+    primary: "btn-primary",
+    secondary: "btn-secondary",
+    danger: "btn-danger",
+  };
+
+  const classes = [
+    "btn",
+    variantClasses[variant] || "btn-primary",
+    sizeClasses[size] || "",
+    loading ? "btn-loading" : "",
+    fullWidthMobile ? "btn-full-mobile" : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled}
-      className={`button button-${variant}`}
-      style={{
-        ...variants[variant],
-        ...style
-      }}
+      disabled={disabled || loading}
+      className={classes}
       {...rest}
     >
       {children}
     </button>
-  )
-} 
+  );
+}

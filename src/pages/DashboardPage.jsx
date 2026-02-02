@@ -6,12 +6,11 @@ import axios from 'axios'
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, BarChart, Bar, ScatterChart, Scatter, ZAxis, Tooltip, Legend, CartesianGrid } from 'recharts'
 import PageHeader from '../components/PageHeader'
 import { supabase } from '../lib/supabase'
-import styles from './DashboardPage.module.css'
+// CSS Module removed - styles moved to main.css
 import { useAuth } from '../contexts/AuthContext'
 import PageMeta from '../components/PageMeta'
 import AikataulutettuModal from '../components/AikataulutettuModal'
-// Analytics poistettu - tehdään myöhemmin
-import '../components/ModalComponents.css'
+import { useOrgId, useSocialAccounts, useCampaigns } from '../hooks/queries'
 
 function EditPostModal({ post, onClose, onSave }) {
   const { t } = useTranslation('common')
@@ -61,155 +60,73 @@ function EditPostModal({ post, onClose, onSave }) {
   }
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      background: 'rgba(0,0,0,0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-      padding: '20px'
-    }}>
-      <div style={{
-        background: '#fff',
-        borderRadius: 16,
-        padding: isMobile ? 20 : 32,
-        maxWidth: isMobile ? '100%' : 600,
-        width: '100%',
-        maxHeight: '90vh',
-        overflow: 'auto',
-        boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: '#1f2937' }}>{t('dashboard.edit.title')}</h2>
-          <button onClick={onClose} style={{
-            background: 'none',
-            border: 'none',
-            fontSize: 24,
-            cursor: 'pointer',
-            color: '#6b7280'
-          }}>×</button>
+    <div className="edit-post-modal-overlay">
+      <div className={`edit-post-modal-content ${isMobile ? 'mobile' : ''}`}>
+        <div className="edit-post-modal-header">
+          <h2 className="edit-post-modal-title">{t('dashboard.edit.title')}</h2>
+          <button onClick={onClose} className="edit-post-modal-close">×</button>
         </div>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <div>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>{t('dashboard.edit.ideaLabel')}</label>
+
+        <form onSubmit={handleSubmit} className="edit-post-form">
+          <div className="edit-post-form-group">
+            <label>{t('dashboard.edit.ideaLabel')}</label>
             <textarea
               value={idea}
               onChange={(e) => setIdea(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: 80,
-                padding: 12,
-                border: '1px solid #d1d5db',
-                borderRadius: 8,
-                fontSize: 14,
-                resize: 'vertical',
-                fontFamily: 'inherit'
-              }}
+              className="edit-post-form-textarea"
+              style={{ minHeight: 80 }}
               placeholder={t('dashboard.edit.ideaPlaceholder')}
             />
           </div>
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>{t('dashboard.edit.captionLabel')}</label>
+
+          <div className="edit-post-form-group">
+            <label>{t('dashboard.edit.captionLabel')}</label>
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              style={{
-                width: '100%',
-                minHeight: 120,
-                padding: 12,
-                border: '1px solid #d1d5db',
-                borderRadius: 8,
-                fontSize: 14,
-                resize: 'vertical',
-                fontFamily: 'inherit'
-              }}
+              className="edit-post-form-textarea"
+              style={{ minHeight: 120 }}
               placeholder={t('dashboard.edit.captionPlaceholder')}
             />
           </div>
-          
-          <div>
-            <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>{t('dashboard.edit.publishDateLabel')}</label>
+
+          <div className="edit-post-form-group">
+            <label>{t('dashboard.edit.publishDateLabel')}</label>
             <input
               type="datetime-local"
               value={publishDate}
               onChange={(e) => setPublishDate(e.target.value)}
-              style={{
-                width: '100%',
-                padding: 12,
-                border: '1px solid #d1d5db',
-                borderRadius: 8,
-                fontSize: 14
-              }}
+              className="edit-post-form-input"
             />
           </div>
-          
+
           {error && (
-            <div style={{
-              padding: 12,
-              background: '#fef2f2',
-              border: '1px solid #fecaca',
-              borderRadius: 8,
-              color: '#dc2626',
-              fontSize: 14
-            }}>
+            <div className="dashboard-alert dashboard-alert-error">
               {error || t('dashboard.edit.saveError')}
             </div>
           )}
-          
+
           {success && (
-            <div style={{
-              padding: 12,
-              background: '#f0fdf4',
-              border: '1px solid #bbf7d0',
-              borderRadius: 8,
-              color: '#16a34a',
-              fontSize: 14
-            }}>
+            <div className="dashboard-alert dashboard-alert-success">
               {t('dashboard.edit.saveSuccess')}
             </div>
           )}
-          
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+
+          <div className="edit-post-form-actions">
             <button
               type="button"
               onClick={onClose}
-              style={{
-                padding: '12px 24px',
-                border: '1px solid #d1d5db',
-                borderRadius: 8,
-                background: '#fff',
-                color: '#374151',
-                cursor: 'pointer',
-                fontSize: 14,
-                fontWeight: 500
-              }}
+              className="dashboard-btn-secondary"
             >
               {t('dashboard.edit.cancel')}
             </button>
             <button
               type="submit"
               disabled={saving}
-              style={{
-                padding: '12px 24px',
-                border: 'none',
-                borderRadius: 8,
-                background: '#2563eb',
-                color: '#fff',
-                cursor: saving ? 'not-allowed' : 'pointer',
-                fontSize: 14,
-                fontWeight: 500,
-                opacity: saving ? 0.7 : 1
-              }}
+              className="dashboard-btn-primary"
             >
-            {saving ? t('dashboard.edit.saving') : t('dashboard.edit.save')}
-          </button>
+              {saving ? t('dashboard.edit.saving') : t('dashboard.edit.save')}
+            </button>
           </div>
         </form>
       </div>
@@ -241,31 +158,35 @@ export default function DashboardPage() {
       label: t('dashboard.metrics.stats.upcomingPosts'), 
       value: statsData.upcomingCount || 0, 
       trend: 12.5, 
-      color: '#cea78d' 
+      color: '#9ca3af' 
     },
     { 
       label: t('dashboard.metrics.stats.publishedContent'), 
       value: statsData.monthlyCount || 0, 
       trend: -5.2, 
-      color: '#cea78d' 
+      color: '#9ca3af' 
     },
     { 
       label: t('dashboard.metrics.stats.messageCosts'), 
       value: statsData.totalMessagePrice ? `€${statsData.totalMessagePrice.toFixed(2)}` : '€0.00', 
       trend: 8.7, 
-      color: '#cea78d' 
+      color: '#9ca3af' 
     },
     { 
       label: t('dashboard.metrics.stats.callCosts'), 
       value: statsData.totalCallPrice ? `€${statsData.totalCallPrice.toFixed(2)}` : '€0.00', 
       trend: 15.3, 
-      color: '#cea78d' 
+      color: '#9ca3af' 
     }
   ]
   const [schedule, setSchedule] = useState([])
   const [scheduleLoading, setScheduleLoading] = useState(true)
-  const [socialAccounts, setSocialAccounts] = useState([]) // Supabase social accounts
   const { user, organization, loading: authLoading } = useAuth()
+
+  // TanStack Query hooks - vähennetään duplikaatteja
+  const { orgId, isLoading: orgLoading } = useOrgId()
+  const { socialAccounts } = useSocialAccounts()
+  const { campaigns } = useCampaigns()
   const [imageModalUrl, setImageModalUrl] = useState(null)
   const [showScheduledModal, setShowScheduledModal] = useState(false)
   const [selectedPost, setSelectedPost] = useState(null)
@@ -361,17 +282,13 @@ export default function DashboardPage() {
   })
   
   // Hae chart data Supabase:sta
-  const fetchChartData = async (timeFilter) => {
-    if (!user) return
-    
+  const fetchChartData = async (timeFilter, userOrgId) => {
+    if (!userOrgId) return
+
     setChartLoading(true)
-    
+
     try {
-      // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
-      const { getUserOrgId } = await import('../lib/getUserOrgId')
-      const userId = await getUserOrgId(user.id)
-      
-      if (!userId) return
+      const userId = userOrgId
       const now = new Date()
       let startDate
       
@@ -493,8 +410,10 @@ export default function DashboardPage() {
   
   // Päivitä chartData kun aikaväli muuttuu
   useEffect(() => {
-    fetchChartData(selectedTimeFilter)
-  }, [selectedTimeFilter, user])
+    if (orgId) {
+      fetchChartData(selectedTimeFilter, orgId)
+    }
+  }, [selectedTimeFilter, orgId])
 
   // Hae onnistumisanalytiikka backendistä
   useEffect(() => {
@@ -537,45 +456,20 @@ export default function DashboardPage() {
     fetchAdvanced()
   }, [authLoading, user])
 
-  // Hae kampanjametriikat backendista (nimi, puhelut, onnistumis%)
+  // Kampanjametriikat lasketaan useCampaigns-hookin datasta (TanStack Query)
   useEffect(() => {
-    const fetchCampaigns = async () => {
-      if (authLoading || !user) return
-      try {
-        // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
-        const { getUserOrgId } = await import('../lib/getUserOrgId')
-        const userId = await getUserOrgId(user.id)
-        
-        if (!userId) {
-          console.error('User ID not found for campaigns')
-          setCampaignMetrics([])
-          return
-        }
-        
-        const session = await supabase.auth.getSession()
-        const token = session?.data?.session?.access_token
-        if (!token) return
-        const res = await fetch(`/api/campaigns?user_id=${encodeURIComponent(userId)}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        const json = await res.json()
-        if (!res.ok || !Array.isArray(json)) {
-          setCampaignMetrics([])
-          return
-        }
-        const rows = json.map(c => {
-          const total = Number(c.total_calls || 0)
-          const success = Number(c.successful_calls || 0)
-          const successRate = total > 0 ? Math.round((success / total) * 100) : 0
-          return { id: c.id, name: c.name, total, successRate }
-        })
-        setCampaignMetrics(rows)
-      } catch (_) {
-        setCampaignMetrics([])
-      }
+    if (!campaigns || campaigns.length === 0) {
+      setCampaignMetrics([])
+      return
     }
-    fetchCampaigns()
-  }, [authLoading, user, organization])
+    const rows = campaigns.map(c => {
+      const total = Number(c.total_calls || 0)
+      const success = Number(c.successful_calls || 0)
+      const successRate = total > 0 ? Math.round((success / total) * 100) : 0
+      return { id: c.id, name: c.name, total, successRate }
+    })
+    setCampaignMetrics(rows)
+  }, [campaigns])
 
   // Platform värit
   const getPlatformColor = (platform) => {
@@ -603,45 +497,32 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchPosts = async () => {
-      if (authLoading) return
+      if (orgLoading || !orgId) {
+        if (!orgLoading && !orgId) {
+          setError('Käyttäjän ID ei löytynyt')
+          setLoading(false)
+        }
+        return
+      }
       setLoading(true)
       setError(null)
 
-      // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
-      let userId = null
-      if (user) {
-        const { getUserOrgId } = await import('../lib/getUserOrgId')
-        userId = await getUserOrgId(user.id)
-      }
-      
-      if (!userId) {
-        setError('Käyttäjän ID ei löytynyt')
-        setLoading(false)
-        return
-      }
-      
       // Hakee kirjautuneen käyttäjän postaukset - vain käyttäjän omat
       const { data, error } = await supabase
         .from('content')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', orgId)
         .order('publish_date', { ascending: false })
       if (error) setError('Virhe haettaessa julkaisuja')
       setPosts(data || [])
       setLoading(false)
     }
     fetchPosts()
-  }, [authLoading, user])
+  }, [orgLoading, orgId])
 
   useEffect(() => {
     const fetchCallPrice = async () => {
-      if (authLoading || !user) return
-      // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
-      let userId = null
-      if (user) {
-        const { getUserOrgId } = await import('../lib/getUserOrgId')
-        userId = await getUserOrgId(user.id)
-      }
+      if (orgLoading || !orgId) return
 
       // Hae kuluvan kuukauden puheluiden kokonaishinta - vain käyttäjän omat
       const now = new Date()
@@ -650,7 +531,7 @@ export default function DashboardPage() {
       const { data, error } = await supabase
         .from('call_logs')
         .select('price')
-        .eq('user_id', userId)
+        .eq('user_id', orgId)
         .gte('call_date', firstDay.toISOString())
         .lte('call_date', lastDay.toISOString())
       if (!error && data) {
@@ -661,7 +542,7 @@ export default function DashboardPage() {
       }
     }
     fetchCallPrice()
-  }, [authLoading, user])
+  }, [orgLoading, orgId])
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -717,39 +598,7 @@ export default function DashboardPage() {
     fetchStats()
   }, [authLoading, user, organization])
 
-  // Hae käyttäjän social accounts Supabasesta
-  useEffect(() => {
-    const fetchSocialAccounts = async () => {
-      if (authLoading || !user?.id) return
-      
-      try {
-        // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
-        const { getUserOrgId } = await import('../lib/getUserOrgId')
-        const userId = await getUserOrgId(user.id)
-        
-        if (!userId) {
-          console.error('User ID not found for social accounts')
-          return
-        }
-        
-        const { data, error } = await supabase
-          .from('user_social_accounts')
-          .select('mixpost_account_uuid, provider, account_name, username, profile_image_url')
-          .eq('user_id', userId) // Käytetään organisaation ID:tä
-          .eq('is_authorized', true)
-        
-        if (error) {
-          console.error('Error fetching social accounts:', error)
-          return
-        }
-        
-        setSocialAccounts(data || [])
-      } catch (error) {
-        console.error('Error fetching social accounts:', error)
-      }
-    }
-    fetchSocialAccounts()
-  }, [authLoading, user?.id, organization?.id])
+  // Social accounts haetaan nyt useSocialAccounts-hookilla (TanStack Query)
 
   // Hae Google Analytics -kävijätiedot
   useEffect(() => {
@@ -799,24 +648,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const fetchSchedule = async () => {
-      if (authLoading || !user) {
-        setSchedule([])
-        setScheduleLoading(false)
+      if (orgLoading || !orgId) {
+        if (!orgLoading) {
+          setSchedule([])
+          setScheduleLoading(false)
+        }
         return
       }
 
       setScheduleLoading(true)
       try {
-        // Hae oikea user_id (organisaation ID kutsutuille käyttäjille)
-        const { getUserOrgId } = await import('../lib/getUserOrgId')
-        const userId = await getUserOrgId(user.id)
-
-        if (!userId) {
-          console.error('User not found for schedule')
-          setSchedule([])
-          setScheduleLoading(false)
-          return
-        }
+        const userId = orgId
 
         // Hae tulevat julkaisut Supabasesta
         const { data: supabaseData, error } = await supabase
@@ -897,7 +739,7 @@ export default function DashboardPage() {
       }
     }
     fetchSchedule()
-  }, [authLoading, user])
+  }, [orgLoading, orgId, t])
 
 
 
@@ -996,12 +838,12 @@ export default function DashboardPage() {
         <img
           src={url}
           alt="media"
-          style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, background: '#eee', cursor: 'pointer' }}
+          className="dashboard-media-thumbnail"
           onClick={() => setImageModalUrl(url)}
         />
       )
     }
-    return <div style={{ width: 48, height: 48, borderRadius: 8, background: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#aaa', fontSize: 24 }}>–</div>
+    return <div className="dashboard-media-placeholder">–</div>
   }
 
   function formatUpcomingDate(dateStr) {
@@ -1070,30 +912,30 @@ export default function DashboardPage() {
         description={t('dashboard.meta.description')}
         image="/hero.png"
       />
-      <div className={styles['dashboard-container']}>
-        <div className={styles['dashboard-header']}>
+      <div className={'dashboard-container'}>
+        <div className={'dashboard-header'}>
           <h1>{t('dashboard.header.title')}</h1>
           <p>{t('dashboard.header.subtitle')}</p>
         </div>
         {/* Metrics Section - VAPIn tyylillä */}
-        <div className={styles['metrics-section']}>
-          <div className={styles['metrics-header']}>
+        <div className={'dashboard-metrics-section'}>
+          <div className={'dashboard-metrics-header'}>
             <h2>{t('dashboard.metrics.title')}</h2>
-            <div className={styles['metrics-filters']}>
+            <div className={'dashboard-metrics-filters'}>
               <button 
-                className={styles['filter-btn'] + ' ' + (selectedFilter === 'all' ? styles['filter-active'] : '')}
+                className={'dashboard-filter-btn' + ' ' + (selectedFilter === 'all' ? 'filter-active' : '')}
                 onClick={() => setSelectedFilter('all')}
               >
                 {t('dashboard.metrics.filters.all')}
               </button>
               <button 
-                className={styles['filter-btn'] + ' ' + (selectedFilter === 'week' ? styles['filter-active'] : '')}
+                className={'dashboard-filter-btn' + ' ' + (selectedFilter === 'week' ? 'filter-active' : '')}
                 onClick={() => setSelectedFilter('week')}
               >
                 {t('dashboard.metrics.filters.week')}
               </button>
               <button 
-                className={styles['filter-btn'] + ' ' + (selectedFilter === 'month' ? styles['filter-active'] : '')}
+                className={'dashboard-filter-btn' + ' ' + (selectedFilter === 'month' ? 'filter-active' : '')}
                 onClick={() => setSelectedFilter('month')}
               >
                 {t('dashboard.metrics.filters.month')}
@@ -1101,14 +943,14 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <div className={styles['metrics-grid']}>
+          <div className={'dashboard-metrics-grid'}>
             {statsLoading || (gaConnected && gaLoading) ? (
               Array(gaConnected ? 8 : 6).fill(0).map((_, i) => (
-                <div key={i} className={styles['metric-card']}>
-                  <div className={styles['metric-skeleton']}>
-                    <div style={{ background: '#eee', height: 16, width: 100, borderRadius: 4 }}></div>
-                    <div style={{ background: '#eee', height: 32, width: 80, borderRadius: 6, margin: '12px 0' }}></div>
-                    <div style={{ background: '#eee', height: 14, width: 60, borderRadius: 4 }}></div>
+                <div key={i} className={'dashboard-metric-card'}>
+                  <div className={'dashboard-metric-skeleton'}>
+                    <div className="dashboard-skeleton-block" style={{ height: 16, width: 100 }}></div>
+                    <div className="dashboard-skeleton-block" style={{ height: 32, width: 80, margin: '12px 0' }}></div>
+                    <div className="dashboard-skeleton-block" style={{ height: 14, width: 60 }}></div>
                   </div>
                 </div>
               ))
@@ -1125,32 +967,32 @@ export default function DashboardPage() {
                       ? gaVisitors.thisWeek.toLocaleString('fi-FI')
                       : gaVisitors.total.toLocaleString('fi-FI'),
                     trend: gaVisitors.trend || 0,
-                    color: '#cea78d'
+                    color: '#9ca3af'
                   },
                   {
                     label: t('dashboard.visitors.today'),
                     value: gaVisitors.today.toLocaleString('fi-FI'),
                     trend: 0, // Ei trendiä tänään-kortissa
-                    color: '#cea78d',
+                    color: '#9ca3af',
                     noTrend: true // Merkitään että trendiä ei näytetä
                   }
                 ] : [])
               ].map((stat, i) => (
-                <div key={i} className={styles['metric-card']}>
-                  <div className={styles['metric-label']}>{stat.label}</div>
-                  <div className={styles['metric-value']}>{stat.value}</div>
+                <div key={i} className={'dashboard-metric-card'}>
+                  <div className={'dashboard-metric-label'}>{stat.label}</div>
+                  <div className={'dashboard-metric-value'}>{stat.value}</div>
                   {stat.noTrend ? (
-                    <div className={styles['metric-trend']}>
-                      <span className={styles['trend-text']} style={{ color: '#6b7280', fontSize: '12px' }}>
+                    <div className={'dashboard-metric-trend'}>
+                      <span className={'dashboard-trend-text'}>
                         {t('dashboard.visitors.todayDescription')}
                       </span>
                     </div>
                   ) : (
-                    <div className={styles['metric-trend']}>
-                      <span className={styles['trend-icon'] + ' ' + (stat.trend > 0 ? styles['trend-up'] : styles['trend-down'])}>
+                    <div className={'dashboard-metric-trend'}>
+                      <span className={'dashboard-trend-icon' + ' ' + (stat.trend > 0 ? 'dashboard-trend-up' : 'dashboard-trend-down')}>
                         {stat.trend > 0 ? '↗' : '↘'}
                       </span>
-                      <span className={styles['trend-text']}>
+                      <span className={'dashboard-trend-text'}>
                         {Math.abs(stat.trend)}% {stat.trend > 0 ? t('dashboard.metrics.stats.trendUpSuffix') : t('dashboard.metrics.stats.trendDownSuffix')}
                       </span>
                     </div>
@@ -1162,15 +1004,15 @@ export default function DashboardPage() {
 
           {/* Filtterit kävijätiedoille - näytetään vain jos Google Analytics on yhdistetty */}
           {gaConnected && (
-            <div className={styles['metrics-filters']} style={{ marginTop: 16, justifyContent: 'flex-start' }}>
+            <div className={'dashboard-metrics-filters mt-4 justify-start'}>
               <button 
-                className={styles['filter-btn'] + ' ' + (gaVisitorsFilter === 'week' ? styles['filter-active'] : '')}
+                className={'dashboard-filter-btn' + ' ' + (gaVisitorsFilter === 'week' ? 'filter-active' : '')}
                 onClick={() => setGaVisitorsFilter('week')}
               >
                 {t('dashboard.visitors.filters.thisWeek')}
               </button>
               <button 
-                className={styles['filter-btn'] + ' ' + (gaVisitorsFilter === '30days' ? styles['filter-active'] : '')}
+                className={'dashboard-filter-btn' + ' ' + (gaVisitorsFilter === '30days' ? 'filter-active' : '')}
                 onClick={() => setGaVisitorsFilter('30days')}
               >
                 {t('dashboard.visitors.filters.last30Days')}
@@ -1179,11 +1021,11 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className={styles['dashboard-bentogrid']}>
+        <div className={'dashboard-bentogrid'}>
           
           {/* Poistetaan Engagement Analytics -kortti kokonaan */}
           {/*
-          <div className={styles.card} style={{ gridColumn: 'span 2', minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+          <div className={'dashboard-card'} style={{ gridColumn: 'span 2', minHeight: 220, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
             <div style={{ fontWeight: 700, fontSize: 18, color: '#374151', marginBottom: 12 }}>Engagement Analytics</div>
             <div style={{ width: '100%', height: 120, background: 'linear-gradient(90deg,#22c55e22,#2563eb22)', borderRadius: 12, display: 'flex', alignItems: 'flex-end', gap: 8, padding: 16 }}>
               {[40, 60, 80, 50, 90, 70, 100, 60, 80, 50, 70, 90].map((v, i) => (
@@ -1194,108 +1036,68 @@ export default function DashboardPage() {
           </div>
           */}
           {/* Mixpost Analytics Section */}
-          <div className={styles.card} style={{ gridColumn: 'span 3', minHeight: 180, maxWidth: '100%', overflow: 'hidden' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div style={{ fontWeight: 700, fontSize: 18, color: '#1f2937' }}>
+          <div className={'dashboard-card dashboard-card-span-3'}>
+            <div className="dashboard-metrics-header mb-4">
+              <div className="dashboard-card-title mb-0">
                 {t('dashboard.mixpost.title')}
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {/* Time Filter */}
-                <div style={{ display: 'flex', gap: 4 }}>
-                  <button
-                    onClick={() => setMixpostTimeFilter('all')}
-                    className={styles['filter-btn'] + ' ' + (mixpostTimeFilter === 'all' ? styles['filter-active'] : '')}
-                  >
-                    {t('dashboard.metrics.filters.all')}
-                  </button>
-                  <button
-                    onClick={() => setMixpostTimeFilter('week')}
-                    className={styles['filter-btn'] + ' ' + (mixpostTimeFilter === 'week' ? styles['filter-active'] : '')}
-                  >
-                    {t('dashboard.metrics.filters.week')}
-                  </button>
-                  <button
-                    onClick={() => setMixpostTimeFilter('month')}
-                    className={styles['filter-btn'] + ' ' + (mixpostTimeFilter === 'month' ? styles['filter-active'] : '')}
-                  >
-                    {t('dashboard.metrics.filters.month')}
-                  </button>
-                  <button
-                    onClick={() => setMixpostTimeFilter('last_week')}
-                    className={styles['filter-btn'] + ' ' + (mixpostTimeFilter === 'last_week' ? styles['filter-active'] : '')}
-                  >
-                    {t('dashboard.metrics.filters.last_week')}
-                  </button>
-                  <button
-                    onClick={() => setMixpostTimeFilter('last_month')}
-                    className={styles['filter-btn'] + ' ' + (mixpostTimeFilter === 'last_month' ? styles['filter-active'] : '')}
-                  >
-                    {t('dashboard.metrics.filters.last_month')}
-                  </button>
-                </div>
+              <div className="dashboard-metrics-filters">
+                <button
+                  onClick={() => setMixpostTimeFilter('all')}
+                  className={'dashboard-filter-btn' + (mixpostTimeFilter === 'all' ? ' filter-active' : '')}
+                >
+                  {t('dashboard.metrics.filters.all')}
+                </button>
+                <button
+                  onClick={() => setMixpostTimeFilter('week')}
+                  className={'dashboard-filter-btn' + (mixpostTimeFilter === 'week' ? ' filter-active' : '')}
+                >
+                  {t('dashboard.metrics.filters.week')}
+                </button>
+                <button
+                  onClick={() => setMixpostTimeFilter('month')}
+                  className={'dashboard-filter-btn' + (mixpostTimeFilter === 'month' ? ' filter-active' : '')}
+                >
+                  {t('dashboard.metrics.filters.month')}
+                </button>
+                <button
+                  onClick={() => setMixpostTimeFilter('last_week')}
+                  className={'dashboard-filter-btn' + (mixpostTimeFilter === 'last_week' ? ' filter-active' : '')}
+                >
+                  {t('dashboard.metrics.filters.last_week')}
+                </button>
+                <button
+                  onClick={() => setMixpostTimeFilter('last_month')}
+                  className={'dashboard-filter-btn' + (mixpostTimeFilter === 'last_month' ? ' filter-active' : '')}
+                >
+                  {t('dashboard.metrics.filters.last_month')}
+                </button>
               </div>
             </div>
-            
+
             {/* Metrics Grid */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
-              gap: 12,
-              maxWidth: '100%',
-              overflow: 'hidden'
-            }}>
+            <div className="dashboard-mixpost-grid">
               {mixpostLoading ? (
                 Array(5).fill(0).map((_, i) => (
-                  <div key={i} style={{ 
-                    background: '#f9fafb', 
-                    borderRadius: 12, 
-                    padding: 16,
-                    border: '1px solid #e5e7eb'
-                  }}>
-                    <div style={{ background: '#e5e7eb', height: 14, width: 100, borderRadius: 4, marginBottom: 12 }}></div>
-                    <div style={{ background: '#e5e7eb', height: 28, width: 60, borderRadius: 6 }}></div>
+                  <div key={i} className="dashboard-mixpost-metric" style={{ background: '#f9fafb' }}>
+                    <div className="dashboard-skeleton-block" style={{ height: 14, width: 100, marginBottom: 12 }}></div>
+                    <div className="dashboard-skeleton-block" style={{ height: 28, width: 60 }}></div>
                   </div>
                 ))
               ) : (() => {
                 const metrics = mixpostData
                 if (!metrics) return <div>{t('dashboard.mixpost.noData')}</div>
-                
+
                 return [
                   { label: t('dashboard.mixpost.metrics.fbEngagements'), value: (metrics.fbEngagements ?? 0).toLocaleString('fi-FI'), color: '#1877f2' },
                   { label: t('dashboard.mixpost.metrics.fbImpressions'), value: (metrics.fbImpressions ?? 0).toLocaleString('fi-FI'), color: '#1877f2' },
                   { label: t('dashboard.mixpost.metrics.igReach'), value: (metrics.igReach ?? 0).toLocaleString('fi-FI'), color: '#e4405f' },
                   { label: t('dashboard.mixpost.metrics.igFollowers'), value: (metrics.igFollowers ?? 0).toLocaleString('fi-FI'), color: '#e4405f' }
                 ].map((metric, i) => (
-                  <div key={i} style={{
-                    background: '#fff',
-                    borderRadius: 12,
-                    padding: 16,
-                    border: '1px solid #e5e7eb'
-                  }}>
-                    <div style={{ 
-                      fontSize: 11, 
-                      fontWeight: 600, 
-                      color: '#6b7280', 
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.5px',
-                      marginBottom: 8
-                    }}>
-                      {metric.label}
-                    </div>
-                    <div style={{ 
-                      fontSize: 28, 
-                      fontWeight: 700, 
-                      color: '#1f2937',
-                      marginBottom: 4
-                    }}>
-                      {metric.value}
-                    </div>
-                    <div style={{ 
-                      width: 40, 
-                      height: 3, 
-                      background: metric.color, 
-                      borderRadius: 2 
-                    }}></div>
+                  <div key={i} className="dashboard-mixpost-metric">
+                    <div className="dashboard-mixpost-metric-label">{metric.label}</div>
+                    <div className="dashboard-mixpost-metric-value">{metric.value}</div>
+                    <div className="dashboard-mixpost-metric-bar" style={{ background: metric.color }}></div>
                   </div>
                 ))
               })()}
@@ -1303,83 +1105,63 @@ export default function DashboardPage() {
           </div>
 
           {/* Tulevat julkaisut -kortti: mobiiliystävällinen */}
-          <div className={styles.card} style={{ gridColumn: 'span 3', minHeight: 180, display: 'flex', flexDirection: 'column', maxWidth: '100%', overflow: 'hidden' }}>
-            <div style={{ fontWeight: 700, fontSize: 'clamp(16px, 4vw, 18px)', color: '#1f2937', marginBottom: 12 }}>{t('dashboard.upcoming.title')}</div>
-            <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100%', width: '100%' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(13px, 3vw, 15px)', minWidth: 'min(600px, 100%)' }}>
-                <thead>
-                  <tr style={{ color: '#1f2937', fontWeight: 600, background: '#f7f8fc' }}>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', whiteSpace: 'nowrap' }}>{t('dashboard.upcoming.headers.media')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px 4px' }}>{t('dashboard.upcoming.headers.caption')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', whiteSpace: 'nowrap' }}>{t('dashboard.upcoming.headers.channels')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', whiteSpace: 'nowrap' }}>{t('dashboard.upcoming.headers.status')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', whiteSpace: 'nowrap' }}>{t('dashboard.upcoming.headers.date')}</th>
+          <div className={'dashboard-card dashboard-card-span-3'}>
+            <div className="dashboard-card-title">{t('dashboard.upcoming.title')}</div>
+            <div className="dashboard-table-container">
+              <table className="dashboard-table">
+                <thead className="dashboard-table-head">
+                  <tr>
+                    <th>{t('dashboard.upcoming.headers.media')}</th>
+                    <th>{t('dashboard.upcoming.headers.caption')}</th>
+                    <th>{t('dashboard.upcoming.headers.channels')}</th>
+                    <th>{t('dashboard.upcoming.headers.status')}</th>
+                    <th>{t('dashboard.upcoming.headers.date')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scheduleLoading ? (
                     Array(5).fill(0).map((_, i) => (
                       <tr key={i}>
-                        <td colSpan={5} style={{ background: '#eee', height: 48, borderRadius: 6 }}></td>
+                        <td colSpan={5}>
+                          <div className="dashboard-skeleton-block" style={{ height: 48 }}></div>
+                        </td>
                       </tr>
                     ))
                   ) : upcomingPosts.length === 0 ? (
-                    <tr><td colSpan={5} style={{ color: '#888', padding: 16, textAlign: 'center' }}>{t('dashboard.upcoming.empty')}</td></tr>
+                    <tr><td colSpan={5} className="dashboard-table-empty">{t('dashboard.upcoming.empty')}</td></tr>
                   ) : (
-                    upcomingPosts.map((row, i) => (
-                      <tr 
-                        key={row.id} 
+                    upcomingPosts.map((row) => (
+                      <tr
+                        key={row.id}
                         onClick={() => handleScheduledPostClick(row)}
-                        style={{ 
-                          borderBottom: '1px solid #f3f4f6',
-                          cursor: 'pointer',
-                          transition: 'background-color 0.2s'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        className="dashboard-table-row-clickable"
                       >
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top' }}>{renderMediaCell(row)}</td>
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top', wordBreak: 'break-word', maxWidth: '300px' }}>
-                          <div style={{ 
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis', 
-                            display: '-webkit-box', 
-                            WebkitLineClamp: 2, 
-                            WebkitBoxOrient: 'vertical',
-                            lineHeight: '1.4em',
-                            maxHeight: '2.8em'
-                          }}>
+                        <td className="dashboard-table-cell">{renderMediaCell(row)}</td>
+                        <td className="dashboard-table-cell-caption">
+                          <div className="dashboard-caption-text">
                             {row.caption || '--'}
                           </div>
                         </td>
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top', whiteSpace: 'nowrap' }}>
+                        <td className="dashboard-table-cell-nowrap">
                           {(() => {
-                            // Hae kanavat accounts-datasta ja matcha Supabase-dataan
                             if (row.accounts && row.accounts.length > 0) {
                               return (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                <div className="dashboard-channels-list">
                                   {row.accounts.map((acc, idx) => {
-                                    // Hae nimi Supabasesta mixpost_account_uuid:n perusteella
                                     const accountId = acc.id || acc.account_id
-                                    const supabaseAccount = socialAccounts.find(sa => 
+                                    const supabaseAccount = socialAccounts.find(sa =>
                                       sa.mixpost_account_uuid === String(accountId)
                                     )
-                                    
-                                    const name = supabaseAccount?.username 
-                                      ? `@${supabaseAccount.username}` 
-                                      : supabaseAccount?.account_name 
-                                      || acc.name 
-                                      || (acc.username ? `@${acc.username}` : null) 
+
+                                    const name = supabaseAccount?.username
+                                      ? `@${supabaseAccount.username}`
+                                      : supabaseAccount?.account_name
+                                      || acc.name
+                                      || (acc.username ? `@${acc.username}` : null)
                                       || (acc.provider ? acc.provider.charAt(0).toUpperCase() + acc.provider.slice(1) : null)
-                                    
+
                                     return name ? (
-                                      <span key={idx} style={{ 
-                                        fontSize: '12px', 
-                                        padding: '2px 6px', 
-                                        background: '#f3f4f6', 
-                                        borderRadius: '4px',
-                                        color: '#6b7280'
-                                      }}>
+                                      <span key={idx} className="dashboard-channel-badge">
                                         {name}
                                       </span>
                                     ) : null
@@ -1387,12 +1169,11 @@ export default function DashboardPage() {
                                 </div>
                               )
                             }
-                            
                             return '--'
                           })()}
                         </td>
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top', whiteSpace: 'nowrap' }}>{statusMap[row.status] || row.status || '--'}</td>
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top', whiteSpace: 'nowrap' }}>{formatUpcomingDate(row.publish_date)}</td>
+                        <td className="dashboard-table-cell-nowrap">{statusMap[row.status] || row.status || '--'}</td>
+                        <td className="dashboard-table-cell-nowrap">{formatUpcomingDate(row.publish_date)}</td>
                       </tr>
                     ))
                   )}
@@ -1402,26 +1183,26 @@ export default function DashboardPage() {
           </div>
 
           {/* Kampanjat – onnistumiset */}
-          <div className={styles.card} style={{ gridColumn: 'span 3', minHeight: 180, display: 'flex', flexDirection: 'column', maxWidth: '100%', overflow: 'hidden' }}>
-            <div style={{ fontWeight: 700, fontSize: 'clamp(16px, 4vw, 18px)', color: '#1f2937', marginBottom: 12 }}>{t('dashboard.campaigns.title')}</div>
-            <div className="table-container" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', maxWidth: '100%', width: '100%' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'clamp(13px, 3vw, 15px)', minWidth: 'min(520px, 100%)' }}>
-                <thead>
-                  <tr style={{ color: '#1f2937', fontWeight: 600, background: '#f7f8fc' }}>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', whiteSpace: 'nowrap' }}>{t('dashboard.campaigns.headers.campaign')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', whiteSpace: 'nowrap' }}>{t('dashboard.campaigns.headers.calls')}</th>
-                    <th style={{ textAlign: 'left', padding: '8px 4px', whiteSpace: 'nowrap' }}>{t('dashboard.campaigns.headers.successRate')}</th>
+          <div className={'dashboard-card dashboard-card-span-3'}>
+            <div className="dashboard-card-title">{t('dashboard.campaigns.title')}</div>
+            <div className="dashboard-table-container">
+              <table className="dashboard-table" style={{ minWidth: 'min(520px, 100%)' }}>
+                <thead className="dashboard-table-head">
+                  <tr>
+                    <th>{t('dashboard.campaigns.headers.campaign')}</th>
+                    <th>{t('dashboard.campaigns.headers.calls')}</th>
+                    <th>{t('dashboard.campaigns.headers.successRate')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {campaignMetrics.length === 0 ? (
-                    <tr><td colSpan={3} style={{ color: '#888', padding: 16, textAlign: 'center' }}>{t('dashboard.campaigns.noCampaigns')}</td></tr>
+                    <tr><td colSpan={3} className="dashboard-table-empty">{t('dashboard.campaigns.noCampaigns')}</td></tr>
                   ) : (
                     campaignMetrics.slice(0, 6).map(row => (
-                      <tr key={row.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top' }}>{row.name}</td>
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top' }}>{row.total}</td>
-                        <td style={{ padding: '8px 4px', verticalAlign: 'top' }}>{row.successRate}%</td>
+                      <tr key={row.id} className="dashboard-table-row">
+                        <td className="dashboard-table-cell">{row.name}</td>
+                        <td className="dashboard-table-cell">{row.total}</td>
+                        <td className="dashboard-table-cell">{row.successRate}%</td>
                       </tr>
                     ))
                   )}
@@ -1436,18 +1217,18 @@ export default function DashboardPage() {
         {/* Heatmap ja scatter kaaviot poistettu */}
         
         {/* Grafiikki Section - VAPIn tyylillä */}
-        <div className={styles['chart-section']}>
-          <div className={styles['chart-header']}>
+        <div className={'dashboard-chart-section'}>
+          <div className={'dashboard-chart-header'}>
             <h2>{t('dashboard.charts.title')}</h2>
-            <div className={styles['chart-filters']}>
+            <div className={'dashboard-chart-filters'}>
               <button 
-                className={styles['filter-btn'] + ' ' + (selectedTimeFilter === '7days' ? styles['filter-active'] : '')}
+                className={'dashboard-filter-btn' + ' ' + (selectedTimeFilter === '7days' ? 'filter-active' : '')}
                 onClick={() => setSelectedTimeFilter('7days')}
               >
                 {t('dashboard.metrics.filters.days7')}
               </button>
               <button 
-                className={styles['filter-btn'] + ' ' + (selectedTimeFilter === '30days' ? styles['filter-active'] : '')}
+                className={'dashboard-filter-btn' + ' ' + (selectedTimeFilter === '30days' ? 'filter-active' : '')}
                 onClick={() => setSelectedTimeFilter('30days')}
               >
                 {t('dashboard.metrics.filters.days30')}
@@ -1455,10 +1236,10 @@ export default function DashboardPage() {
             </div>
           </div>
           
-          <div className={styles['chart-container']}>
+          <div className={'dashboard-chart-container'}>
             {chartLoading ? (
-              <div className={styles['chart-skeleton']}>
-                <div style={{ background: '#eee', height: 200, width: '100%', borderRadius: 8 }}></div>
+              <div className={'dashboard-chart-skeleton'}>
+                <div className="dashboard-skeleton-block" style={{ height: 200, width: '100%' }}></div>
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={200}>
@@ -1476,16 +1257,16 @@ export default function DashboardPage() {
                   <Line 
                     type="monotone" 
                     dataKey="calls" 
-                    stroke="#cea78d" 
+                    stroke="#9ca3af" 
                     strokeWidth={3}
-                    dot={{ fill: '#cea78d', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#9ca3af', strokeWidth: 2, r: 4 }}
                   />
                   <Line 
                     type="monotone" 
                     dataKey="messages" 
-                    stroke="#4b3120" 
+                    stroke="#374151" 
                     strokeWidth={3}
-                    dot={{ fill: '#4b3120', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: '#374151', strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -1496,7 +1277,7 @@ export default function DashboardPage() {
       
       {/* Image Modal */}
       {imageModalUrl && createPortal(
-        <div 
+        <div
           className="modal-overlay modal-overlay--dark"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
@@ -1509,24 +1290,11 @@ export default function DashboardPage() {
             }
           }}
         >
-          <div className="modal-container" style={{ 
-            maxWidth: '90vw', 
-            maxHeight: '90vh',
-            background: 'transparent',
-            boxShadow: 'none',
-            border: 'none',
-            padding: 0
-          }}>
-            <img 
-              src={imageModalUrl} 
-              alt="media" 
-              style={{ 
-                maxWidth: '100%', 
-                maxHeight: '100%', 
-                borderRadius: 16, 
-                boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-                objectFit: 'contain'
-              }} 
+          <div className="modal-container dashboard-image-modal-content">
+            <img
+              src={imageModalUrl}
+              alt="media"
+              className="dashboard-image-modal-img"
             />
           </div>
         </div>,

@@ -4,7 +4,6 @@ import { useAuth } from "../../contexts/AuthContext";
 
 const ALL_FEATURES = [
   "Campaigns",
-  "Segments",
   "CRM",
   "Phone Calls",
   "Social Media",
@@ -36,7 +35,6 @@ const getFeatureLabel = (feature) => {
     "Phone Calls": "Puhelut",
     "Social Media": "Sosiaalinen media",
     Campaigns: "Kampanjat",
-    Segments: "Segmentit",
     CRM: "CRM",
     Dev: "Kehitys",
     UGC: "UGC",
@@ -380,123 +378,44 @@ export default function FeaturesTab({
     <div className="features-tab-container">
       {/* Onboarding-osio */}
       <div
-        className="onboarding-section"
-        style={{
-          marginBottom: "32px",
-          padding: "20px",
-          backgroundColor: "#fff",
-          borderRadius: "12px",
-          border: "1px solid #e5e7eb",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-        }}
+        className="onboarding-section features-section-card"
       >
         <h3
-          style={{
-            margin: "0 0 8px 0",
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "#1f2937",
-          }}
+          className="features-section-title"
         >
           Onboarding
         </h3>
         <p
-          style={{
-            margin: "0 0 16px 0",
-            fontSize: "14px",
-            color: "#6b7280",
-          }}
+          className="features-section-desc"
         >
           Onko käyttäjän onboarding suoritettu? Jos onboarding on valmis,
           onboarding-modaali ei näy käyttäjälle.
         </p>
 
         {onboardingMessage && (
-          <div
-            style={{
-              padding: "8px 12px",
-              marginBottom: "16px",
-              borderRadius: "6px",
-              fontSize: "14px",
-              backgroundColor: onboardingMessage.includes("Virhe")
-                ? "#fef2f2"
-                : "#f0fdf4",
-              color: onboardingMessage.includes("Virhe")
-                ? "#dc2626"
-                : "#16a34a",
-              border: `1px solid ${onboardingMessage.includes("Virhe") ? "#fecaca" : "#bbf7d0"}`,
-            }}
-          >
+          <div className={`features-message ${onboardingMessage.includes("Virhe") ? 'error' : 'success'}`}>
             {onboardingMessage}
           </div>
         )}
 
         {onboardingLoading ? (
-          <div style={{ color: "#6b7280", fontSize: "14px" }}>Ladataan...</div>
+          <div className="features-loading-text">Ladataan...</div>
         ) : (
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <label
-              style={{
-                fontSize: "14px",
-                fontWeight: 500,
-                color: !onboardingCompleted ? "#1f2937" : "#9ca3af",
-                cursor: "pointer",
-                transition: "color 0.2s",
-              }}
-            >
+          <div className="features-toggle-row">
+            <label className={`features-toggle-label ${!onboardingCompleted ? 'active' : 'inactive'}`}>
               Ei valmis
             </label>
 
-            {/* Liukukytkin */}
             <button
               type="button"
               onClick={() => handleOnboardingToggle(!onboardingCompleted)}
               disabled={onboardingSaving}
-              style={{
-                position: "relative",
-                width: "52px",
-                height: "28px",
-                borderRadius: "14px",
-                border: "none",
-                cursor: onboardingSaving ? "not-allowed" : "pointer",
-                backgroundColor: onboardingCompleted ? "#10b981" : "#6b7280",
-                transition: "background-color 0.3s",
-                outline: "none",
-                padding: "2px",
-              }}
-              onMouseEnter={(e) => {
-                if (!onboardingSaving) {
-                  e.target.style.opacity = "0.9";
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.opacity = "1";
-              }}
+              className={`features-toggle-btn ${onboardingCompleted ? 'on' : 'off'}`}
             >
-              <div
-                style={{
-                  position: "absolute",
-                  top: "2px",
-                  left: onboardingCompleted ? "26px" : "2px",
-                  width: "24px",
-                  height: "24px",
-                  borderRadius: "50%",
-                  backgroundColor: "#fff",
-                  transition: "left 0.3s",
-                  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
-                }}
-              />
+              <div className={`features-toggle-knob ${onboardingCompleted ? 'on' : 'off'}`} />
             </button>
 
-            <label
-              style={{
-                fontSize: "14px",
-                fontWeight: 500,
-                color: onboardingCompleted ? "#1f2937" : "#9ca3af",
-                cursor: "pointer",
-                transition: "color 0.2s",
-              }}
-            >
+            <label className={`features-toggle-label ${onboardingCompleted ? 'active' : 'inactive'}`}>
               Valmis
             </label>
           </div>
@@ -505,84 +424,36 @@ export default function FeaturesTab({
 
       {/* Alustat-osio */}
       <div
-        className="platforms-section"
-        style={{
-          marginBottom: "32px",
-          padding: "20px",
-          backgroundColor: "#fff",
-          borderRadius: "12px",
-          border: "1px solid #e5e7eb",
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-        }}
+        className="platforms-section features-section-card"
       >
         <h3
-          style={{
-            margin: "0 0 8px 0",
-            fontSize: "16px",
-            fontWeight: 600,
-            color: "#1f2937",
-          }}
+          className="features-section-title"
         >
           Alustat
         </h3>
         <p
-          style={{
-            margin: "0 0 16px 0",
-            fontSize: "14px",
-            color: "#6b7280",
-          }}
+          className="features-section-desc"
         >
           Valitse mitkä alustat ovat käytössä asiakkaalla.
         </p>
 
         {saveMessage && (
-          <div
-            style={{
-              padding: "8px 12px",
-              marginBottom: "16px",
-              borderRadius: "6px",
-              fontSize: "14px",
-              backgroundColor: saveMessage.includes("Virhe")
-                ? "#fef2f2"
-                : "#f0fdf4",
-              color: saveMessage.includes("Virhe") ? "#dc2626" : "#16a34a",
-              border: `1px solid ${saveMessage.includes("Virhe") ? "#fecaca" : "#bbf7d0"}`,
-            }}
-          >
+          <div className={`features-message ${saveMessage.includes("Virhe") ? 'error' : 'success'}`}>
             {saveMessage}
           </div>
         )}
 
         {onboardingLoading ? (
-          <div style={{ color: "#6b7280", fontSize: "14px" }}>Ladataan...</div>
+          <div className="features-loading-text">Ladataan...</div>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-              gap: "12px",
-            }}
-          >
+          <div className="features-platform-grid">
             {ALL_PLATFORMS.map((platform) => {
               const isSelected = currentPlatforms.includes(platform);
 
               return (
                 <label
                   key={platform}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "12px",
-                    padding: "12px",
-                    backgroundColor: isSelected ? "#f0fdf4" : "#f9fafb",
-                    border: `2px solid ${isSelected ? "#10b981" : "#e5e7eb"}`,
-                    borderRadius: "8px",
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: isSelected ? "#1f2937" : "#6b7280",
-                  }}
+                  className={`features-platform-label ${isSelected ? 'selected' : 'unselected'}`}
                 >
                   <input
                     type="checkbox"
@@ -600,12 +471,7 @@ export default function FeaturesTab({
                       handlePlatformToggle(newPlatforms);
                     }}
                     disabled={onboardingSaving}
-                    style={{
-                      width: "18px",
-                      height: "18px",
-                      cursor: "pointer",
-                      accentColor: "#10b981",
-                    }}
+                    className="features-platform-checkbox"
                   />
                   <span>{platform}</span>
                 </label>
@@ -614,16 +480,7 @@ export default function FeaturesTab({
           </div>
         )}
 
-        <div
-          style={{
-            marginTop: "16px",
-            padding: "12px",
-            backgroundColor: "#f9fafb",
-            borderRadius: "6px",
-            fontSize: "14px",
-            color: "#6b7280",
-          }}
-        >
+        <div className="features-summary-box">
           <strong>Valittuna:</strong> {currentPlatforms.length} /{" "}
           {ALL_PLATFORMS.length}
         </div>
@@ -631,49 +488,18 @@ export default function FeaturesTab({
 
       {/* WordPress-plugin latausosio - näytetään vain jos WordPress on konfiguroitu */}
       {wordpressLoading ? (
-        <div
-          style={{
-            marginBottom: "32px",
-            padding: "20px",
-            backgroundColor: "#fff",
-            borderRadius: "12px",
-            border: "1px solid #e5e7eb",
-          }}
-        >
-          <div style={{ color: "#6b7280", fontSize: "14px" }}>
+        <div className="features-wordpress-loading">
+          <div className="features-loading-text">
             Tarkistetaan WordPress-integraatiota...
           </div>
         </div>
       ) : (
         wordpressConfigured && (
-          <div
-            className="wordpress-plugin-section"
-            style={{
-              marginBottom: "32px",
-              padding: "20px",
-              backgroundColor: "#fff",
-              borderRadius: "12px",
-              border: "1px solid #e5e7eb",
-              boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-            }}
-          >
-            <h3
-              style={{
-                margin: "0 0 8px 0",
-                fontSize: "16px",
-                fontWeight: 600,
-                color: "#1f2937",
-              }}
-            >
+          <div className="wordpress-plugin-section features-section-card">
+            <h3 className="features-section-title">
               WordPress-plugin
             </h3>
-            <p
-              style={{
-                margin: "0 0 16px 0",
-                fontSize: "14px",
-                color: "#6b7280",
-              }}
-            >
+            <p className="features-section-desc">
               WordPress-integraatio on konfiguroitu. Voit ladata Rascal AI
               WordPress-pluginin alla olevasta linkistä.
             </p>
@@ -681,27 +507,7 @@ export default function FeaturesTab({
             <a
               href="/plugins/rascal-ai.zip"
               download="rascal-ai.zip"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                padding: "10px 16px",
-                backgroundColor: "#10b981",
-                color: "#fff",
-                borderRadius: "6px",
-                fontSize: "14px",
-                fontWeight: 500,
-                textDecoration: "none",
-                transition: "background-color 0.2s",
-                border: "none",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = "#059669";
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = "#10b981";
-              }}
+              className="features-download-btn"
             >
               <svg
                 width="16"
@@ -736,7 +542,7 @@ export default function FeaturesTab({
             </a>
 
             <div
-              style={{ marginTop: "12px", fontSize: "12px", color: "#9ca3af" }}
+              className="features-note"
             >
               Versio: 1.0 | Tiedoston koko: ~100KB
             </div>

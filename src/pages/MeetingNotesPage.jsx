@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import PageHeader from '../components/PageHeader'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import './MeetingNotesPage.css'
 
 export default function MeetingNotesPage() {
   const { t } = useTranslation('common')

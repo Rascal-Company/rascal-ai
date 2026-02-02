@@ -1,8 +1,6 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
 import Button from './Button'
-import './PublishModal.css'
-import './KeskenModal.css' // Shared media styles (.media-placeholder, etc.)
 
 const PublishModal = ({ 
   show, 
@@ -42,7 +40,7 @@ const PublishModal = ({
         }
       }}
     >
-      <div className="modal-container" style={{ maxWidth: '1200px' }}>
+      <div className="modal-container publish-modal-wide">
         <div className="modal-header">
           <h2 className="modal-title">{t('posts.publishModal.title')}</h2>
           <button onClick={onClose} className="modal-close-btn">✕</button>
@@ -61,7 +59,7 @@ const PublishModal = ({
                   if (isCarousel && publishingPost.segments && publishingPost.segments.length > 0) {
                     return (
                       <div className="carousel-slides">
-                        <h4 style={{ marginBottom: '12px', fontSize: '14px', fontWeight: '600', color: '#374151' }}>
+                        <h4 className="publish-modal-slides-title">
                           {t('posts.publishModal.slides', { count: publishingPost.segments.length })}
                         </h4>
                         <div className="slides-grid">
@@ -86,7 +84,7 @@ const PublishModal = ({
                                 </div>
                               )}
                               {/* Fallback placeholder */}
-                              <div className="slide-placeholder" style={{ display: 'none' }}>
+                              <div className="slide-placeholder hidden">
                                 <img src="/placeholder.png" alt={t('posts.publishModal.noMedia')} />
                               </div>
                               {segment.caption && (
@@ -114,11 +112,10 @@ const PublishModal = ({
                   
                   if (mediaUrl.includes('.mp4') || mediaUrl.includes('video')) {
                     return (
-                      <video 
-                        src={mediaUrl} 
-                        className="media-preview"
+                      <video
+                        src={mediaUrl}
+                        className="media-preview media-object-contain"
                         controls
-                        style={{ objectFit: 'contain' }}
                       />
                     )
                   }
@@ -128,8 +125,7 @@ const PublishModal = ({
                       <img 
                         src={mediaUrl} 
                         alt="Postauksen media"
-                        className="media-preview"
-                        style={{ objectFit: 'contain' }}
+                        className="media-preview media-object-contain"
                         onError={(e) => {
                           e.target.style.display = 'none'
                           e.target.nextSibling.style.display = 'flex'
@@ -140,77 +136,45 @@ const PublishModal = ({
                 })()}
 
                 {/* Fallback placeholder */}
-                <div className="media-placeholder" style={{ display: 'none' }}>
+                <div className="media-placeholder hidden">
                   <img src="/placeholder.png" alt={t('posts.publishModal.noMedia')} />
                 </div>
               </div>
             </div>
 
             {/* Oikea: Caption + Aikataulu allekkain */}
-            <div className="publish-modal-right-column" style={{ height: '400px' }}>
+            <div className="publish-modal-right-column publish-modal-col-fixed">
               {/* Caption/Postaus */}
-              <div className="publish-modal-fields" style={{ height: '50%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600', color: '#111827' }}>
+              <div className="publish-modal-fields publish-modal-half">
+                <div className="publish-modal-header-row">
+                  <h3 className="publish-modal-section-title">
                     {t('posts.publishModal.contentToPublish')}
                   </h3>
-                  <span style={{ 
-                    fontSize: '12px', 
-                    color: (publishingPost.caption?.length || 0) > 2000 ? '#ef4444' : '#6b7280',
-                    fontWeight: (publishingPost.caption?.length || 0) > 2000 ? '600' : '400'
-                  }}>
+                  <span className={`publish-modal-char-count ${(publishingPost.caption?.length || 0) > 2000 ? 'warning' : ''}`}>
                     {publishingPost.caption?.length || 0} / 2000
                   </span>
                 </div>
-                <div style={{ 
-                  padding: '12px', 
-                  backgroundColor: '#ffffff', 
-                  border: (publishingPost.caption?.length || 0) > 2000 ? '1px solid #ef4444' : '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  height: 'calc(100% - 40px)',
-                  overflowY: 'auto',
-                  whiteSpace: 'pre-wrap',
-                  fontSize: '14px',
-                  lineHeight: '1.5',
-                  color: '#374151'
-                }}>
+                <div className={`publish-modal-caption-box ${(publishingPost.caption?.length || 0) > 2000 ? 'error' : ''}`}>
                   {publishingPost.caption || t('posts.publishModal.noCaption')}
                 </div>
                 {(publishingPost.caption?.length || 0) > 2000 && (
-                  <p style={{
-                    color: '#ef4444',
-                    fontSize: '12px',
-                    marginTop: '4px',
-                    fontWeight: '500'
-                  }}>
+                  <p className="publish-modal-warning-text">
                     {t('posts.publishModal.captionTooLong')}
                   </p>
                 )}
               </div>
 
               {/* Julkaisupäivä */}
-              <div className="publish-modal-schedule" style={{ height: '50%' }}>
-                <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px', fontWeight: '600', color: '#111827' }}>
+              <div className="publish-modal-schedule publish-modal-half">
+                <h3 className="publish-modal-section-title-mt0">
                   {t('posts.publishModal.scheduleDate')}
                 </h3>
-                <div style={{
-                  padding: '16px',
-                  backgroundColor: '#ffffff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px'
-                }}>
+                <div className="publish-modal-schedule-box">
                   <input
                     type="datetime-local"
                     value={publishDate}
                     onChange={(e) => setPublishDate(e.target.value)}
-                    style={{ 
-                      width: '100%', 
-                      padding: '12px', 
-                      border: '1px solid #d1d5db', 
-                      borderRadius: '6px', 
-                      fontSize: '14px', 
-                      outline: 'none' 
-                    }}
+                    className="publish-modal-datetime-input"
                   />
                 </div>
               </div>
@@ -218,71 +182,45 @@ const PublishModal = ({
 
             {/* Ala: Somekanavat */}
             <div className="publish-modal-accounts">
-              <h3 style={{ marginTop: 0, marginBottom: '12px', fontSize: '16px', fontWeight: '600', color: '#111827' }}>
+              <h3 className="publish-modal-section-title-mt0">
                 {t('posts.publishModal.selectChannels')}
               </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '350px', overflowY: 'auto' }}>
+              <div className="publish-modal-accounts-list">
                 {loadingAccounts ? (
-                  <div style={{
-                    padding: '20px',
-                    textAlign: 'center',
-                    color: '#6b7280',
-                    backgroundColor: '#f9fafb',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px'
-                  }}>
+                  <div className="publish-modal-loading-box">
                     {t('posts.publishModal.loadingAccounts')}
                   </div>
                 ) : socialAccounts && socialAccounts.length > 0 ? (
                   socialAccounts.map((account) => {
                     const isSelected = selectedAccounts.includes(account.mixpost_account_uuid)
                     return (
-                      <div 
+                      <div
                         key={account.mixpost_account_uuid}
                         onClick={() => toggleAccount(account.mixpost_account_uuid)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          padding: '12px',
-                          backgroundColor: isSelected ? '#eff6ff' : '#ffffff',
-                          border: isSelected ? '2px solid #3b82f6' : '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s'
-                        }}
+                        className={`publish-modal-account-card ${isSelected ? 'selected' : ''}`}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={(e) => {
-                            e.stopPropagation() // Estä div:n onClick kun klikataan checkboxia
+                            e.stopPropagation()
                             toggleAccount(account.mixpost_account_uuid)
                           }}
-                          onClick={(e) => e.stopPropagation()} // Estä myös onClick event
-                          style={{
-                            width: '18px',
-                            height: '18px',
-                            cursor: 'pointer'
-                          }}
+                          onClick={(e) => e.stopPropagation()}
+                          className="publish-modal-account-checkbox"
                         />
                         {account.profile_image_url && (
-                          <img 
-                            src={account.profile_image_url} 
+                          <img
+                            src={account.profile_image_url}
                             alt={account.account_name}
-                            style={{
-                              width: '40px',
-                              height: '40px',
-                              borderRadius: '50%',
-                              objectFit: 'cover'
-                            }}
+                            className="publish-modal-account-avatar"
                           />
                         )}
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: '600', fontSize: '14px', color: '#111827' }}>
+                        <div className="publish-modal-account-info">
+                          <div className="publish-modal-account-name">
                             {account.account_name}
                           </div>
-                          <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                          <div className="publish-modal-account-meta">
                             {account.provider} • {account.username ? `@${account.username}` : account.account_name}
                           </div>
                         </div>
@@ -290,14 +228,7 @@ const PublishModal = ({
                     )
                   })
                 ) : (
-                  <div style={{
-                    padding: '20px',
-                    textAlign: 'center',
-                    color: '#6b7280',
-                    backgroundColor: '#f9fafb',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px'
-                  }}>
+                  <div className="publish-modal-loading-box">
                     {t('posts.publishModal.noAccounts')}
                   </div>
                 )}

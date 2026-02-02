@@ -8,7 +8,6 @@ import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import { getUserOrgId } from "../lib/getUserOrgId";
-import "./AIChatPage.css";
 
 export default function AIChatPage() {
   const { t } = useTranslation("common");

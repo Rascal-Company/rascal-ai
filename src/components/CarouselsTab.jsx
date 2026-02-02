@@ -3,8 +3,6 @@ import { supabase } from '../lib/supabase'
 import { getUserOrgId } from '../lib/getUserOrgId'
 import { useAuth } from '../contexts/AuthContext'
 import PostCard from './PostCard/PostCard'
-import './CarouselsTab.css'
-import '../components/ModalComponents.css'
 
 export default function CarouselsTab({ 
   posts = [], 

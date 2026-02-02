@@ -4,7 +4,6 @@ import axios from 'axios'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { getUserOrgId } from '../lib/getUserOrgId'
-import './UgcTab.css'
 
 export default function UgcTab() {
   const { user } = useAuth()

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PostCard from "./PostCard/PostCard";
-import "./KanbanTab.css";
 
 const columns = [
   { status: "Avatar", titleKey: "posts.columns.avatar", color: "#fef3c7" },

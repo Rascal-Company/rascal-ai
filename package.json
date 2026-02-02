@@ -73,6 +73,8 @@
     "@elevenlabs/react": "^0.7.1",
     "@nangohq/frontend": "^0.69.22",
     "@supabase/supabase-js": "2.50.2",
+    "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-query": "^5.90.20",
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.35.8",
     "@vercel/analytics": "^1.5.0",
@@ -91,6 +93,7 @@
     "react-router-dom": "^7.6.2",
     "recharts": "^3.1.0",
     "remark-gfm": "^4.0.1",
+    "tailwindcss": "^4.1.18",
     "uuid": "^11.1.0"
   },
   "devDependencies": {

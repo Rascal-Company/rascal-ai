@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { supabase } from '../../lib/supabase'
-import '../ModalComponents.css'
 
 export default function CompanyTab({
   company,

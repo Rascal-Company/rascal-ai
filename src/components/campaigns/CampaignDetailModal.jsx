@@ -4,7 +4,6 @@ import { fetchCampaignById } from '../../services/campaignsApi'
 import { pauseCampaign } from '../../services/campaignsApi'
 import CampaignStats from './CampaignStats'
 import CampaignStatusBadge from './CampaignStatusBadge'
-import '../ModalComponents.css'
 
 export default function CampaignDetailModal({ campaignId, onClose }) {
   const { t } = useTranslation('common')
@@ -32,26 +31,26 @@ export default function CampaignDetailModal({ campaignId, onClose }) {
 
   return (
     <div className="modal-overlay modal-overlay--light" role="dialog" aria-modal="true">
-      <div className="modal-container" style={{ maxWidth: 900 }}>
+      <div className="modal-container max-w-[900px]">
         <div className="modal-header">
           <h2 className="modal-title">{t('campaigns.details.title')}</h2>
           <button className="modal-close-btn" onClick={onClose} type="button">×</button>
         </div>
         <div className="modal-content">
           {loading && <div>{t('campaigns.details.loading')}</div>}
-          {error && <div style={{ color: '#dc2626' }}>{t('campaigns.details.error')}</div>}
+          {error && <div className="text-red-600">{t('campaigns.details.error')}</div>}
           {!loading && !error && campaign && (
-            <div style={{ display: 'grid', gap: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="grid gap-4">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h3 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>{campaign.name}</h3>
+                  <h3 className="text-[22px] font-bold m-0">{campaign.name}</h3>
                   {campaign.description && (
-                    <p style={{ color: '#6b7280', marginTop: 6 }}>{campaign.description}</p>
+                    <p className="text-gray-500 mt-1.5">{campaign.description}</p>
                   )}
                 </div>
                 <CampaignStatusBadge status={campaign.status} />
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={async () => {
@@ -69,123 +68,74 @@ export default function CampaignDetailModal({ campaignId, onClose }) {
                     }
                   }}
                   disabled={pausing || campaign.status === 'paused'}
-                  style={{
-                    background: campaign.status === 'paused' ? '#e5e7eb' : '#f59e0b',
-                    color: campaign.status === 'paused' ? '#6b7280' : '#111827',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: 8,
-                    padding: '8px 12px',
-                    fontWeight: 700,
-                    cursor: pausing || campaign.status === 'paused' ? 'not-allowed' : 'pointer'
-                  }}
+                  className={`border border-gray-200 rounded-lg py-2 px-3 font-bold ${
+                    campaign.status === 'paused'
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                      : 'bg-amber-500 text-gray-900 cursor-pointer'
+                  } ${pausing ? 'cursor-not-allowed' : ''}`}
                 >
                   {pausing ? t('campaigns.details.pausing') : campaign.status === 'paused' ? t('campaigns.details.pausedButton') : t('campaigns.details.pauseButton')}
                 </button>
-                {pauseError && <div style={{ color: '#dc2626', alignSelf: 'center' }}>{pauseError}</div>}
+                {pauseError && <div className="text-red-600 self-center">{pauseError}</div>}
               </div>
               
               {/* Tilastot - samalla tavalla kuin Puhelulokit-sivulla */}
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                gap: 24, 
-                marginBottom: 16 
-              }}>
+              <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6 mb-4">
                 {/* Soittoyritykset - ensimmäinen kortti */}
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#6366f1', marginBottom: 8 }}>
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-indigo-500 mb-2">
                     {campaign.attempt_count || 0}
                   </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.callAttempts')}</div>
-                </div>
-                
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#22c55e', marginBottom: 8 }}>
-                    {campaign.answered_calls || 0}
-                  </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.answeredCalls')}</div>
-                </div>
-                
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#10b981', marginBottom: 8 }}>
-                    {campaign.successful_calls || 0}
-                  </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.successfulCalls')}</div>
-                </div>
-                
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#ef4444', marginBottom: 8 }}>
-                    {campaign.failed_calls || 0}
-                  </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.failedCalls')}</div>
-                </div>
-                
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#f59e0b', marginBottom: 8 }}>
-                    {campaign.pending_calls || 0}
-                  </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.scheduledCalls')}</div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.callAttempts')}</div>
                 </div>
 
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#3b82f6', marginBottom: 8 }}>
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-green-500 mb-2">
+                    {campaign.answered_calls || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.answeredCalls')}</div>
+                </div>
+
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-emerald-500 mb-2">
+                    {campaign.successful_calls || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.successfulCalls')}</div>
+                </div>
+
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-red-500 mb-2">
+                    {campaign.failed_calls || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.failedCalls')}</div>
+                </div>
+
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-amber-500 mb-2">
+                    {campaign.pending_calls || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.scheduledCalls')}</div>
+                </div>
+
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-blue-500 mb-2">
                     {campaign.in_progress_calls || 0}
                   </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.queuedCalls')}</div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.queuedCalls')}</div>
                 </div>
-                  
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#6366f1', marginBottom: 8 }}>
+
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-indigo-500 mb-2">
                     {campaign.total_calls || 0}
                   </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.totalCalls')}</div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.totalCalls')}</div>
                 </div>
-                
-                <div style={{ 
-                  background: '#f8fafc', 
-                  padding: 24, 
-                  borderRadius: 12, 
-                  border: '1px solid #e2e8f0' 
-                }}>
-                  <div style={{ fontSize: 32, fontWeight: 700, color: '#1d4ed8', marginBottom: 8 }}>
+
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <div className="text-[32px] font-bold text-blue-700 mb-2">
                     {campaign.called_calls || 0}
                   </div>
-                  <div style={{ fontSize: 14, color: '#6b7280' }}>{t('campaigns.details.stats.calledCalls')}</div>
+                  <div className="text-sm text-gray-500">{t('campaigns.details.stats.calledCalls')}</div>
                 </div>
               </div>
               

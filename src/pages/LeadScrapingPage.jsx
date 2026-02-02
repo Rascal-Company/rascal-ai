@@ -7,8 +7,6 @@ import axios from 'axios'
 import { createPortal } from 'react-dom'
 import Button from '../components/Button'
 import MultiSelect from '../components/MultiSelect'
-import '../components/ModalComponents.css'
-import './LeadScrapingPage.css'
 
 export default function LeadScrapingPage() {
   const { t } = useTranslation('common')
@@ -914,16 +912,12 @@ export default function LeadScrapingPage() {
         <p>
           {t('leadScraping.pageDescription')}{' '}
           <a 
-            href="/help#lead-scraping" 
+            href="/help#lead-scraping"
             onClick={(e) => {
               e.preventDefault()
               navigate('/help#lead-scraping')
             }}
-            style={{ 
-              color: '#3b82f6', 
-              textDecoration: 'underline',
-              cursor: 'pointer'
-            }}
+            className="text-blue-500 underline cursor-pointer"
           >
             {t('leadScraping.readMore')}
           </a>
@@ -931,13 +925,13 @@ export default function LeadScrapingPage() {
       </div>
 
       {error && (
-        <div className="lead-scraping-error" style={{ margin: '0 24px', marginTop: '16px' }}>
+        <div className="lead-scraping-error leads-msg-margin">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="lead-scraping-success" style={{ margin: '0 24px', marginTop: '16px' }}>
+        <div className="lead-scraping-success leads-msg-margin">
           {success}
         </div>
       )}
@@ -950,7 +944,7 @@ export default function LeadScrapingPage() {
               <Button 
                 variant="secondary"
                 onClick={() => setShowBuyerPersonaModal(true)}
-                style={{ width: '100%' }}
+                className="leads-w-full"
               >
                 {buyerPersona ? t('leadScraping.buyerPersonaSaved') : t('leadScraping.buyerPersona')}
               </Button>
@@ -966,7 +960,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.contactFilters')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('contact') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('contact')}</span>
               )}
@@ -1015,7 +1009,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.companyFilters')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('company') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('company')}</span>
               )}
@@ -1094,7 +1088,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.peopleLocationFilters')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('peopleLocation') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('peopleLocation')}</span>
               )}
@@ -1173,7 +1167,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.companyLocationFilters')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('companyLocation') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('companyLocation')}</span>
               )}
@@ -1252,7 +1246,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.jobTitleFiltersLabel')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('jobTitle') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('jobTitle')}</span>
               )}
@@ -1312,7 +1306,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.managementLevelFiltersLabel')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('management') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('management')}</span>
               )}
@@ -1353,7 +1347,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.departmentsFiltersLabel')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('departments') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('departments')}</span>
               )}
@@ -1394,7 +1388,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.nameFilters')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               {getFilterCount('names') > 0 && (
                 <span className="filter-count-badge">{getFilterCount('names')}</span>
               )}
@@ -1451,7 +1445,7 @@ export default function LeadScrapingPage() {
             type="button"
           >
             <span>{t('leadScraping.leadLimitLabel')}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span className="leads-flex-icon-gap">
               <span className={`chevron ${openFilters.leadLimit ? 'open' : ''}`}>▾</span>
             </span>
           </button>
@@ -1478,7 +1472,7 @@ export default function LeadScrapingPage() {
         </div>
 
         {/* Action Buttons at Bottom */}
-        <div className="filters-actions" style={{ borderTop: '1px solid #f3f4f6', marginTop: 'auto' }}>
+        <div className="filters-actions leads-filters-footer">
           <div className="filters-actions-buttons">
             <Button onClick={() => {
               setEmailStatus('')
@@ -1532,33 +1526,33 @@ export default function LeadScrapingPage() {
         {/* Results Section */}
         <div className="lead-scraping-results">
         <div className="results-header">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px', width: '100%' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div className="leads-header-row">
+            <div className="leads-info-col">
               <h2>{t('leadScraping.collectedLeads')}</h2>
               {!loadingCredits && (
-                <div style={{ fontSize: '14px', color: '#6b7280', display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <div className="leads-meta-row">
                   <span>{t('leadScraping.creditsRemaining', { remaining: creditsMonthly - creditsUsed, total: creditsMonthly })}</span>
-                  <span style={{ color: '#9ca3af' }}>•</span>
+                  <span className="leads-separator">•</span>
                   <span>{t('leadScraping.creditCharge')}</span>
                 </div>
               )}
             </div>
-            <div className="results-controls" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <div className="results-controls">
               {selectedLeadIds.size > 0 && (
                 <>
                   <Button 
                     variant="primary" 
-                    onClick={enrichSelectedLeads} 
+                    onClick={enrichSelectedLeads}
                     disabled={enrichingLeads || (creditsMonthly - creditsUsed < selectedLeadIds.size)}
-                    style={{ backgroundColor: '#10b981', color: '#ffffff' }}
+                    className="leads-btn-success"
                   >
                     {enrichingLeads ? t('leadScraping.enriching') : t('leadScraping.enrichSelected', { count: selectedLeadIds.size })}
                   </Button>
-                  <Button 
-                    variant="primary" 
-                    onClick={deleteSelectedLeads} 
+                  <Button
+                    variant="primary"
+                    onClick={deleteSelectedLeads}
                     disabled={deletingLeads}
-                    style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                    className="leads-btn-danger"
                   >
                     {deletingLeads ? t('leadScraping.deleting') : t('leadScraping.deleteSelected', { count: selectedLeadIds.size })}
                   </Button>
@@ -1594,16 +1588,7 @@ export default function LeadScrapingPage() {
                 id="filter-email"
                 value={filterEmail}
                 onChange={(e) => setFilterEmail(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  background: '#ffffff',
-                  color: '#374151',
-                  cursor: 'pointer',
-                  width: '100%'
-                }}
+                className="leads-filter-input leads-w-full cursor-pointer"
               >
                 <option value="">{t('leadScraping.filterEmailAll')}</option>
                 <option value="has">{t('leadScraping.filterEmailHas')}</option>
@@ -1618,15 +1603,7 @@ export default function LeadScrapingPage() {
                 value={filterPosition}
                 onChange={(e) => setFilterPosition(e.target.value)}
                 placeholder={t('leadScrapingFields.searchPositionPlaceholder')}
-                style={{
-                  padding: '8px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  background: '#ffffff',
-                  color: '#374151',
-                  width: '100%'
-                }}
+                className="leads-filter-input leads-w-full"
               />
             </div>
             <div className="result-filter-group">
@@ -1637,52 +1614,28 @@ export default function LeadScrapingPage() {
                 value={filterCity}
                 onChange={(e) => setFilterCity(e.target.value)}
                 placeholder={t('leadScrapingFields.searchCityPlaceholder')}
-                style={{
-                  padding: '8px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  background: '#ffffff',
-                  color: '#374151',
-                  width: '100%'
-                }}
+                className="leads-filter-input leads-w-full"
               />
             </div>
             <div className="result-filter-group">
               <label htmlFor="filter-score-min">{t('leadScraping.filterScore')}</label>
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <div className="leads-score-row">
                 <input
                   id="filter-score-min"
                   type="number"
                   value={filterScoreMin}
                   onChange={(e) => setFilterScoreMin(e.target.value)}
                   placeholder={t('leadScrapingFields.minPlaceholder')}
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    background: '#ffffff',
-                    color: '#374151',
-                    width: '80px'
-                  }}
+                  className="leads-filter-input w-20"
                 />
-                <span style={{ color: '#6b7280', fontSize: '14px' }}>-</span>
+                <span className="text-gray-500 text-sm">-</span>
                 <input
                   id="filter-score-max"
                   type="number"
                   value={filterScoreMax}
                   onChange={(e) => setFilterScoreMax(e.target.value)}
                   placeholder={t('leadScrapingFields.maxPlaceholder')}
-                  style={{
-                    padding: '8px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    background: '#ffffff',
-                    color: '#374151',
-                    width: '80px'
-                  }}
+                  className="leads-filter-input w-20"
                 />
               </div>
             </div>
@@ -1693,19 +1646,11 @@ export default function LeadScrapingPage() {
                 type="date"
                 value={filterDate}
                 onChange={(e) => setFilterDate(e.target.value)}
-                style={{
-                  padding: '8px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  background: '#ffffff',
-                  color: '#374151',
-                  width: '100%'
-                }}
+                className="leads-filter-input leads-w-full"
               />
             </div>
             {(filterEmail || filterPosition || filterCity || filterScoreMin || filterScoreMax || filterDate) && (
-              <div className="result-filter-group" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <div className="result-filter-group flex justify-end">
                 <Button
                   variant="secondary"
                   onClick={() => {
@@ -1716,7 +1661,7 @@ export default function LeadScrapingPage() {
                     setFilterScoreMax('')
                     setFilterDate('')
                   }}
-                  style={{ alignSelf: 'flex-end', marginTop: '24px' }}
+                  className="self-end mt-6"
                 >
                   {t('leadScraping.clearFilters')}
                 </Button>
@@ -1737,12 +1682,12 @@ export default function LeadScrapingPage() {
               <table className="results-table">
                 <thead>
                   <tr>
-                    <th style={{ width: '40px' }}>
+                    <th className="w-10">
                       <input
                         type="checkbox"
                         checked={leads.length > 0 && leads.every(lead => selectedLeadIds.has(lead.id))}
                         onChange={toggleSelectAll}
-                        style={{ cursor: 'pointer' }}
+                        className="cursor-pointer"
                         title={t('leadScraping.selectAll')}
                       />
                     </th>
@@ -1766,7 +1711,7 @@ export default function LeadScrapingPage() {
                           type="checkbox"
                           checked={selectedLeadIds.has(lead.id)}
                           onChange={() => toggleLeadSelection(lead.id)}
-                          style={{ cursor: 'pointer' }}
+                          className="cursor-pointer"
                         />
                       </td>
                       <td>{lead.fullName || `${lead.firstName || ''} ${lead.lastName || ''}`.trim() || '-'}</td>
@@ -1837,10 +1782,9 @@ export default function LeadScrapingPage() {
             }
           }}
         >
-          <div 
-            className="modal-container export-modal"
+          <div
+            className="modal-container export-modal max-w-[800px] w-[90%]"
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '800px', width: '90%' }}
           >
             <div className="modal-header">
               <h2 className="modal-title">{t('leadScraping.exportModalTitle')}</h2>
@@ -1851,12 +1795,12 @@ export default function LeadScrapingPage() {
                 ✕
               </button>
             </div>
-            <div className="modal-content" style={{ padding: '24px 32px' }}>
+            <div className="modal-content px-8 py-6">
               <div className="export-info">
-                <p style={{ margin: '0 0 8px 0', color: '#374151', fontSize: '14px', fontWeight: '500' }}>
+                <p className="mb-2 text-gray-700 text-sm font-medium">
                   {t('leadScraping.exportSelectFields')}
                 </p>
-                <p style={{ margin: '0', color: '#6b7280', fontSize: '13px' }} dangerouslySetInnerHTML={{ __html: t('leadScraping.exportLeadsCount', { count: applyFilters(allLeads).length }).replace('<strong>', '<strong>').replace('</strong>', '</strong>') }} />
+                <p className="text-gray-500 text-[13px]" dangerouslySetInnerHTML={{ __html: t('leadScraping.exportLeadsCount', { count: applyFilters(allLeads).length }).replace('<strong>', '<strong>').replace('</strong>', '</strong>') }} />
               </div>
               
               <div className="export-fields-container">
@@ -2033,13 +1977,7 @@ export default function LeadScrapingPage() {
                 </div>
               </div>
             </div>
-            <div className="modal-footer" style={{ 
-              padding: '20px 32px',
-              borderTop: '1px solid #e5e7eb',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '12px'
-            }}>
+            <div className="modal-footer px-8 py-5 border-t border-gray-200 flex justify-end gap-3">
               <Button 
                 variant="secondary"
                 onClick={() => setShowExportModal(false)}
@@ -2068,10 +2006,9 @@ export default function LeadScrapingPage() {
             }
           }}
         >
-          <div 
-            className="modal-container"
+          <div
+            className="modal-container max-w-[700px] w-[90%]"
             onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: '700px', width: '90%' }}
           >
             <div className="modal-header">
               <h2 className="modal-title">{t('leadScraping.buyerPersonaModalTitle')}</h2>
@@ -2082,15 +2019,9 @@ export default function LeadScrapingPage() {
                 ✕
               </button>
             </div>
-            <div className="modal-content" style={{ padding: '24px 32px' }}>
-              <div className="form-field" style={{ marginBottom: '24px' }}>
-                <label htmlFor="buyer-persona-textarea" style={{
-                  display: 'block',
-                  marginBottom: '8px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  color: '#374151'
-                }}>
+            <div className="modal-content px-8 py-6">
+              <div className="form-field mb-6">
+                <label htmlFor="buyer-persona-textarea" className="block mb-2 text-sm font-medium text-gray-700">
                   {t('leadScraping.buyerPersonaLabel')}
                 </label>
                 <textarea
@@ -2099,46 +2030,14 @@ export default function LeadScrapingPage() {
                   onChange={(e) => setBuyerPersona(e.target.value)}
                   placeholder={t('leadScrapingFields.buyerPersonaPlaceholder')}
                   rows={8}
-                  style={{
-                    padding: '12px 16px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    transition: 'border-color 0.2s, box-shadow 0.2s',
-                    background: '#ffffff',
-                    color: '#1f2937',
-                    width: '100%',
-                    resize: 'vertical',
-                    fontFamily: 'inherit',
-                    lineHeight: '1.5'
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.outline = 'none'
-                    e.target.style.borderColor = '#3b82f6'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)'
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#d1d5db'
-                    e.target.style.boxShadow = 'none'
-                  }}
+                  className="px-4 py-3 border border-gray-300 rounded-lg text-sm transition-all bg-white text-gray-800 w-full resize-y font-inherit leading-relaxed focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/10"
                 />
-                <p style={{
-                  fontSize: '13px',
-                  color: '#6b7280',
-                  margin: '12px 0 0 0',
-                  lineHeight: '1.6'
-                }}>
+                <p className="text-[13px] text-gray-500 mt-3 leading-relaxed">
                   {t('leadScraping.buyerPersonaDescription')}
                 </p>
               </div>
             </div>
-            <div className="modal-footer" style={{
-              padding: '20px 32px',
-              borderTop: '1px solid #e5e7eb',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '12px'
-            }}>
+            <div className="modal-footer px-8 py-5 border-t border-gray-200 flex justify-end gap-3">
               <Button
                 variant="secondary"
                 onClick={() => setShowBuyerPersonaModal(false)}

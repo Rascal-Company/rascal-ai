@@ -1,53 +1,47 @@
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import styles from './Toast.module.css'
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const Toast = ({ id, message, type, onClose }) => {
-  const { t } = useTranslation('common')
-  const [isExiting, setIsExiting] = useState(false)
+  const { t } = useTranslation("common");
+  const [isExiting, setIsExiting] = useState(false);
 
   const handleClose = () => {
-    setIsExiting(true)
+    setIsExiting(true);
     setTimeout(() => {
-      onClose(id)
-    }, 300) // Match animation duration
-  }
+      onClose(id);
+    }, 300); // Match animation duration
+  };
 
   const getIcon = () => {
     switch (type) {
-      case 'success':
-        return '✓'
-      case 'error':
-        return '✕'
-      case 'warning':
-        return '⚠'
-      case 'info':
+      case "success":
+        return "\u2713";
+      case "error":
+        return "\u2715";
+      case "warning":
+        return "\u26A0";
+      case "info":
       default:
-        return 'ℹ'
+        return "\u2139";
     }
-  }
+  };
 
   return (
-    <div 
-      className={`${styles.toast} ${styles[type]} ${isExiting ? styles.exit : ''}`}
+    <div
+      className={`toast toast-${type} ${isExiting ? "toast-exit" : ""}`}
       role="alert"
     >
-      <div className={styles.icon}>
-        {getIcon()}
-      </div>
-      <div className={styles.message}>
-        {message}
-      </div>
-      <button 
-        className={styles.closeButton}
+      <div className="toast-icon">{getIcon()}</div>
+      <div className="toast-message">{message}</div>
+      <button
+        className="toast-close-button"
         onClick={handleClose}
-        aria-label={t('accessibility.closeNotification')}
+        aria-label={t("accessibility.closeNotification")}
       >
         ×
       </button>
     </div>
-  )
-}
+  );
+};
 
-export default Toast
-
+export default Toast;

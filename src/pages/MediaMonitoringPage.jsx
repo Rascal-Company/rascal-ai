@@ -6,7 +6,6 @@ import { supabase } from '../lib/supabase'
 import Button from '../components/Button'
 import { useToast } from '../contexts/ToastContext'
 import { useMonitoring } from '../contexts/MonitoringContext'
-import './MediaMonitoringPage.css'
 
 const MediaMonitoringPage = () => {
   const [news, setNews] = useState([])

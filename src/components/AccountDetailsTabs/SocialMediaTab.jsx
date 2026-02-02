@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { getCurrentUser } from '../../utils/userApi'
 import { useAuth } from '../../contexts/AuthContext'
-import './SocialMediaTab.css'
 
 const getProviderLabel = (provider) => {
   const labels = {

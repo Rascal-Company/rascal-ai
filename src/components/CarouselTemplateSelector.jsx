@@ -5,7 +5,6 @@ import { getCurrentUser } from '../utils/userApi';
 import Button from './Button';
 import ColorPicker from './ColorPicker';
 import { useTranslation } from 'react-i18next';
-import './CarouselTemplateSelector.css';
 
 const templates = [
   { 

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../contexts/AuthContext";
 import { useMixpostIntegration } from "./SocialMedia/hooks/useMixpostIntegration";
-import styles from "../pages/SettingsPage.module.css";
 
 // Yksinkertainen somet-yhdistys komponentti
 export default function SimpleSocialConnect() {

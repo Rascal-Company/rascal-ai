@@ -37,9 +37,6 @@ import MeetingNotesPage from './src/pages/MeetingNotesPage'
 import CampaignsPage from './src/pages/CampaignsPage'
 import CampaignCreatePage from './src/pages/CampaignCreatePage'
 import CampaignDetailPage from './src/pages/CampaignDetailPage'
-import SegmentsPage from './src/pages/SegmentsPage'
-import SegmentCreatePage from './src/pages/SegmentCreatePage'
-import SegmentDetailPage from './src/pages/SegmentDetailPage'
 import AccountManagerPage from './src/pages/AccountManagerPage'
 import AccountDetailsPage from './src/pages/AccountDetailsPage'
 import OrganizationMembersPage from './src/pages/OrganizationMembersPage'
@@ -96,11 +93,8 @@ export default function App() {
                 <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/campaigns" element={<CampaignsPage />} />
-                  <Route path="/segments" element={<SegmentsPage />} />
                   <Route path="/campaigns/create" element={<CampaignCreatePage />} />
                   <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
-                  <Route path="/segments/create" element={<SegmentCreatePage />} />
-                  <Route path="/segments/:id" element={<SegmentDetailPage />} />
                   <Route path="/posts" element={<ManagePostsPage />} />
                   <Route path="/posts/kuvapankki" element={<KuvapankkiPage />} />
                   <Route path="/blog-newsletter" element={<BlogNewsletterPage />} />

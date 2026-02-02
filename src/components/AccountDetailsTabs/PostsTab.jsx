@@ -1,6 +1,5 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
-import '../ModalComponents.css'
 
 export default function PostsTab({
   posts,

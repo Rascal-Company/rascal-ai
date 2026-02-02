@@ -17,7 +17,7 @@ import VoiceSection from "../components/settings/VoiceSection";
 import AccountTypeSection from "../components/settings/AccountTypeSection";
 import UserInfoModal from "../components/UserInfoModal";
 
-import styles from "./SettingsPage.module.css";
+// CSS Module removed - styles moved to main.css
 
 export default function SettingsPage() {
   const { user, organization } = useAuth();
@@ -784,39 +784,39 @@ export default function SettingsPage() {
 
   return (
     <>
-      <div className={styles["settings-container"]}>
-        <div className={styles["settings-header"]}>
-          <h2 className={styles["page-title"]}>{t("settings.title")}</h2>
+      <div className="settings-container">
+        <div className="settings-header">
+          <h2 className="settings-page-title">{t("settings.title")}</h2>
         </div>
 
         {/* Tab-napit */}
-        <div className={styles["settings-tabs"]}>
+        <div className="settings-tabs">
           <button
-            className={`${styles["settings-tab"]} ${activeTab === "profile" ? styles["settings-tab-active"] : ""}`}
+            className={`settings-tab ${activeTab === "profile" ? "settings-tab-active" : ""}`}
             onClick={() => setActiveTab("profile")}
           >
             {t("ui.tabs.profile")}
           </button>
           <button
-            className={`${styles["settings-tab"]} ${activeTab === "avatar" ? styles["settings-tab-active"] : ""}`}
+            className={`settings-tab ${activeTab === "avatar" ? "settings-tab-active" : ""}`}
             onClick={() => setActiveTab("avatar")}
           >
             {t("ui.tabs.avatarVoice")}
           </button>
           <button
-            className={`${styles["settings-tab"]} ${activeTab === "carousel" ? styles["settings-tab-active"] : ""}`}
+            className={`settings-tab ${activeTab === "carousel" ? "settings-tab-active" : ""}`}
             onClick={() => setActiveTab("carousel")}
           >
             {t("ui.tabs.carousels")}
           </button>
           <button
-            className={`${styles["settings-tab"]} ${activeTab === "features" ? styles["settings-tab-active"] : ""}`}
+            className={`settings-tab ${activeTab === "features" ? "settings-tab-active" : ""}`}
             onClick={() => setActiveTab("features")}
           >
             {t("ui.tabs.features")}
           </button>
           <button
-            className={`${styles["settings-tab"]} ${activeTab === "security" ? styles["settings-tab-active"] : ""}`}
+            className={`settings-tab ${activeTab === "security" ? "settings-tab-active" : ""}`}
             onClick={() => setActiveTab("security")}
           >
             {t("ui.tabs.security")}
@@ -825,12 +825,12 @@ export default function SettingsPage() {
 
         {/* Profiili-tab */}
         {activeTab === "profile" && (
-          <div className={styles["settings-bentogrid"]}>
+          <div className="settings-bentogrid">
             {/* Vasen sarake: Loogisesti jaettu kortteihin */}
             {profileLoading ? (
-              <div className={styles.card}>
-                <div style={{ textAlign: "center", padding: "40px 20px" }}>
-                  <div style={{ fontSize: "16px", color: "#6b7280" }}>
+              <div className="settings-card">
+                <div className="settings-center-loading">
+                  <div className="settings-loading-text">
                     {t("settings.profile.loading")}
                   </div>
                 </div>
@@ -840,29 +840,28 @@ export default function SettingsPage() {
                 {/* 1. Yrityksen Logo -kortti (vasemmalla ylhäällä) */}
                 {!isInvitedUser && (
                   <div
-                    className={`${styles.card} ${styles.cardNoPadding}`}
-                    style={{ gridColumn: "1", gridRow: "1" }}
+                    className="settings-card settings-card-no-padding settings-grid-col-1 settings-grid-row-1"
                   >
-                    <div className={styles.cardHeader}>
+                    <div className="settings-card-header">
                       <h3>{t("settings.logo.title")}</h3>
                     </div>
-                    <div className={styles.cardContent}>
-                      <div className={styles.logoContainer}>
+                    <div className="settings-card-content">
+                      <div className="settings-logo-container">
                         {/* Nykyinen logo */}
                         {userProfile?.logo_url && !logoPreview && (
-                          <div className={styles.currentLogoSection}>
-                            <p className={styles.currentLogoLabel}>
+                          <div className="settings-current-logo-section">
+                            <p className="settings-current-logo-label">
                               {t("settings.logo.currentLogo")}
                             </p>
                             <img
                               src={userProfile.logo_url}
                               alt="Company Logo"
-                              className={styles.currentLogoImage}
+                              className="settings-current-logo-image"
                             />
                             <button
                               onClick={handleLogoRemove}
                               disabled={logoUploading}
-                              className={`${styles.btn} ${styles.btnNeutral}`}
+                              className="settings-btn settings-btn-neutral"
                             >
                               {logoUploading
                                 ? t("ui.buttons.removing")
@@ -873,33 +872,27 @@ export default function SettingsPage() {
 
                         {/* Drag & Drop alue */}
                         <div
-                          className={`${styles["logo-drop-zone"]} ${logoDragActive ? styles.active : ""}`}
+                          className={`settings-logo-drop-zone ${logoDragActive ? "active" : ""}`}
                           onDragEnter={handleLogoDrag}
                           onDragLeave={handleLogoDrag}
                           onDragOver={handleLogoDrag}
                           onDrop={handleLogoDrop}
-                          style={{
-                            borderColor: logoDragActive ? "#ff6600" : "#d1d5db",
-                            background: logoDragActive
-                              ? "rgba(255, 102, 0, 0.05)"
-                              : "#f9fafb",
-                          }}
                         >
                           {logoPreview ? (
-                            <div className={styles.logoPreviewSection}>
+                            <div className="settings-logo-preview-section">
                               <img
                                 src={logoPreview}
                                 alt="Logo Preview"
-                                className={styles.logoPreviewImage}
+                                className="settings-logo-preview-image"
                               />
-                              <p className={styles.logoPreviewText}>
+                              <p className="settings-logo-preview-text">
                                 {t("settings.logo.logoSelected")}
                               </p>
-                              <div className={styles.logoPreviewActions}>
+                              <div className="settings-logo-preview-actions">
                                 <button
                                   onClick={handleLogoUpload}
                                   disabled={logoUploading}
-                                  className={`${styles.btn} ${styles.btnPrimary}`}
+                                  className="settings-btn settings-btn-primary"
                                 >
                                   {logoUploading
                                     ? t("ui.buttons.loading")
@@ -911,7 +904,7 @@ export default function SettingsPage() {
                                     setLogoPreview(null);
                                     setLogoMessage("");
                                   }}
-                                  className={`${styles.btn} ${styles.btnNeutral}`}
+                                  className="settings-btn settings-btn-neutral"
                                 >
                                   {t("settings.buttons.cancel")}
                                 </button>
@@ -919,7 +912,7 @@ export default function SettingsPage() {
                             </div>
                           ) : (
                             <>
-                              <div className={styles.uploadIconWrapper}>
+                              <div className="settings-upload-icon-wrapper">
                                 <svg
                                   width="20"
                                   height="20"
@@ -950,23 +943,23 @@ export default function SettingsPage() {
                                   />
                                 </svg>
                               </div>
-                              <p className={styles.uploadText}>
+                              <p className="settings-upload-text">
                                 {logoDragActive
                                   ? t("settings.logo.dropHere")
                                   : t("settings.logo.dragHere")}
                               </p>
-                              <p className={styles.uploadSubtext}>
+                              <p className="settings-upload-subtext">
                                 {t("ui.labels.or")}
                               </p>
                               <label
-                                className={`${styles.btn} ${styles.btnSecondary}`}
+                                className="settings-btn settings-btn-secondary"
                               >
                                 {t("ui.buttons.selectFile")}
                                 <input
                                   type="file"
                                   accept="image/png,image/jpeg,image/jpg,image/webp,image/svg+xml"
                                   onChange={handleLogoFileChange}
-                                  style={{ display: "none" }}
+                                  className="hidden"
                                 />
                               </label>
                             </>
@@ -976,12 +969,12 @@ export default function SettingsPage() {
 
                       {logoMessage && (
                         <p
-                          className={`${styles.logoMessage} ${
+                          className={`settings-logo-message ${
                             logoMessage.includes("Virhe") ||
                             logoMessage.includes("liian") ||
                             logoMessage.includes("Sallitut")
-                              ? styles.logoMessageError
-                              : styles.logoMessageSuccess
+                              ? "settings-logo-message-error"
+                              : "settings-logo-message-success"
                           }`}
                         >
                           {logoMessage}
@@ -993,10 +986,9 @@ export default function SettingsPage() {
 
                 {/* 2. Käyttäjätiedot -kortti (vasemmalla logon alle) */}
                 <div
-                  className={`${styles.card} ${styles.cardNoPadding}`}
-                  style={{ gridColumn: "1", gridRow: "2" }}
+                  className="settings-card settings-card-no-padding settings-grid-col-1 settings-grid-row-2"
                 >
-                  <div className={styles.cardHeader}>
+                  <div className="settings-card-header">
                     <h3>
                       {isInvitedUser
                         ? t("settings.personalInfo.title")
@@ -1004,36 +996,13 @@ export default function SettingsPage() {
                     </h3>
                   </div>
 
-                  <div className={styles.cardContent}>
+                  <div className="settings-card-content">
                     {/* Organisaation tiedot - kaikille käyttäjille */}
                     <div
-                      style={{
-                        marginBottom: 16,
-                        padding: 16,
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: 12,
-                      }}
+                      className="settings-info-box"
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: 12,
-                        }}
-                      >
-                        <h4
-                          style={{
-                            margin: 0,
-                            fontSize: 14,
-                            fontWeight: 600,
-                            color: "#374151",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
+                      <div className="settings-info-header">
+                        <h4 className="settings-info-title">
                           <svg
                             width="18"
                             height="18"
@@ -1052,27 +1021,19 @@ export default function SettingsPage() {
                             {!isEditingOrgInfo ? (
                               <button
                                 onClick={() => setIsEditingOrgInfo(true)}
-                                className={`${styles.btn} ${styles.btnSecondary}`}
-                                style={{
-                                  fontSize: "12px",
-                                  padding: "4px 12px",
-                                }}
+                                className="settings-btn settings-btn-secondary settings-btn-sm"
                               >
                                 {t("settings.buttons.edit")}
                               </button>
                             ) : (
-                              <div style={{ display: "flex", gap: "6px" }}>
+                              <div className="settings-flex-gap-sm">
                                 <button
                                   onClick={async () => {
                                     await handleSave();
                                     setIsEditingOrgInfo(false);
                                   }}
                                   disabled={loading}
-                                  className={`${styles.btn} ${styles.btnPrimary}`}
-                                  style={{
-                                    fontSize: "12px",
-                                    padding: "4px 12px",
-                                  }}
+                                  className="settings-btn settings-btn-primary settings-btn-sm"
                                 >
                                   {loading
                                     ? t("settings.buttons.saving")
@@ -1083,11 +1044,7 @@ export default function SettingsPage() {
                                     setIsEditingOrgInfo(false);
                                     handleCancel();
                                   }}
-                                  className={`${styles.btn} ${styles.btnNeutral}`}
-                                  style={{
-                                    fontSize: "12px",
-                                    padding: "4px 12px",
-                                  }}
+                                  className="settings-btn settings-btn-neutral settings-btn-sm"
                                 >
                                   {t("settings.buttons.cancel")}
                                 </button>
@@ -1098,51 +1055,21 @@ export default function SettingsPage() {
                       </div>
 
                       {!isEditingOrgInfo ? (
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 8,
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span style={{ fontSize: 13, color: "#6b7280" }}>
+                        <div className="settings-info-list">
+                          <div className="settings-info-row">
+                            <span className="settings-text-sm-gray">
                               {t("settings.fields.company")}
                             </span>
-                            <span
-                              style={{
-                                fontSize: 14,
-                                fontWeight: 500,
-                                color: "#1f2937",
-                              }}
-                            >
+                            <span className="settings-info-value">
                               {userProfile?.company_name ||
                                 t("settings.common.notSet")}
                             </span>
                           </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span style={{ fontSize: 13, color: "#6b7280" }}>
+                          <div className="settings-info-row">
+                            <span className="settings-text-sm-gray">
                               {t("settings.fields.industry")}
                             </span>
-                            <span
-                              style={{
-                                fontSize: 14,
-                                fontWeight: 500,
-                                color: "#1f2937",
-                              }}
-                            >
+                            <span className="settings-info-value">
                               {userProfile?.industry ||
                                 t("settings.common.notSet")}
                             </span>
@@ -1150,7 +1077,7 @@ export default function SettingsPage() {
                         </div>
                       ) : (
                         <div>
-                          <div className={styles["form-group"]}>
+                          <div className="settings-form-group">
                             <label>{t("settings.fields.company")}</label>
                             <input
                               type="text"
@@ -1159,17 +1086,17 @@ export default function SettingsPage() {
                                 t("settings.common.notSet")
                               }
                               readOnly
-                              className={`${styles["form-input"]} ${styles.readonly}`}
+                              className="settings-form-input settings-readonly"
                             />
                           </div>
-                          <div className={styles["form-group"]}>
+                          <div className="settings-form-group">
                             <label>{t("settings.fields.industry")}</label>
                             <input
                               type="text"
                               name="industry"
                               value={formData.industry}
                               onChange={handleInputChange}
-                              className={styles["form-input"]}
+                              className="settings-form-input"
                               placeholder={t("settings.fields.industry")}
                             />
                           </div>
@@ -1178,34 +1105,9 @@ export default function SettingsPage() {
                     </div>
 
                     {/* Käyttäjän tiedot - kaikille käyttäjille */}
-                    <div
-                      style={{
-                        marginBottom: 16,
-                        padding: 16,
-                        backgroundColor: "#f0f9ff",
-                        border: "1px solid #bae6fd",
-                        borderRadius: 12,
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          marginBottom: 12,
-                        }}
-                      >
-                        <h4
-                          style={{
-                            margin: 0,
-                            fontSize: 14,
-                            fontWeight: 600,
-                            color: "#374151",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 8,
-                          }}
-                        >
+                    <div className="settings-user-info-box">
+                      <div className="settings-info-header">
+                        <h4 className="settings-info-title">
                           <svg
                             width="18"
                             height="18"
@@ -1224,27 +1126,19 @@ export default function SettingsPage() {
                             {!isEditingPersonalInfo ? (
                               <button
                                 onClick={() => setIsEditingPersonalInfo(true)}
-                                className={`${styles.btn} ${styles.btnSecondary}`}
-                                style={{
-                                  fontSize: "12px",
-                                  padding: "4px 12px",
-                                }}
+                                className="settings-btn settings-btn-secondary settings-btn-sm"
                               >
                                 {t("settings.buttons.edit")}
                               </button>
                             ) : (
-                              <div style={{ display: "flex", gap: "6px" }}>
+                              <div className="settings-flex-gap-sm">
                                 <button
                                   onClick={async () => {
                                     await handleSave();
                                     setIsEditingPersonalInfo(false);
                                   }}
                                   disabled={loading}
-                                  className={`${styles.btn} ${styles.btnPrimary}`}
-                                  style={{
-                                    fontSize: "12px",
-                                    padding: "4px 12px",
-                                  }}
+                                  className="settings-btn settings-btn-primary settings-btn-sm"
                                 >
                                   {loading
                                     ? t("settings.buttons.saving")
@@ -1255,11 +1149,7 @@ export default function SettingsPage() {
                                     setIsEditingPersonalInfo(false);
                                     handleCancel();
                                   }}
-                                  className={`${styles.btn} ${styles.btnNeutral}`}
-                                  style={{
-                                    fontSize: "12px",
-                                    padding: "4px 12px",
-                                  }}
+                                  className="settings-btn settings-btn-neutral settings-btn-sm"
                                 >
                                   {t("settings.buttons.cancel")}
                                 </button>
@@ -1270,79 +1160,32 @@ export default function SettingsPage() {
                       </div>
 
                       {!isEditingPersonalInfo ? (
-                        <div
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 8,
-                          }}
-                        >
+                        <div className="settings-info-list">
                           {orgMemberData?.name && (
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                              }}
-                            >
-                              <span style={{ fontSize: 13, color: "#6b7280" }}>
+                            <div className="settings-info-row">
+                              <span className="settings-text-sm-gray">
                                 {t("settings.fields.name")}
                               </span>
-                              <span
-                                style={{
-                                  fontSize: 14,
-                                  fontWeight: 500,
-                                  color: "#1f2937",
-                                }}
-                              >
+                              <span className="settings-info-value">
                                 {orgMemberData.name}
                               </span>
                             </div>
                           )}
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span style={{ fontSize: 13, color: "#6b7280" }}>
+                          <div className="settings-info-row">
+                            <span className="settings-text-sm-gray">
                               {t("settings.fields.email")}
                             </span>
-                            <span
-                              style={{
-                                fontSize: 14,
-                                fontWeight: 500,
-                                color: "#1f2937",
-                              }}
-                            >
+                            <span className="settings-info-value">
                               {orgMemberData?.email ||
                                 user?.email ||
                                 t("settings.common.notAvailable")}
                             </span>
                           </div>
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
-                            <span style={{ fontSize: 13, color: "#6b7280" }}>
+                          <div className="settings-info-row">
+                            <span className="settings-text-sm-gray">
                               {t("ui.labels.role")}
                             </span>
-                            <span
-                              style={{
-                                fontSize: 12,
-                                fontWeight: 600,
-                                color: "white",
-                                padding: "4px 12px",
-                                borderRadius: 20,
-                                background:
-                                  "linear-gradient(135deg, #ff6600 0%, #ff8533 100%)",
-                                textTransform: "capitalize",
-                              }}
-                            >
+                            <span className="settings-role-badge">
                               {orgMemberData?.role === "owner"
                                 ? t("ui.labels.owner")
                                 : orgMemberData?.role === "admin"
@@ -1356,25 +1199,25 @@ export default function SettingsPage() {
                         </div>
                       ) : (
                         <div>
-                          <div className={styles["form-group"]}>
+                          <div className="settings-form-group">
                             <label>{t("settings.fields.name")}</label>
                             <input
                               type="text"
                               name="contact_person"
                               value={formData.contact_person}
                               onChange={handleInputChange}
-                              className={styles["form-input"]}
+                              className="settings-form-input"
                               placeholder={t("settings.fields.namePlaceholder")}
                             />
                           </div>
-                          <div className={styles["form-group"]}>
+                          <div className="settings-form-group">
                             <label>{t("settings.fields.email")}</label>
                             <input
                               type="email"
                               name="contact_email"
                               value={formData.contact_email}
                               onChange={handleInputChange}
-                              className={styles["form-input"]}
+                              className="settings-form-input"
                               placeholder={t(
                                 "settings.fields.emailPlaceholder",
                               )}
@@ -1387,15 +1230,14 @@ export default function SettingsPage() {
                     {/* Näytä lisätiedot -nappi - kaikille käyttäjille */}
                     <button
                       onClick={() => setShowUserInfoModal(true)}
-                      className={`${styles.btn} ${styles.btnSecondary}`}
-                      style={{ width: "100%", marginBottom: "16px" }}
+                      className="settings-btn settings-btn-secondary settings-full-width settings-mb-4"
                     >
                       {t("settings.userInfo.showDetails")}
                     </button>
 
                     {message && (
                       <div
-                        className={`${styles.message} ${message.includes(t("settings.common.error")) ? styles.messageError : styles.messageSuccess}`}
+                        className={`settings-message ${message.includes(t("settings.common.error")) ? "settings-message-error" : "settings-message-success"}`}
                       >
                         {message}
                       </div>
@@ -1405,13 +1247,7 @@ export default function SettingsPage() {
 
                 {/* 3. Oikea sarake: Account-asetukset */}
                 {!isInvitedUser && (
-                  <div
-                    style={{
-                      gridColumn: "2",
-                      gridRow: "1 / 3",
-                      alignSelf: "start",
-                    }}
-                  >
+                  <div className="settings-grid-row-span settings-grid-col-2">
                     <AccountTypeSection
                       userProfile={userProfile}
                       onProfileUpdate={(updatedProfile) =>
@@ -1428,53 +1264,20 @@ export default function SettingsPage() {
 
         {/* Avatar & Ääni-tab */}
         {activeTab === "avatar" && (
-          <div className={styles["settings-bentogrid"]}>
-            <div className={styles.card} style={{ gridColumn: "1 / -1" }}>
-              <div className={styles["avatar-voice-grid"]}>
+          <div className="settings-bentogrid">
+            <div className="settings-card settings-grid-col-span-full">
+              <div className="settings-avatar-voice-grid">
                 {/* Avatar-kuvat */}
-                <div className={styles["avatar-voice-section"]}>
-                  <h2
-                    style={{
-                      margin: "0 0 16px 0",
-                      fontSize: 16,
-                      fontWeight: 600,
-                      color: "#1f2937",
-                    }}
-                  >
+                <div className="settings-avatar-voice-section">
+                  <h2 className="settings-section-title">
                     {t("settings.avatar.title")}
                   </h2>
-                  <div
-                    style={{
-                      padding: "32px",
-                      textAlign: "center",
-                      background:
-                        "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-                      borderRadius: "12px",
-                      border: "2px dashed #cbd5e1",
-                      position: "relative",
-                      overflow: "hidden",
-                      minHeight: "200px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
-                    }}
-                  >
+                  <div className="settings-coming-soon-box">
                     {/* Dekoratiivinen gradient */}
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "-50%",
-                        right: "-50%",
-                        width: "200%",
-                        height: "200%",
-                        background:
-                          "radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)",
-                        pointerEvents: "none",
-                      }}
-                    />
+                    <div className="settings-coming-soon-gradient" />
 
                     {/* Sisältö */}
-                    <div style={{ position: "relative", zIndex: 1 }}>
+                    <div className="settings-coming-soon-content">
                       <svg
                         width="48"
                         height="48"
@@ -1482,28 +1285,15 @@ export default function SettingsPage() {
                         fill="none"
                         stroke="#10b981"
                         strokeWidth="2"
-                        style={{ margin: "0 auto 16px", display: "block" }}
+                        className="settings-coming-soon-icon"
                       >
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
                       </svg>
-                      <div
-                        style={{
-                          color: "#334155",
-                          fontSize: "16px",
-                          fontWeight: 600,
-                          marginBottom: "8px",
-                        }}
-                      >
+                      <div className="settings-coming-soon-title">
                         {t("settings.avatar.comingSoon")}
                       </div>
-                      <div
-                        style={{
-                          color: "#64748b",
-                          fontSize: "13px",
-                          lineHeight: "1.5",
-                        }}
-                      >
+                      <div className="settings-coming-soon-text">
                         {t("settings.avatar.workInProgress")}
                       </div>
                     </div>
@@ -1511,7 +1301,7 @@ export default function SettingsPage() {
                 </div>
 
                 {/* Ääniklooni */}
-                <div className={styles["avatar-voice-section"]}>
+                <div className="settings-avatar-voice-section">
                   <VoiceSection companyId={userProfile?.company_id || null} />
                 </div>
               </div>
@@ -1521,8 +1311,8 @@ export default function SettingsPage() {
 
         {/* Karusellit-tab */}
         {activeTab === "carousel" && (
-          <div className={styles["settings-bentogrid"]}>
-            <div className={styles.card} style={{ gridColumn: "1 / -1" }}>
+          <div className="settings-bentogrid">
+            <div className="settings-card settings-grid-col-span-full">
               <CarouselTemplateSelector />
               <PlacidTemplatesList />
             </div>
@@ -1531,8 +1321,8 @@ export default function SettingsPage() {
 
         {/* Ominaisuudet-tab */}
         {activeTab === "features" && (
-          <div className={styles["settings-bentogrid"]}>
-            <div className={styles.card} style={{ gridColumn: "1 / -1" }}>
+          <div className="settings-bentogrid">
+            <div className="settings-card settings-grid-col-span-full">
               <SettingsIntegrationsTab />
             </div>
           </div>
@@ -1540,46 +1330,32 @@ export default function SettingsPage() {
 
         {/* Turvallisuus-tab */}
         {activeTab === "security" && (
-          <div className={styles["settings-bentogrid"]}>
+          <div className="settings-bentogrid">
             {/* Turvallisuus -kortti (Salasana ja Sähköposti) */}
-            <div className={`${styles.card} ${styles.cardNoPadding}`}>
-              <div className={styles.cardHeader}>
+            <div className={`settings-card settings-card-no-padding`}>
+              <div className="settings-card-header">
                 <h3>{t("settings.security.title")}</h3>
               </div>
-              <div className={styles.cardContent}>
+              <div className="settings-card-content">
                 {/* Salasanan vaihto */}
                 <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    <h4
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        color: "#374151",
-                        margin: 0,
-                      }}
-                    >
+                  <div className="settings-security-header">
+                    <h4 className="settings-security-title">
                       {t("settings.password.title")}
                     </h4>
                     {!showPasswordChange ? (
                       <button
                         onClick={() => setShowPasswordChange(true)}
-                        className={`${styles.btn} ${styles.btnSecondary}`}
+                        className="settings-btn settings-btn-secondary"
                       >
                         {t("settings.buttons.changePassword")}
                       </button>
                     ) : (
-                      <div style={{ display: "flex", gap: "6px" }}>
+                      <div className="settings-flex-gap-sm">
                         <button
                           onClick={handlePasswordSave}
                           disabled={passwordLoading}
-                          className={`${styles.btn} ${styles.btnPrimary}`}
+                          className="settings-btn settings-btn-primary"
                         >
                           {passwordLoading
                             ? t("settings.password.saving")
@@ -1587,7 +1363,7 @@ export default function SettingsPage() {
                         </button>
                         <button
                           onClick={handlePasswordCancel}
-                          className={`${styles.btn} ${styles.btnNeutral}`}
+                          className="settings-btn settings-btn-neutral"
                         >
                           {t("settings.password.cancel")}
                         </button>
@@ -1597,8 +1373,7 @@ export default function SettingsPage() {
 
                   {passwordMessage && (
                     <div
-                      className={`${styles.message} ${passwordMessage.includes("Virhe") ? styles.messageError : styles.messageSuccess}`}
-                      style={{ marginBottom: "12px" }}
+                      className={`settings-message settings-mb-3 ${passwordMessage.includes("Virhe") ? "settings-message-error" : "settings-message-success"}`}
                     >
                       {passwordMessage}
                     </div>
@@ -1606,40 +1381,40 @@ export default function SettingsPage() {
 
                   {showPasswordChange && (
                     <div>
-                      <div className={styles["form-group"]}>
+                      <div className="settings-form-group">
                         <label>{t("settings.password.current")}</label>
                         <input
                           type="password"
                           name="currentPassword"
                           value={passwordData.currentPassword}
                           onChange={handlePasswordChange}
-                          className={styles["form-input"]}
+                          className="settings-form-input"
                           placeholder={t(
                             "settings.password.currentPlaceholder",
                           )}
                         />
                       </div>
 
-                      <div className={styles["form-group"]}>
+                      <div className="settings-form-group">
                         <label>{t("settings.password.new")}</label>
                         <input
                           type="password"
                           name="newPassword"
                           value={passwordData.newPassword}
                           onChange={handlePasswordChange}
-                          className={styles["form-input"]}
+                          className="settings-form-input"
                           placeholder={t("settings.password.newPlaceholder")}
                         />
                       </div>
 
-                      <div className={styles["form-group"]}>
+                      <div className="settings-form-group">
                         <label>{t("settings.password.confirm")}</label>
                         <input
                           type="password"
                           name="confirmPassword"
                           value={passwordData.confirmPassword}
                           onChange={handlePasswordChange}
-                          className={styles["form-input"]}
+                          className="settings-form-input"
                           placeholder={t(
                             "settings.password.confirmPlaceholder",
                           )}
@@ -1649,41 +1424,27 @@ export default function SettingsPage() {
                   )}
                 </div>
 
-                <div className={styles.divider}></div>
+                <div className="settings-divider"></div>
 
                 {/* Sähköpostin vaihto */}
                 <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: "12px",
-                    }}
-                  >
-                    <h4
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 600,
-                        color: "#374151",
-                        margin: 0,
-                      }}
-                    >
+                  <div className="settings-security-header">
+                    <h4 className="settings-security-title">
                       {t("settings.email.title")}
                     </h4>
                     {!showEmailChange ? (
                       <button
                         onClick={() => setShowEmailChange(true)}
-                        className={`${styles.btn} ${styles.btnSecondary}`}
+                        className="settings-btn settings-btn-secondary"
                       >
                         {t("settings.buttons.changeEmail")}
                       </button>
                     ) : (
-                      <div style={{ display: "flex", gap: "6px" }}>
+                      <div className="settings-flex-gap-sm">
                         <button
                           onClick={handleEmailSave}
                           disabled={emailLoading}
-                          className={`${styles.btn} ${styles.btnPrimary}`}
+                          className="settings-btn settings-btn-primary"
                         >
                           {emailLoading
                             ? t("settings.email.saving")
@@ -1691,7 +1452,7 @@ export default function SettingsPage() {
                         </button>
                         <button
                           onClick={handleEmailCancel}
-                          className={`${styles.btn} ${styles.btnNeutral}`}
+                          className="settings-btn settings-btn-neutral"
                         >
                           {t("settings.email.cancel")}
                         </button>
@@ -1701,37 +1462,17 @@ export default function SettingsPage() {
 
                   {emailMessage && (
                     <div
-                      className={`${styles.message} ${emailMessage.includes("Virhe") || emailMessage.includes("sama kuin") ? styles.messageError : emailMessage.includes("Vahvistuslinkki") ? "" : styles.messageSuccess}`}
-                      style={{
-                        marginBottom: "12px",
-                        background:
-                          emailMessage.includes("Virhe") ||
-                          emailMessage.includes("sama kuin")
-                            ? "#fef2f2"
-                            : emailMessage.includes("Vahvistuslinkki")
-                              ? "#eff6ff"
-                              : "#f0fdf4",
-                        color:
-                          emailMessage.includes("Virhe") ||
-                          emailMessage.includes("sama kuin")
-                            ? "#dc2626"
-                            : emailMessage.includes("Vahvistuslinkki")
-                              ? "#1e40af"
-                              : "#16a34a",
-                        border: `1px solid ${emailMessage.includes("Virhe") || emailMessage.includes("sama kuin") ? "#fecaca" : emailMessage.includes("Vahvistuslinkki") ? "#bfdbfe" : "#bbf7d0"}`,
-                      }}
+                      className={`settings-email-message ${
+                        emailMessage.includes("Virhe") || emailMessage.includes("sama kuin")
+                          ? "error"
+                          : emailMessage.includes("Vahvistuslinkki")
+                            ? "info"
+                            : "success"
+                      }`}
                     >
                       {emailMessage.includes("Vahvistuslinkki") ? (
                         <div>
-                          <div
-                            style={{
-                              fontWeight: 600,
-                              marginBottom: "6px",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                            }}
-                          >
+                          <div className="settings-email-header">
                             <svg
                               width="20"
                               height="20"
@@ -1744,17 +1485,10 @@ export default function SettingsPage() {
                             </svg>
                             {t("settings.email.verificationTitle")}
                           </div>
-                          <div style={{ fontSize: "13px", marginTop: "8px" }}>
+                          <div className="settings-email-body">
                             {emailMessage.split(".")[1]?.trim()}
                           </div>
-                          <div
-                            style={{
-                              fontSize: "12px",
-                              marginTop: "8px",
-                              color: "#64748b",
-                              fontStyle: "italic",
-                            }}
-                          >
+                          <div className="settings-email-hint">
                             {t("settings.email.checkSpam")}
                           </div>
                         </div>
@@ -1766,25 +1500,25 @@ export default function SettingsPage() {
 
                   {showEmailChange && (
                     <div>
-                      <div className={styles["form-group"]}>
+                      <div className="settings-form-group">
                         <label>{t("settings.email.new")}</label>
                         <input
                           type="email"
                           name="newEmail"
                           value={emailData.newEmail}
                           onChange={handleEmailChangeInput}
-                          className={styles["form-input"]}
+                          className="settings-form-input"
                           placeholder={t("settings.email.newPlaceholder")}
                         />
                       </div>
-                      <div className={styles["form-group"]}>
+                      <div className="settings-form-group">
                         <label>{t("settings.email.confirm")}</label>
                         <input
                           type="email"
                           name="confirmEmail"
                           value={emailData.confirmEmail}
                           onChange={handleEmailChangeInput}
-                          className={styles["form-input"]}
+                          className="settings-form-input"
                           placeholder={t("settings.email.confirmPlaceholder")}
                         />
                       </div>
@@ -1795,11 +1529,11 @@ export default function SettingsPage() {
             </div>
 
             {/* Sessio-asetukset -kortti */}
-            <div className={`${styles.card} ${styles.cardNoPadding}`}>
-              <div className={styles.cardHeader}>
+            <div className={`settings-card settings-card-no-padding`}>
+              <div className="settings-card-header">
                 <h3>{t("settings.security.sessionSettings")}</h3>
               </div>
-              <div className={styles.cardContent}>
+              <div className="settings-card-content">
                 <TimeoutSettings />
               </div>
             </div>

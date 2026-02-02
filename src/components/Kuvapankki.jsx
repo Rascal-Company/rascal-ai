@@ -3,7 +3,6 @@ import { supabase } from '../lib/supabase'
 import { getCurrentUser } from '../utils/userApi'
 import { getUserOrgId } from '../lib/getUserOrgId'
 import { useAuth } from '../contexts/AuthContext'
-import './Kuvapankki.css'
 
 export default function Kuvapankki({ onClose }) {
   const { user } = useAuth()

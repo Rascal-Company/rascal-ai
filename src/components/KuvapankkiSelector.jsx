@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { getUserOrgId } from '../lib/getUserOrgId'
 import { useAuth } from '../contexts/AuthContext'
-import './KuvapankkiSelector.css'
 
 export default function KuvapankkiSelector({ onSelectImage, onClose }) {
   const { user } = useAuth()

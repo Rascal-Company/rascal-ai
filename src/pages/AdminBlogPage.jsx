@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 import ProtectedRoute from '../components/ProtectedRoute'
 import PageMeta from '../components/PageMeta'
 import { supabase } from '../lib/supabase'
-import './AdminBlogPage.css'
 
 export default function AdminBlogPage() {
   const { t } = useTranslation('common')

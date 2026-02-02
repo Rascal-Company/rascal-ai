@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Check, Trash2, Phone, MessageSquare, AlertCircle, Bell, Lightbulb } from 'lucide-react'
 import { useNotifications } from '../contexts/NotificationContext'
-import './NotificationPanel.css'
 
 const NotificationPanel = ({ onClose }) => {
   const { 

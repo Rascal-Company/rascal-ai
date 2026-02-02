@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import './AuthComponents.css'
 
 export default function ResetPassword() {
   const { t } = useTranslation('common')

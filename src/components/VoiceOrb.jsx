@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import './VoiceOrb.css'
 
 /**
  * Elävä pallo joka reagoi puheeseen

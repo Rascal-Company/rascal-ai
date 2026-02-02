@@ -1,62 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../contexts/AuthContext'
-import { fetchCampaigns } from '../services/campaignsApi'
+import { useCampaigns, useOrgId } from '../hooks/queries'
 import StatsCard from '../components/shared/StatsCard'
 import CampaignCard from '../components/campaigns/CampaignCard'
 import Button from '../components/Button'
-import '../components/ModalComponents.css'
 import CampaignForm from '../components/campaigns/CampaignForm'
 
 export default function CampaignsPage() {
   const { t } = useTranslation('common')
-  const { user } = useAuth()
-  const userId = user?.id
-  const navigate = useNavigate()
-  const [campaigns, setCampaigns] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const { orgId } = useOrgId()
+  const { campaigns, isLoading, error, refetch } = useCampaigns()
   const [showCreate, setShowCreate] = useState(false)
 
-  useEffect(() => {
-    let mounted = true
-    async function load() {
-      if (!userId) {
-        setLoading(false)
-        return
-      }
-      try {
-        const data = await fetchCampaigns(userId)
-        // Debug: tarkista mitä API palauttaa
-        console.log('=== CAMPAIGNS PAGE DEBUG ===')
-        console.log('API response:', data)
-        const debugCampaign = data?.find(c => c.id === '88f7e74a-2f4d-429f-984a-e7b447a7277b')
-        if (debugCampaign) {
-          console.log('Debug campaign (rAHALIVE KAMPPIS):', {
-            id: debugCampaign.id,
-            name: debugCampaign.name,
-            attempt_count: debugCampaign.attempt_count,
-            called_calls: debugCampaign.called_calls,
-            successful_calls: debugCampaign.successful_calls,
-            answered_calls: debugCampaign.answered_calls,
-            failed_calls: debugCampaign.failed_calls,
-            total_calls: debugCampaign.total_calls
-          })
-        }
-        if (mounted) setCampaigns(Array.isArray(data) ? data : [])
-      } catch (err) {
-        console.error('CampaignsPage: Error fetching data:', err)
-        if (mounted) setError(err.message || 'Tuntematon virhe')
-      } finally {
-        if (mounted) setLoading(false)
-      }
-    }
-    load()
-    return () => { mounted = false }
-  }, [userId])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="container" style={{ padding: 24 }}>
         <p>{t('campaigns.loading')}</p>
@@ -67,7 +23,7 @@ export default function CampaignsPage() {
   if (error) {
     return (
       <div className="container" style={{ padding: 24 }}>
-        <div style={{ color: '#dc2626' }}>{t('campaigns.error')}: {error}</div>
+        <div style={{ color: '#dc2626' }}>{t('campaigns.error')}: {error.message}</div>
       </div>
     )
   }
@@ -100,12 +56,8 @@ export default function CampaignsPage() {
           <CampaignCard
             key={campaign.id}
             campaign={campaign}
-            onStatusChange={(fresh) => {
-              setCampaigns(prev => prev.map(c => c.id === fresh.id ? { ...c, status: fresh.status } : c))
-            }}
-            onDelete={async (deletedId) => {
-              setCampaigns(prev => prev.filter(c => c.id !== deletedId))
-            }}
+            onStatusChange={() => refetch()}
+            onDelete={() => refetch()}
           />
         ))}
       </div>
@@ -124,17 +76,11 @@ export default function CampaignsPage() {
               <button className="modal-close-btn" onClick={() => setShowCreate(false)} type="button">×</button>
             </div>
             <div className="modal-content">
-              <CampaignForm 
-                userId={userId}
-                onSuccess={async () => {
+              <CampaignForm
+                userId={orgId}
+                onSuccess={() => {
                   setShowCreate(false)
-                  setLoading(true)
-                  try {
-                    const data = await fetchCampaigns(userId)
-                    setCampaigns(Array.isArray(data) ? data : [])
-                  } finally {
-                    setLoading(false)
-                  }
+                  refetch()
                 }}
                 onCancel={() => setShowCreate(false)}
               />
