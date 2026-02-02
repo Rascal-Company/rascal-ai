@@ -4,7 +4,6 @@
 **/*.test.js
 **/*.test.ts
 api/_test/
-api/_lib/
 
 # Duplicate directories
 api/integrations/elevenlabs 2/
