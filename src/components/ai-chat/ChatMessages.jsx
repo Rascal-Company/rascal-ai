@@ -6,6 +6,10 @@ export function ChatMessages({ messages, loading }) {
   const { t } = useTranslation("common");
   const messagesEndRef = useRef(null);
 
+  // Debug log
+  console.log("[ChatMessages] Rendering with messages:", messages.length);
+  console.log("[ChatMessages] Loading:", loading);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -18,12 +22,19 @@ export function ChatMessages({ messages, loading }) {
           <WelcomeScreen />
         ) : (
           <>
-            {messages.map((message, index) => (
-              <MessageBubble
-                key={`${message.role}-${index}-${message.content?.substring(0, 50)}`}
-                message={message}
-              />
-            ))}
+            {messages.map((message, index) => {
+              console.log(
+                `[ChatMessages] Rendering message ${index}:`,
+                message.role,
+                message.content?.substring(0, 50),
+              );
+              return (
+                <MessageBubble
+                  key={`${message.role}-${index}-${message.content?.substring(0, 50)}`}
+                  message={message}
+                />
+              );
+            })}
             {loading && <TypingIndicator />}
             <div ref={messagesEndRef} />
           </>

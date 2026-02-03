@@ -18,20 +18,20 @@ export function ChatHeader({
       {/* Assistant Type Selector */}
       <div className="flex items-center gap-2 p-1 rounded-xl bg-gray-100">
         <button
-          className={`py-2 px-4 bg-transparent border-none rounded-lg text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 ${
+          className={`py-2 px-4 border-none rounded-lg text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 ${
             assistantType === "marketing"
               ? "text-white bg-primary-500 shadow-md"
-              : "text-gray-500 hover:text-primary-500 hover:bg-primary-500/10"
+              : "text-gray-500 bg-transparent hover:text-primary-500 hover:bg-primary-500/10"
           }`}
           onClick={() => onAssistantTypeChange("marketing")}
         >
           {t("assistant.types.marketing")}
         </button>
         <button
-          className={`py-2 px-4 bg-transparent border-none rounded-lg text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 ${
+          className={`py-2 px-4 border-none rounded-lg text-sm font-medium cursor-pointer whitespace-nowrap transition-all duration-200 ${
             assistantType === "sales"
               ? "text-white bg-primary-500 shadow-md"
-              : "text-gray-500 hover:text-primary-500 hover:bg-primary-500/10"
+              : "text-gray-500 bg-transparent hover:text-primary-500 hover:bg-primary-500/10"
           }`}
           onClick={() => onAssistantTypeChange("sales")}
         >

@@ -1,6 +1,17 @@
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
+// Shared styles
+const TAB_BUTTON_BASE =
+  "flex-1 py-2 px-4 border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-200";
+const TAB_BUTTON_ACTIVE = "text-white bg-primary-500";
+const TAB_BUTTON_INACTIVE =
+  "text-gray-500 bg-transparent hover:bg-gray-100 hover:text-gray-800";
+const SPINNER =
+  "w-6 h-6 rounded-full border-2 border-primary-500 border-t-transparent animate-spin";
+const EMPTY_STATE = "text-sm text-gray-400 text-center py-4";
+const TEXT_TRUNCATE = "overflow-hidden text-ellipsis whitespace-nowrap";
+
 export function ChatSidebar({
   isOpen,
   onClose,
@@ -68,21 +79,13 @@ export function ChatSidebar({
       <div className="flex items-center justify-between py-4 px-5 gap-3 border-b border-gray-200">
         <div className="flex gap-2 flex-1">
           <button
-            className={`flex-1 py-2 px-4 bg-transparent border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
-              activeTab === "threads"
-                ? "text-white bg-primary-500"
-                : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-            }`}
+            className={`${TAB_BUTTON_BASE} ${activeTab === "threads" ? TAB_BUTTON_ACTIVE : TAB_BUTTON_INACTIVE}`}
             onClick={() => onTabChange("threads")}
           >
             {t("assistant.threads.title")}
           </button>
           <button
-            className={`flex-1 py-2 px-4 bg-transparent border-none rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 ${
-              activeTab === "database"
-                ? "text-white bg-primary-500"
-                : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-            }`}
+            className={`${TAB_BUTTON_BASE} ${activeTab === "database" ? TAB_BUTTON_ACTIVE : TAB_BUTTON_INACTIVE}`}
             onClick={() => onTabChange("database")}
           >
             {t("assistant.threads.database")}
@@ -115,12 +118,10 @@ export function ChatSidebar({
           <div className="flex-1 overflow-y-auto flex flex-col gap-1.5">
             {threadsLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="w-6 h-6 rounded-full border-2 border-primary-500 border-t-transparent animate-spin" />
+                <div className={SPINNER} />
               </div>
             ) : threads.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-4">
-                {t("assistant.threads.empty")}
-              </p>
+              <p className={EMPTY_STATE}>{t("assistant.threads.empty")}</p>
             ) : (
               threads.map((thread) => (
                 <ThreadItem
@@ -190,7 +191,9 @@ export function ChatSidebar({
                       key={f.name + f.size}
                       className="flex items-center justify-between py-2 px-3 rounded-lg gap-2 bg-gray-100"
                     >
-                      <span className="flex-1 text-[13px] overflow-hidden text-ellipsis whitespace-nowrap text-gray-700">
+                      <span
+                        className={`flex-1 text-[13px] ${TEXT_TRUNCATE} text-gray-700`}
+                      >
                         {f.name}
                       </span>
                       <button
@@ -245,16 +248,14 @@ export function ChatSidebar({
             <div className="flex-1 overflow-y-auto flex flex-col gap-1.5">
               {filesLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="w-6 h-6 rounded-full border-2 border-primary-500 border-t-transparent animate-spin" />
+                  <div className={SPINNER} />
                 </div>
               ) : filesError ? (
                 <p className="text-sm text-red-500 text-center py-4">
                   {filesError}
                 </p>
               ) : files.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-4">
-                  {t("assistant.files.list.empty")}
-                </p>
+                <p className={EMPTY_STATE}>{t("assistant.files.list.empty")}</p>
               ) : (
                 files.map((file) => (
                   <div
@@ -326,7 +327,9 @@ function ThreadItem({
             autoFocus
           />
         ) : (
-          <span className="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowrap text-gray-800">
+          <span
+            className={`text-sm font-medium ${TEXT_TRUNCATE} text-gray-800`}
+          >
             {thread.title}
           </span>
         )}

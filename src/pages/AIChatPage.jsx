@@ -236,8 +236,19 @@ export default function AIChatPage() {
       }
 
       try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.access_token) {
+          pollingIntervalRef.current = setTimeout(poll, POLL_INTERVAL);
+          return;
+        }
+
         const response = await axios.get(
-          `/api/integrations/zep/messages?threadId=${threadIdToPoll}`,
+          `/api/ai/messages?threadId=${threadIdToPoll}`,
+          {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          },
         );
         const zepMessages = response.data?.messages || [];
         const hasNewMessages = zepMessages.length > lastMessageCountRef.current;
@@ -413,8 +424,20 @@ export default function AIChatPage() {
 
       if (activeThreadId) {
         try {
+          const {
+            data: { session: currentSession },
+          } = await supabase.auth.getSession();
+          if (!currentSession?.access_token) {
+            throw new Error("No session");
+          }
+
           const currentResponse = await axios.get(
-            `/api/integrations/zep/messages?threadId=${activeThreadId}`,
+            `/api/ai/messages?threadId=${activeThreadId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${currentSession.access_token}`,
+              },
+            },
           );
           const currentMessages = currentResponse.data?.messages || [];
           lastMessageCountRef.current = currentMessages.length;
@@ -616,8 +639,12 @@ export default function AIChatPage() {
 
   const loadThread = async (threadIdToLoad, isPollingUpdate = false) => {
     try {
+      console.log("[loadThread] Loading thread:", threadIdToLoad);
       const thread = threads.find((t) => t.id === threadIdToLoad);
-      if (!thread) return;
+      if (!thread) {
+        console.log("[loadThread] Thread not found in threads list");
+        return;
+      }
 
       setCurrentThreadId(threadIdToLoad);
       setThreadId(threadIdToLoad);
@@ -636,11 +663,27 @@ export default function AIChatPage() {
         setSidebarOpen(false);
       }
 
+      const {
+        data: { session: loadSession },
+      } = await supabase.auth.getSession();
+      if (!loadSession?.access_token) {
+        throw new Error("No session");
+      }
+
+      console.log(
+        "[loadThread] Fetching messages for threadId:",
+        threadIdToLoad,
+      );
       const response = await axios.get(
-        `/api/integrations/zep/messages?threadId=${threadIdToLoad}`,
+        `/api/ai/messages?threadId=${threadIdToLoad}`,
+        {
+          headers: { Authorization: `Bearer ${loadSession.access_token}` },
+        },
       );
 
       const zepMessages = response.data?.messages || [];
+      console.log("[loadThread] Received messages:", zepMessages.length);
+      console.log("[loadThread] Raw messages:", zepMessages);
       lastMessageCountRef.current = zepMessages.length;
 
       const assistantMessages = zepMessages.filter(
@@ -657,7 +700,16 @@ export default function AIChatPage() {
       }
 
       const formattedMessages = zepMessages
-        .filter((msg) => msg.content)
+        .filter((msg) => {
+          const hasContent = !!msg.content;
+          if (!hasContent) {
+            console.log(
+              "[loadThread] Filtering out message without content:",
+              msg,
+            );
+          }
+          return hasContent;
+        })
         .map((msg) => {
           let normalizedRole = msg.role;
           if (msg.role === "Human" || msg.role === "human") {
@@ -671,6 +723,8 @@ export default function AIChatPage() {
           };
         });
 
+      console.log("[loadThread] Formatted messages:", formattedMessages.length);
+      console.log("[loadThread] Messages:", formattedMessages);
       setMessages(formattedMessages);
       await new Promise((resolve) => setTimeout(resolve, 0));
 
