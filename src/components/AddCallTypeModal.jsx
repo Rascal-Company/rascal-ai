@@ -89,6 +89,8 @@ const AddCallTypeModal = ({
     if (onAdd) {
       await onAdd()
       // onAdd hoitaa toastin/success-viestin CallPanel.jsx:ssä
+      // Sulje modaali tallennuksen jälkeen
+      onClose()
     } else if (onClose) {
       onClose()
     }
