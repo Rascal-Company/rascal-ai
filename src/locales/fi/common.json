@@ -894,8 +894,8 @@
       "edit": "Muokkaa yritysanalyysiä"
     },
     "toneOfVoice": {
-      "title": "Äänenlaatu ja TOV",
-      "missing": "Äänenlaatu ja TOV puuttuu. Lisää yrityksen äänenlaatu aloittaaksesi.",
+      "title": "Tone of Voice",
+      "missing": "Tone of Voice puuttuu. Lisää yrityksen äänenlaatu aloittaaksesi.",
       "create": "Luo äänenlaatu",
       "edit": "Muokkaa äänenlaatuasetuksia",
       "modalTitle": "🎤 Äänenlaatu & TOV",
