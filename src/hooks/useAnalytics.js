@@ -1,53 +1,53 @@
-import { useState, useEffect, useCallback } from 'react'
-import analyticsService from '../services/analyticsApi'
+import { useState, useEffect, useCallback } from "react";
+import analyticsService from "../services/analyticsApi";
 
 export function useAnalytics() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const fetchAnalytics = useCallback(async () => {
     try {
-      setLoading(true)
-      setError(null)
-      const result = await analyticsService.getAnalytics()
-      setData(result)
+      setLoading(true);
+      setError(null);
+      const result = await analyticsService.getAnalytics();
+      setData(result);
     } catch (err) {
-      console.error('Analytics fetch error:', err)
-      setError(err.message)
+      console.error("Analytics fetch error:", err);
+      setError(err.message);
       // Fallback mock data
-      setData(analyticsService.getMockAnalytics())
+      setData(analyticsService.getMockAnalytics());
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    fetchAnalytics()
-  }, [fetchAnalytics])
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   const refresh = useCallback(() => {
-    fetchAnalytics()
-  }, [fetchAnalytics])
+    fetchAnalytics();
+  }, [fetchAnalytics]);
 
   const refreshCache = useCallback(async () => {
     try {
-      setLoading(true)
-      await analyticsService.refreshCache()
-      await fetchAnalytics()
+      setLoading(true);
+      await analyticsService.refreshCache();
+      await fetchAnalytics();
     } catch (err) {
-      console.error('Cache refresh error:', err)
-      setError(err.message)
+      console.error("Cache refresh error:", err);
+      setError(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [fetchAnalytics])
+  }, [fetchAnalytics]);
 
-  return { 
-    data, 
-    loading, 
-    error, 
-    refresh, 
-    refreshCache 
-  }
-} 
+  return {
+    data,
+    loading,
+    error,
+    refresh,
+    refreshCache,
+  };
+}

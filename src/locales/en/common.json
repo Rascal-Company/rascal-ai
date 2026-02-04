@@ -536,7 +536,15 @@
       "cancel": "Cancel",
       "saveChanges": "Save changes",
       "publishToSelectedChannels": "Publish to selected channels",
-      "retry": "Try again"
+      "retry": "Try again",
+      "preview": "Preview"
+    },
+    "preview": {
+      "title": "Preview Post",
+      "subtitle": "See how your post will look",
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "tip": "Preview shows an estimate of your post"
     },
     "loading": {
       "fetchingAccounts": "Fetching social accounts..."
@@ -1719,7 +1727,8 @@
       "send": "Send",
       "sending": "Sending...",
       "today": "Today",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "close": "Close"
     },
     "labels": {
       "or": "or",
@@ -2763,6 +2772,10 @@
         "noDateTime": "No date/time",
         "successUpdate": "Post updated successfully!"
       }
+    },
+    "alerts": {
+      "rescheduled": "Post rescheduled successfully",
+      "rescheduleFailed": "Failed to reschedule post"
     }
   },
   "monitoring": {

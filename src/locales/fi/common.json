@@ -468,7 +468,22 @@
       "selectAtLeastOneChannel": "Valitse vähintään yksi somekanava",
       "draft": "Luonnos",
       "inProgress": "Kesken",
-      "next": "Seuraava"
+      "next": "Seuraava",
+      "ideaSent": "Julkaisu lähetetty generoitavaksi!",
+      "errorCreating": "Virhe julkaisun luomisessa",
+      "userIdNotFound": "Käyttäjän ID ei löytynyt",
+      "companyIdNotFound": "Yrityksen ID ei löytynyt",
+      "errorCompanyId": "Virhe: Yrityksen ID puuttuu",
+      "voiceoverError": "Virhe voiceover-tekstin päivityksessä",
+      "voiceoverSuccess": "Voiceover-teksti päivitetty onnistuneesti",
+      "schedulePrompt": "Anna päivämäärä ja aika (esim. 2024-12-25 14:30)",
+      "scheduleSuccess": "Julkaisu aikataulutettu onnistuneesti",
+      "scheduleError": "Virhe aikataulutuksessa:",
+      "selectAccounts": "Valitse vähintään yksi sometili",
+      "publishSuccess": "Julkaisu lähetetty onnistuneesti",
+      "publishError": "Virhe julkaisussa:",
+      "moveError": "Virhe julkaisun siirtämisessä:",
+      "supabaseUpdateFailed": "Tietokantapäivitys epäonnistui"
     },
     "filters": {
       "allStatuses": "Kaikki statukset",
@@ -503,7 +518,15 @@
       "cancel": "Peruuta",
       "saveChanges": "Tallenna muutokset",
       "publishToSelectedChannels": "Julkaise valituille kanaville",
-      "retry": "Yritä uudelleen"
+      "retry": "Yritä uudelleen",
+      "preview": "Esikatsele"
+    },
+    "preview": {
+      "title": "Esikatsele julkaisu",
+      "subtitle": "Katso miltä julkaisu näyttää",
+      "mobile": "Mobile",
+      "desktop": "Desktop",
+      "tip": "Esikatselu näyttää arvion julkaisusta"
     },
     "loading": {
       "fetchingAccounts": "Haetaan somekanavia..."
@@ -534,15 +557,18 @@
     },
     "importModal": {
       "title": "Tuo oma julkaisu",
+      "subtitle": "Tuo omaa mediatiedostoa",
       "fields": {
         "type": "Tyyppi",
         "media": "Media",
-        "title": "Otsikko (valinnainen)",
-        "caption": "Postaus (valinnainen)"
+        "caption": "Kuvateksti (valinnainen)"
       },
-      "placeholders": {
-        "title": "Anna julkaisulle otsikko..."
-      }
+      "dragDrop": "Vedä ja pudota tiedosto tähän",
+      "orClick": "tai klikkaa valitaksesi",
+      "captionPlaceholder": "Lisää kuvateksti...",
+      "cancel": "Peruuta",
+      "submit": "Tuo julkaisu",
+      "uploading": "Lähetetään..."
     },
     "upload": {
       "dropzone": "Vedä ja pudota tiedosto tähän",
@@ -551,20 +577,21 @@
     },
     "createModal": {
       "title": "Luo uusi some-sisältö",
-      "close": "Sulje",
-      "fields": {
-        "title": "Otsikko",
-        "type": "Tyyppi",
-        "description": "Kuvaus",
-        "count": "Määrä"
-      },
-      "placeholders": {
-        "title": "Syötä some-sisällön otsikko...",
-        "description": "Kirjoita some-sisällön kuvaus...",
-        "count": "Kuinka monta postausta generoidaan?"
-      },
+      "subtitle": "Luo tekoälyllä uutta sisältöä",
+      "titleLabel": "Otsikko",
+      "titlePlaceholder": "Esim. Kesäkampanja 2024",
+      "titleOptionalHint": "Otsikko on valinnainen useamman julkaisun luonnissa",
+      "typeLabel": "Tyyppi",
+      "typeAll": "Kaikki",
+      "typePhoto": "Photo",
+      "typeCarousel": "Carousel",
+      "typeReels": "Reels",
+      "typeLinkedIn": "LinkedIn",
+      "countLabel": "Lukumäärä",
+      "captionLabel": "Kuvaus (valinnainen)",
+      "captionPlaceholder": "Lisää kuvaus...",
       "cancel": "Peruuta",
-      "create": "Luo some-sisältö"
+      "submit": "Generoi julkaisut"
     },
     "editModal": {
       "title": "Muokkaa some-sisältöä",
@@ -1832,7 +1859,8 @@
       "send": "Lähetä",
       "sending": "Lähetetään...",
       "today": "Tänään",
-      "cancel": "Peruuta"
+      "cancel": "Peruuta",
+      "close": "Sulje"
     },
     "labels": {
       "or": "tai",
@@ -2345,6 +2373,19 @@
       "scheduledPost": "Aikataulutettu postaus"
     }
   },
+  "shortcuts": {
+    "title": "Pikanäppäimet",
+    "subtitle": "Käytä näitä pikanäppäimiä nopeuttaaksesi työskentelyä",
+    "general": "Yleiset",
+    "focusSearch": "Aktivoi haku",
+    "createNew": "Luo uusi julkaisu",
+    "import": "Tuo julkaisu",
+    "closeModal": "Sulje modaalit",
+    "showHelp": "Näytä pikanäppäimet",
+    "tip": "Vinkki: Paina",
+    "tipEnd": "milloin tahansa avataksesi tämän",
+    "close": "Sulje"
+  },
   "organizationMembers": {
     "inviteUser": "Kutsu käyttäjä"
   },
@@ -2792,6 +2833,10 @@
         "noDateTime": "Ei ajankohtaa",
         "successUpdate": "Postaus päivitetty onnistuneesti!"
       }
+    },
+    "alerts": {
+      "rescheduled": "Julkaisu siirretty onnistuneesti",
+      "rescheduleFailed": "Julkaisun siirto epäonnistui"
     }
   },
   "monitoring": {

@@ -1,133 +1,97 @@
-import { useState, useEffect } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import { supabase } from '../lib/supabase'
-import { getUserOrgId } from '../lib/getUserOrgId'
-import { findNextMonthStrategy, calculateMonthlyLimit } from '../utils/strategyHelpers'
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
+import { getUserOrgId } from "../lib/getUserOrgId";
+import {
+  findNextMonthStrategy,
+  calculateMonthlyLimit,
+} from "../utils/strategyHelpers";
+import {
+  useSubscriptionStatus,
+  useUserStrategies,
+} from "./queries/useSubscription";
 
 export const useNextMonthQuota = () => {
-  const [quotaData, setQuotaData] = useState({
-    nextMonthCount: 0,
-    nextMonthLimit: 30,
-    nextMonthRemaining: 30,
-    subscriptionStatus: 'free',
-    isUnlimited: false,
-    loading: false,
-    error: null
-  })
-  
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  const fetchSubscriptionStatus = async (userId) => {
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('subscription_status')
-      .eq('id', userId)
-      .single()
-    
-    if (userError || !userData) {
-      throw new Error('Käyttäjän tietoja ei löytynyt')
-    }
+  // Shared queries - cached and reused across hooks
+  const subscriptionQuery = useSubscriptionStatus();
+  const strategiesQuery = useUserStrategies();
 
-    return userData.subscription_status
-  }
+  // Next month's generated content count
+  const nextMonthCountQuery = useQuery({
+    queryKey: ["nextMonthContentCount", user?.id],
+    queryFn: async () => {
+      if (!user?.id || !strategiesQuery.data) return 0;
 
-  const fetchUserStrategies = async (userId) => {
-    const { data: strategies, error: strategyErr } = await supabase
-      .from('content_strategy')
-      .select('id, month')
-      .eq('user_id', userId)
+      const userId = await getUserOrgId(user.id);
+      if (!userId) return 0;
 
-    if (strategyErr) {
-      console.error('Error fetching strategies:', strategyErr)
-      return []
-    }
+      // Find next month's strategy
+      const now = new Date();
+      const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      const nextMonth = nextMonthDate.getMonth();
+      const nextYear = nextMonthDate.getFullYear();
 
-    return strategies || []
-  }
+      const nextMonthStrategy = findNextMonthStrategy(
+        strategiesQuery.data,
+        nextMonth,
+        nextYear,
+      );
 
-  const findNextMonthStrategyForUser = async (userId) => {
-    const strategies = await fetchUserStrategies(userId)
-    if (strategies.length === 0) {
-      return null
-    }
+      if (!nextMonthStrategy?.id) return 0;
 
-    const now = new Date()
-    const nextMonthDate = new Date(now.getFullYear(), now.getMonth() + 1, 1)
-    const nextMonth = nextMonthDate.getMonth()
-    const nextYear = nextMonthDate.getFullYear()
+      // Count generated content for next month's strategy
+      const { count, error } = await supabase
+        .from("content")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("strategy_id", nextMonthStrategy.id)
+        .eq("is_generated", true);
 
-    return findNextMonthStrategy(strategies, nextMonth, nextYear)
-  }
-
-  const countGeneratedContent = async (userId, strategyId) => {
-    const { count, error: cntErr } = await supabase
-      .from('content')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('strategy_id', strategyId)
-      .eq('is_generated', true)
-
-    if (cntErr) {
-      console.error('Error counting next month generated content:', cntErr)
-      return 0
-    }
-
-    return count || 0
-  }
-
-  const checkNextMonthQuota = async () => {
-    if (!user?.id) return
-
-    setQuotaData(prev => ({ ...prev, loading: true, error: null }))
-
-    try {
-      const userId = await getUserOrgId(user.id)
-      
-      if (!userId) {
-        throw new Error('Käyttäjän ID ei löytynyt')
+      if (error) {
+        console.error("Error counting next month generated content:", error);
+        return 0;
       }
 
-      const [subscriptionStatus, nextMonthStrategy] = await Promise.all([
-        fetchSubscriptionStatus(userId),
-        findNextMonthStrategyForUser(userId)
-      ])
+      return count || 0;
+    },
+    enabled:
+      !!user?.id &&
+      !strategiesQuery.isLoading &&
+      !!strategiesQuery.data &&
+      strategiesQuery.data.length > 0,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    placeholderData: 0,
+  });
 
-      const monthlyLimit = calculateMonthlyLimit(subscriptionStatus)
+  // Compute derived values
+  const subscriptionStatus = subscriptionQuery.data || "free";
+  const monthlyLimit = calculateMonthlyLimit(subscriptionStatus);
+  const nextMonthCount = nextMonthCountQuery.data || 0;
+  const isUnlimited = monthlyLimit >= 999999;
+  const nextMonthRemaining = isUnlimited
+    ? Infinity
+    : Math.max(0, monthlyLimit - nextMonthCount);
 
-      let nextMonthCount = 0
-      if (nextMonthStrategy?.id) {
-        nextMonthCount = await countGeneratedContent(userId, nextMonthStrategy.id)
-      }
+  const loading =
+    subscriptionQuery.isLoading ||
+    strategiesQuery.isLoading ||
+    nextMonthCountQuery.isLoading;
 
-      const isUnlimited = monthlyLimit >= 999999
-      const nextMonthRemaining = isUnlimited ? Infinity : Math.max(0, monthlyLimit - nextMonthCount)
-
-      setQuotaData({
-        nextMonthCount,
-        nextMonthLimit: monthlyLimit,
-        nextMonthRemaining,
-        subscriptionStatus,
-        isUnlimited,
-        loading: false,
-        error: null
-      })
-
-    } catch (error) {
-      console.error('Error checking next month quota:', error)
-      setQuotaData(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message
-      }))
-    }
-  }
-
-  useEffect(() => {
-    checkNextMonthQuota()
-  }, [user?.id])
+  const error =
+    subscriptionQuery.error ||
+    strategiesQuery.error ||
+    nextMonthCountQuery.error;
 
   return {
-    ...quotaData,
-    refresh: checkNextMonthQuota
-  }
-}
+    nextMonthCount,
+    nextMonthLimit: monthlyLimit,
+    nextMonthRemaining,
+    subscriptionStatus,
+    isUnlimited,
+    loading,
+    error: error?.message || null,
+    refresh: () => nextMonthCountQuery.refetch(),
+  };
+};

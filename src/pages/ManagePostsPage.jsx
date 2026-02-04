@@ -10,6 +10,7 @@ import { useNextMonthQuota } from "../hooks/useNextMonthQuota";
 import { usePosts } from "../hooks/usePosts";
 import { useOrgId } from "../hooks/queries";
 import { useEscapeKey } from "../hooks/useEscapeKey";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { POST_STATUS_REVERSE_MAP } from "../constants/posts";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
@@ -27,6 +28,21 @@ import PostCard from "../components/PostCard/PostCard";
 import KuvapankkiSelector from "../components/KuvapankkiSelector";
 import ImageBankModal from "../components/ImageBankModal";
 import CarouselSegmentsEditor from "../components/CarouselSegmentsEditor";
+import PostHeader from "../components/posts/PostHeader";
+import PostTabs from "../components/posts/PostTabs";
+import PostActions from "../components/posts/PostActions";
+import PostFilters from "../components/posts/PostFilters";
+import KeyboardShortcutsModal from "../components/KeyboardShortcutsModal";
+
+// New refactored modals
+import CreatePostModal from "../components/posts/modals/CreatePostModal";
+import UploadPostModal from "../components/posts/modals/UploadPostModal";
+import SchedulePostModal from "../components/posts/modals/SchedulePostModal";
+import PreviewPostModal from "../components/posts/modals/PreviewPostModal";
+
+// New hooks
+import { useModalManager } from "../hooks/useModalManager";
+import { useNotification } from "../hooks/useNotification";
 
 // Dummy data
 const initialPosts = [
@@ -73,9 +89,13 @@ export default function ManagePostsPage() {
   const { t } = useTranslation("common");
   const { user } = useAuth();
   const toast = useToast();
+  const notify = useNotification(); // Yhtenäinen notification handling
   const navigate = useNavigate();
   const monthlyLimit = useMonthlyLimit();
   const nextMonthQuota = useNextMonthQuota();
+
+  // Keskitetty modal management
+  const { modal, openModal, closeModal, isOpen } = useModalManager();
 
   // Use usePosts hook for data management
   const {
@@ -123,12 +143,8 @@ export default function ManagePostsPage() {
     setActiveTabState(tab);
     localStorage.setItem("managePostsActiveTab", tab);
   };
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [createModalCount, setCreateModalCount] = useState(1);
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadDragActive, setUploadDragActive] = useState(false);
-  const [uploadPreviewUrl, setUploadPreviewUrl] = useState(null);
-  const [uploadLoading, setUploadLoading] = useState(false);
+
+  // Legacy modals (TODO: Refactor edit modal)
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingPost, setEditingPost] = useState(null);
   const [showPublishModal, setShowPublishModal] = useState(false);
@@ -145,6 +161,9 @@ export default function ManagePostsPage() {
   const [userAccountType, setUserAccountType] = useState(null);
   const [showKuvapankkiSelector, setShowKuvapankkiSelector] = useState(false);
   const [showImageBankModal, setShowImageBankModal] = useState(false);
+  const [showShortcutsModal, setShowShortcutsModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [previewPost, setPreviewPost] = useState(null);
 
   // Refs for character counting
   const textareaRef = useRef(null);
@@ -239,31 +258,15 @@ export default function ManagePostsPage() {
     }
   }, [showEditModal, editModalStep, editingPost]);
 
-  // Notification states
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  // Notification states - REMOVED (using useNotification instead)
 
-  const hasInitialized = useRef(false);
   const isUuid = (value) =>
     typeof value === "string" &&
     /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
       value,
     );
 
-  // Auto-hide notifications
-  useEffect(() => {
-    if (successMessage) {
-      const timer = setTimeout(() => setSuccessMessage(""), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [successMessage]);
-
-  useEffect(() => {
-    if (errorMessage) {
-      const timer = setTimeout(() => setErrorMessage(""), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [errorMessage]);
+  // Auto-hide notifications - REMOVED (ToastContext handles this)
 
   // fetchPosts siirretty usePosts hookiin
 
@@ -290,27 +293,7 @@ export default function ManagePostsPage() {
     fetchAccountType();
   }, [user, orgId]);
 
-  // Hae kaikki data kun sivu avataan (vain kerran)
-  useEffect(() => {
-    if (!user || hasInitialized.current) return;
-
-    hasInitialized.current = true;
-    // Optimization #2: Parallel Data Fetching - haetaan kaikki data rinnakkain
-    Promise.all([
-      fetchPosts(),
-      fetchReelsPosts(),
-      fetchSocialAccounts(),
-      fetchMixpostPosts(),
-    ]).catch((error) => {
-      console.error("Error fetching initial data:", error);
-    });
-  }, [
-    user,
-    fetchPosts,
-    fetchReelsPosts,
-    fetchSocialAccounts,
-    fetchMixpostPosts,
-  ]);
+  // TanStack Query handles all data fetching automatically - no manual fetching needed
 
   // Siirrä pois UGC-tabista jos feature poistetaan
   useEffect(() => {
@@ -356,6 +339,25 @@ export default function ManagePostsPage() {
       return matchesSearch && matchesStatus && matchesType;
     });
   }, [allPosts, debouncedSearchTerm, statusFilter, typeFilter]);
+
+  // Calculate filter counts
+  const filterCounts = useMemo(() => {
+    const typeCounts = { all: allPosts.length };
+    const statusCounts = { all: allPosts.length };
+
+    allPosts.forEach((post) => {
+      // Count by type
+      if (post.type) {
+        typeCounts[post.type] = (typeCounts[post.type] || 0) + 1;
+      }
+      // Count by status
+      if (post.status) {
+        statusCounts[post.status] = (statusCounts[post.status] || 0) + 1;
+      }
+    });
+
+    return { type: typeCounts, status: statusCounts };
+  }, [allPosts]);
 
   // "Valmiina julkaisuun" (Tarkistuksessa) postaukset
   const readyPosts = filteredPosts.filter(
@@ -433,8 +435,8 @@ export default function ManagePostsPage() {
       // Tarkista kuukausiraja ennen luontia
       // Jos luodaan useampi postaus, tarkista että riittää tilaa
       if (!monthlyLimit.canCreate) {
-        setShowCreateModal(false);
-        setErrorMessage("Kuukausiraja täynnä");
+        closeModal();
+        notify.error("Kuukausiraja täynnä");
         return;
       }
 
@@ -442,8 +444,8 @@ export default function ManagePostsPage() {
       if (count > 1) {
         const remaining = monthlyLimit.remaining || 0;
         if (remaining < count) {
-          setShowCreateModal(false);
-          setErrorMessage(
+          closeModal();
+          notify.error(
             `Kuukausiraja ei riitä. Voit luoda vielä ${remaining} postausta tässä kuussa.`,
           );
           monthlyLimit.refresh();
@@ -486,8 +488,8 @@ export default function ManagePostsPage() {
           // Tarkista onko kyse kuukausiraja-virheestä
           const errorData = await response.json().catch(() => null);
           if (errorData?.error?.includes("Monthly content limit exceeded")) {
-            setShowCreateModal(false);
-            setErrorMessage(
+            closeModal();
+            notify.error(
               "Kuukausiraja ylitetty! Voit luoda uutta sisältöä vasta ensi kuussa.",
             );
             monthlyLimit.refresh(); // Päivitä raja-tiedot
@@ -503,22 +505,22 @@ export default function ManagePostsPage() {
         // Jatketaan silti postauksen luomista
       }
 
-      setShowCreateModal(false);
+      closeModal();
       if (count > 1) {
-        setSuccessMessage(`${count} postausta lähetetty generoitavaksi`);
+        notify.success(`${count} postausta lähetetty generoitavaksi`);
       } else {
-        setSuccessMessage(t("posts.messages.ideaSent"));
+        notify.success(t("posts.messages.ideaSent"));
       }
       monthlyLimit.refresh(); // Päivitä raja-tiedot onnistuneen luonnin jälkeen
     } catch (error) {
       console.error("Virhe uuden julkaisun luomisessa:", error);
       if (error.message?.includes("Monthly content limit exceeded")) {
-        setErrorMessage(
+        notify.error(
           "Kuukausiraja ylitetty! Voit luoda uutta sisältöä vasta ensi kuussa.",
         );
         monthlyLimit.refresh();
       } else {
-        setErrorMessage(t("posts.messages.errorCreating"));
+        notify.error(t("posts.messages.errorCreating"));
       }
     }
   };
@@ -676,7 +678,7 @@ export default function ManagePostsPage() {
 
           if (userError || !userData?.company_id) {
             console.error("Could not fetch company_id:", userError);
-            setErrorMessage(t("posts.messages.errorCompanyId"));
+            notify.error(t("posts.messages.errorCompanyId"));
             return;
           }
 
@@ -704,17 +706,17 @@ export default function ManagePostsPage() {
           if (!response.ok) {
             console.error("Voiceover webhook failed:", response.status);
             // Näytä käyttäjälle virheviesti
-            setErrorMessage(t("posts.messages.voiceoverError"));
+            notify.error(t("posts.messages.voiceoverError"));
             return;
           }
 
           const result = await response.json();
 
           // Näytä käyttäjälle onnistumisviesti
-          setSuccessMessage(t("posts.messages.voiceoverSuccess"));
+          notify.success(t("posts.messages.voiceoverSuccess"));
         } catch (error) {
           console.error("Voiceover webhook error:", error);
-          setErrorMessage(t("posts.messages.voiceoverError"));
+          notify.error(t("posts.messages.voiceoverError"));
           return;
         }
       }
@@ -723,7 +725,7 @@ export default function ManagePostsPage() {
       try {
         if (!orgId) {
           console.error("Could not fetch user_id");
-          setErrorMessage("Käyttäjätietojen haku epäonnistui");
+          notify.error("Käyttäjätietojen haku epäonnistui");
           return;
         }
 
@@ -741,14 +743,14 @@ export default function ManagePostsPage() {
 
         if (updateError) {
           console.error("Supabase update error:", updateError);
-          setErrorMessage("Tietojen tallentaminen epäonnistui");
+          notify.error("Tietojen tallentaminen epäonnistui");
           return;
         }
 
-        setSuccessMessage("Tiedot tallennettu onnistuneesti");
+        notify.success("Tiedot tallennettu onnistuneesti");
       } catch (error) {
         console.error("Error updating Supabase:", error);
-        setErrorMessage("Tietojen tallentaminen epäonnistui");
+        notify.error("Tietojen tallentaminen epäonnistui");
         // Optimization #1: Virhetilanteessa palautetaan vanha data
         try {
           await fetchPosts();
@@ -766,6 +768,11 @@ export default function ManagePostsPage() {
       setShowEditModal(false);
       setEditingPost(null);
     }
+  };
+
+  const handlePreview = (post) => {
+    setPreviewPost(post);
+    setShowPreviewModal(true);
   };
 
   const handleDeletePost = async (post) => {
@@ -819,7 +826,7 @@ export default function ManagePostsPage() {
     try {
       // 1. Tarkista kuukausiraja (valinnainen, jos monistus kuluttaa kiintiötä)
       if (!monthlyLimit.canCreate) {
-        setErrorMessage("Kuukausiraja täynnä, et voi monistaa postausta.");
+        notify.error("Kuukausiraja täynnä, et voi monistaa postausta.");
         return;
       }
 
@@ -925,7 +932,7 @@ export default function ManagePostsPage() {
       await fetchPosts(); // Lataa lista uudelleen
     } catch (error) {
       console.error("Duplicate error:", error);
-      setErrorMessage("Postauksen monistaminen epäonnistui: " + error.message);
+      notify.error("Postauksen monistaminen epäonnistui: " + error.message);
     }
   };
 
@@ -949,7 +956,7 @@ export default function ManagePostsPage() {
 
       // Tarkista että on valittu vähintään yksi kanava
       if (!selectedAccounts || selectedAccounts.length === 0) {
-        setErrorMessage(t("posts.messages.selectAtLeastOneChannel"));
+        notify.error(t("posts.messages.selectAtLeastOneChannel"));
         return;
       }
 
@@ -1052,7 +1059,7 @@ export default function ManagePostsPage() {
         prevPosts.map((p) => (p.id === post.id ? updatedPost : p)),
       );
 
-      setSuccessMessage(result.message || t("posts.messages.scheduleSuccess"));
+      notify.success(result.message || t("posts.messages.scheduleSuccess"));
       setShowEditModal(false);
       setEditingPost(null);
 
@@ -1065,7 +1072,7 @@ export default function ManagePostsPage() {
       }, 1000);
     } catch (error) {
       console.error("Schedule error:", error);
-      setErrorMessage(t("posts.messages.scheduleError") + " " + error.message);
+      notify.error(t("posts.messages.scheduleError") + " " + error.message);
     }
   };
 
@@ -1083,7 +1090,7 @@ export default function ManagePostsPage() {
 
   const handleConfirmPublish = async (publishDate) => {
     if (!publishingPost || selectedAccounts.length === 0) {
-      setErrorMessage(t("posts.messages.selectAccounts"));
+      notify.error(t("posts.messages.selectAccounts"));
       return;
     }
 
@@ -1211,7 +1218,7 @@ export default function ManagePostsPage() {
 
       // Optimization #1: Ei haeta dataa uudelleen onnistumisen jälkeen
 
-      setSuccessMessage(result.message || t("posts.messages.publishSuccess"));
+      notify.success(result.message || t("posts.messages.publishSuccess"));
       setShowPublishModal(false);
       setPublishingPost(null);
       setSelectedAccounts([]);
@@ -1222,14 +1229,14 @@ export default function ManagePostsPage() {
       if (publishingPost?.source === "reels") {
         setReelsPosts(previousReelsPosts);
       }
-      setErrorMessage(t("posts.messages.publishError") + " " + error.message);
+      notify.error(t("posts.messages.publishError") + " " + error.message);
     }
   };
 
   const handleMoveToNext = async (post, newStatus) => {
     // Varmistetaan että kyseessä on Supabase-postaus
     if (post.source !== "supabase") {
-      setErrorMessage("Siirtyminen on mahdollista vain Supabase-postauksille");
+      notify.error("Siirtyminen on mahdollista vain Supabase-postauksille");
       return;
     }
 
@@ -1286,15 +1293,61 @@ export default function ManagePostsPage() {
         throw new Error(t("posts.messages.supabaseUpdateFailed"));
       }
 
-      setSuccessMessage(`Postaus siirretty sarakkeeseen: ${newStatus}`);
+      notify.success(`Postaus siirretty sarakkeeseen: ${newStatus}`);
     } catch (error) {
       console.error("Move to next error:", error);
-      setErrorMessage(t("posts.messages.moveError") + " " + error.message);
+      notify.error(t("posts.messages.moveError") + " " + error.message);
       // Optimization #1: Virhetilanteessa palautetaan vanha data
       setPosts(previousPosts);
       if (previousEditingPost) {
         setEditingPost(previousEditingPost);
       }
+    }
+  };
+
+  const rescheduleMixpostPost = async (event, newScheduledDate) => {
+    try {
+      // Hae access token
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Käyttäjä ei ole kirjautunut");
+      }
+
+      const requestBody = {
+        postUuid: event.uuid || event.id,
+        scheduledDate: newScheduledDate,
+      };
+
+      // Kutsu API endpointia
+      const response = await fetch(
+        "/api/integrations/mixpost/reschedule-post",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(requestBody),
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ API error response:", errorData);
+        throw new Error(errorData.error || "Uudelleenajastus epäonnistui");
+      }
+
+      const result = await response.json();
+
+      // Päivitä mixpost-postaukset
+      await fetchMixpostPosts();
+
+      return result;
+    } catch (error) {
+      console.error("❌ Error in rescheduleMixpostPost:", error);
+      throw error;
     }
   };
 
@@ -1399,10 +1452,10 @@ export default function ManagePostsPage() {
         ),
       );
 
-      setSuccessMessage("Image deleted successfully!");
+      notify.success("Image deleted successfully!");
     } catch (error) {
       console.error("Error deleting image:", error);
-      setErrorMessage("Image deletion failed: " + error.message);
+      notify.error("Image deletion failed: " + error.message);
     }
   };
 
@@ -1468,11 +1521,11 @@ export default function ManagePostsPage() {
         ),
       );
 
-      setSuccessMessage("Kuva lisätty kuvapankista!");
+      notify.success("Kuva lisätty kuvapankista!");
       setShowKuvapankkiSelector(false);
     } catch (error) {
       console.error("Error adding image from kuvapankki:", error);
-      setErrorMessage("Kuvan lisäys epäonnistui: " + error.message);
+      notify.error("Kuvan lisäys epäonnistui: " + error.message);
     }
   };
 
@@ -1545,7 +1598,7 @@ export default function ManagePostsPage() {
         ),
       );
 
-      setSuccessMessage("Image added successfully!");
+      notify.success("Image added successfully!");
     } catch (error) {
       console.error("Error adding image:", error);
 
@@ -1566,7 +1619,7 @@ export default function ManagePostsPage() {
           "Network error. Please check your internet connection and try again.";
       }
 
-      setErrorMessage(errorMessage);
+      notify.error(errorMessage);
 
       // Näytä toast käyttäjälle
       toast.error(t("errors.imageUploadError", { error: errorMessage }));
@@ -1611,9 +1664,34 @@ export default function ManagePostsPage() {
       setShowEditModal(false);
       setEditingPost(null);
     }
-    if (showCreateModal) {
-      setShowCreateModal(false);
+    if (isOpen("create") || isOpen("upload") || isOpen("schedule")) {
+      closeModal();
     }
+  });
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    "cmd+k": () => {
+      // Focus search input
+      const searchInput = document.querySelector('input[type="text"]');
+      if (searchInput) {
+        searchInput.focus();
+      }
+    },
+    "cmd+shift+p": () => {
+      // Open create modal (Shift+P = Post, avoids incognito conflict)
+      if (monthlyLimit.canCreate) {
+        openModal({ type: "create", count: 1 });
+      }
+    },
+    "cmd+i": () => {
+      // Open import modal
+      openModal({ type: "upload" });
+    },
+    "cmd+h": () => {
+      // Show keyboard shortcuts help (H = Help, easier on Finnish keyboard)
+      setShowShortcutsModal(true);
+    },
   });
 
   // Merkkien laskenta "Valmiina julkaisuun" (Tarkistuksessa) sarakkeelle
@@ -1651,341 +1729,80 @@ export default function ManagePostsPage() {
 
   return (
     <>
+      {/* Floating Keyboard Shortcut Hint */}
+      <button
+        onClick={() => setShowShortcutsModal(true)}
+        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-gray-900 hover:bg-black text-white rounded-2xl shadow-2xl shadow-gray-900/20 transition-all hover:scale-105 active:scale-95 group"
+        title={t("shortcuts.showHelp") || "Näytä pikanäppäimet"}
+      >
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          />
+        </svg>
+        <span className="text-xs font-bold hidden sm:inline">
+          <kbd className="px-2 py-0.5 bg-white/20 rounded text-[10px]">
+            {navigator.platform.toUpperCase().indexOf("MAC") >= 0
+              ? "⌘"
+              : "Ctrl"}
+          </kbd>{" "}
+          + <kbd className="px-2 py-0.5 bg-white/20 rounded text-[10px]">H</kbd>
+        </span>
+        <span className="text-xs font-bold sm:hidden">?</span>
+      </button>
+
       <div className="p-4 sm:p-8 lg:p-12 max-w-[1700px] mx-auto min-h-screen space-y-12">
         {/* Page Header */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">
-              {t("posts.header")}
-            </h1>
-            <p className="text-gray-400 text-lg font-medium">
-              {t("posts.subtitle") || "Hallitse ja aikatauluta somesisältöjäsi"}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
-            {/* Quota Indicator: This Month */}
-            <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-blue-100 transition-all duration-500 min-w-0">
-              <div className="flex justify-between items-start mb-4">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors truncate pr-2">
-                  {t("monthlyLimit.generatedThisMonth")}
-                </span>
-                {monthlyLimit.loading ? (
-                  <div className="w-4 h-4 rounded-full border-2 border-blue-500 border-t-transparent animate-spin flex-shrink-0" />
-                ) : (
-                  <div
-                    className={`flex-shrink-0 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${monthlyLimit.remaining <= 5 ? "bg-orange-50 text-orange-600" : "bg-blue-50 text-blue-600"}`}
-                  >
-                    {monthlyLimit.remaining}{" "}
-                    {t("monthlyLimit.remaining") || "jäljellä"}
-                  </div>
-                )}
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-gray-900 leading-none">
-                  {monthlyLimit.currentCount}
-                </span>
-                <span className="text-sm font-bold text-gray-300">
-                  / {monthlyLimit.isUnlimited ? "∞" : monthlyLimit.monthlyLimit}
-                </span>
-              </div>
-              <div className="mt-5 h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
-                <div
-                  className={`h-full rounded-full transition-all duration-1000 ease-out ${monthlyLimit.remaining <= 5 ? "bg-orange-500 shadow-[0_0_12px_rgba(249,115,22,0.4)]" : "bg-blue-600 shadow-[0_0_12px_rgba(37,99,235,0.4)]"}`}
-                  style={{
-                    width: `${Math.min(100, (monthlyLimit.currentCount / (monthlyLimit.isUnlimited ? 100 : monthlyLimit.monthlyLimit)) * 100)}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Quota Indicator: Next Month */}
-            <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 min-w-0">
-              <div className="flex justify-between items-start mb-4">
-                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors truncate pr-2">
-                  {t("monthlyLimit.generatedNextMonth")}
-                </span>
-                {nextMonthQuota.loading ? (
-                  <div className="w-4 h-4 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin flex-shrink-0" />
-                ) : (
-                  <div className="flex-shrink-0 px-3 py-1 rounded-full bg-gray-50 text-gray-500 text-[9px] font-black uppercase tracking-widest">
-                    Saldossa
-                  </div>
-                )}
-              </div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-gray-900 leading-none">
-                  {nextMonthQuota.nextMonthCount}
-                </span>
-                <span className="text-sm font-bold text-gray-300">
-                  /{" "}
-                  {nextMonthQuota.isUnlimited
-                    ? "∞"
-                    : nextMonthQuota.nextMonthLimit}
-                </span>
-              </div>
-              <div className="mt-5 h-2 w-full bg-gray-50 rounded-full overflow-hidden border border-gray-100">
-                <div
-                  className="h-full rounded-full bg-indigo-400 shadow-[0_0_12px_rgba(129,140,248,0.4)] transition-all duration-1000 ease-out"
-                  style={{
-                    width: `${Math.min(100, (nextMonthQuota.nextMonthCount / (nextMonthQuota.isUnlimited ? 100 : nextMonthQuota.nextMonthLimit)) * 100)}%`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+        <PostHeader
+          t={t}
+          monthlyLimit={monthlyLimit}
+          nextMonthQuota={nextMonthQuota}
+        />
 
         {/* Tab Navigation & Action Bar Container */}
         <div className="bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-row gap-2 sm:gap-6 justify-between items-center sticky top-4 z-40 transition-all hover:shadow-2xl overflow-hidden">
-          <div className="flex p-1 sm:p-1.5 bg-gray-50/80 rounded-[24px] overflow-x-auto no-scrollbar gap-1 border border-gray-100 flex-1 sm:flex-none">
-            {[
-              {
-                id: "kanban",
-                label: t("posts.tabs.posts"),
-                icon: (
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                id: "carousels",
-                label: t("posts.tabs.carousels"),
-                icon: (
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                id: "calendar",
-                label: t("posts.tabs.calendar"),
-                icon: (
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                ),
-              },
-              {
-                id: "ugc",
-                label: t("posts.tabs.ugc"),
-                feature: "UGC",
-                icon: (
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    />
-                  </svg>
-                ),
-              },
-            ]
-              .filter(
-                (tab) => !tab.feature || user?.features?.includes(tab.feature),
-              )
-              .map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 text-[10px] sm:text-xs font-bold rounded-[18px] transition-all duration-300 whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? "bg-white text-gray-900 shadow-lg shadow-gray-200/50"
-                      : "text-gray-400 hover:text-gray-900 hover:bg-white/50"
-                  }`}
-                >
-                  {tab.icon}
-                  <span className="uppercase tracking-widest hidden md:inline">
-                    {tab.label}
-                  </span>
-                </button>
-              ))}
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-6 flex-shrink-0">
-            {userAccountType === "personal_brand" && (
-              <button
-                onClick={() => setShowImageBankModal(true)}
-                className="hidden lg:flex text-[10px] sm:text-xs font-bold text-gray-400 hover:text-gray-900 uppercase tracking-widest transition-colors py-2"
-              >
-                {t("posts.tabs.imageBank")}
-              </button>
-            )}
-            <div className="h-4 w-px bg-gray-200 hidden lg:block" />
-            <div className="flex gap-2 sm:gap-3">
-              <button
-                onClick={() => setShowUploadModal(true)}
-                className="px-3 sm:px-6 py-2 sm:py-3 bg-white hover:bg-gray-50 text-gray-900 text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-2xl border border-gray-100 shadow-lg shadow-gray-200/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap"
-              >
-                <span className="sm:hidden">+</span>
-                <span className="hidden sm:inline">
-                  {t("posts.buttons.importPost")}
-                </span>
-              </button>
-              <button
-                onClick={() => {
-                  if (monthlyLimit.canCreate) {
-                    setCreateModalCount(1);
-                    setShowCreateModal(true);
-                  } else {
-                    setErrorMessage(t("posts.errors.monthlyLimitReached"));
-                  }
-                }}
-                disabled={!monthlyLimit.canCreate}
-                className="px-4 sm:px-8 py-2 sm:py-3 bg-gray-900 hover:bg-black text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-2xl shadow-xl shadow-gray-900/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                <span className="sm:hidden">Luo</span>
-                <span className="hidden sm:inline">
-                  {t("posts.buttons.generateNew")}
-                </span>
-              </button>
-            </div>
-          </div>
+          <PostTabs
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            t={t}
+            user={user}
+          />
+          <PostActions
+            onImageBankClick={() => setShowImageBankModal(true)}
+            onImportClick={() => openModal({ type: "upload" })}
+            onGenerateClick={() => {
+              if (monthlyLimit.canCreate) {
+                openModal({ type: "create", count: 1 });
+              } else {
+                notify.error(t("posts.errors.monthlyLimitReached"));
+              }
+            }}
+            t={t}
+            userAccountType={userAccountType}
+            canCreate={monthlyLimit.canCreate}
+          />
         </div>
 
         {/* Search and Filters Bar */}
-        {activeTab !== "ugc" && (
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="relative flex-1 group">
-              <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-gray-300 group-focus-within:text-blue-500 transition-colors">
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder={
-                  t("posts.filters.searchPlaceholder") || "Hae julkaisuja..."
-                }
-                className="w-full pl-16 pr-8 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 font-medium text-sm"
-              />
-            </div>
-
-            <div className="flex gap-4 min-w-[300px]">
-              <div className="relative flex-1">
-                <select
-                  value={typeFilter}
-                  onChange={(e) => setTypeFilter(e.target.value)}
-                  className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
-                >
-                  <option value="">{t("posts.filters.allTypes")}</option>
-                  <option value="Photo">{t("posts.typeOptions.photo")}</option>
-                  <option value="Carousel">
-                    {t("posts.typeOptions.carousel")}
-                  </option>
-                  <option value="Reels">{t("posts.typeOptions.reels")}</option>
-                  <option value="LinkedIn">
-                    {t("posts.typeOptions.linkedin")}
-                  </option>
-                  <option value="Video">{t("posts.typeOptions.video")}</option>
-                </select>
-                <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              <div className="relative flex-1">
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
-                >
-                  <option value="">
-                    {t("posts.filters.allStatuses") || "Kaikki tilat"}
-                  </option>
-                  <option value="Kesken">
-                    {t("posts.statuses.draft") || "Kesken"}
-                  </option>
-                  <option value="Tarkistuksessa">
-                    {t("posts.statuses.pending") || "Tarkistuksessa"}
-                  </option>
-                  <option value="Aikataulutettu">
-                    {t("posts.statuses.scheduled") || "Ajastettu"}
-                  </option>
-                  <option value="Julkaistu">
-                    {t("posts.statuses.published") || "Julkaistu"}
-                  </option>
-                </select>
-                <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <PostFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          typeFilter={typeFilter}
+          onTypeChange={setTypeFilter}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          t={t}
+          show={activeTab !== "ugc"}
+          counts={filterCounts}
+        />
 
         {/* Error State */}
         {currentError && (
@@ -2032,6 +1849,7 @@ export default function ManagePostsPage() {
               onPublish={handlePublishPost}
               onSchedule={handleSchedulePost}
               onMoveToNext={handleMoveToNext}
+              onPreview={handlePreview}
               t={t}
               onDeleteMixpostPost={deleteMixpostPost}
               onRefreshPosts={async () => {
@@ -2062,6 +1880,7 @@ export default function ManagePostsPage() {
                 items={calendarItems}
                 readyPosts={readyPosts}
                 onSchedulePost={handleSchedulePost}
+                onReschedulePost={rescheduleMixpostPost}
                 socialAccounts={socialAccounts}
                 selectedAccounts={selectedAccounts}
                 setSelectedAccounts={setSelectedAccounts}
@@ -2095,212 +1914,35 @@ export default function ManagePostsPage() {
           {activeTab === "ugc" && <UgcTab />}
         </div>
 
-        {/* Create Modal */}
-        {showCreateModal &&
+        {/* Create Modal - Refactored */}
+        <CreatePostModal
+          show={isOpen("create")}
+          onClose={closeModal}
+          onSubmit={handleCreatePost}
+          t={t}
+          toast={toast}
+        />
+
+        {/* Upload Modal - Refactored */}
+        <UploadPostModal
+          show={isOpen("upload")}
+          onClose={closeModal}
+          onSuccess={() => {
+            fetchPosts();
+            closeModal();
+          }}
+          t={t}
+          toast={toast}
+        />
+
+        {/* OLD Upload Modal - TO BE REMOVED */}
+        {false &&
+          showUploadModal &&
           createPortal(
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
               <div
                 className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300"
-                onClick={() => setShowCreateModal(false)}
-              />
-              <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl shadow-blue-500/10 border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
-                <div className="px-6 py-6 border-b border-gray-50 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                        ></path>
-                      </svg>
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-gray-900">
-                        Generoi uusi julkaisu
-                      </h2>
-                      <p className="text-xs text-gray-500 font-medium">
-                        Luo tekoälyllä uutta sisältöä
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-900 transition-colors"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.target);
-                    const title = formData.get("title")?.trim() || "";
-                    const countValue = parseInt(createModalCount, 10);
-                    const count = !isNaN(countValue)
-                      ? Math.min(Math.max(countValue, 1), 10)
-                      : 1;
-                    const type = formData.get("type") || "";
-
-                    if (count === 1 && !title) {
-                      toast.warning(t("errors.titleRequired"));
-                      return;
-                    }
-                    if (count === 1 && !type) {
-                      toast.warning(t("errors.typeRequired"));
-                      return;
-                    }
-
-                    handleCreatePost({
-                      title: title,
-                      type: type,
-                      caption: formData.get("caption"),
-                      count: count,
-                    });
-                  }}
-                  className="p-6 space-y-6"
-                >
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                        Otsikko{" "}
-                        {createModalCount === 1 && (
-                          <span className="text-red-500">*</span>
-                        )}
-                      </label>
-                      <input
-                        name="title"
-                        type="text"
-                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none transition-all text-sm font-medium"
-                        placeholder="Esim. Kesäkampanja 2024"
-                      />
-                      {createModalCount > 1 && (
-                        <p className="text-[10px] text-gray-400 px-1 italic">
-                          Otsikko on valinnainen useamman julkaisun luonnissa
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                          Tyyppi{" "}
-                          {createModalCount === 1 ? (
-                            <span className="text-red-500">*</span>
-                          ) : (
-                            ""
-                          )}
-                        </label>
-                        <select
-                          name="type"
-                          className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all text-sm font-medium appearance-none cursor-pointer"
-                          defaultValue="Photo"
-                        >
-                          <option value="All">Kaikki</option>
-                          <option value="Photo">Photo</option>
-                          <option value="Carousel">Carousel</option>
-                          <option value="Reels">Reels</option>
-                          <option value="LinkedIn">LinkedIn</option>
-                        </select>
-                      </div>
-                      <div
-                        className={`space-y-2 ${createModalCount === 1 ? "" : "col-span-2"}`}
-                      >
-                        <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                          Lukumäärä
-                        </label>
-                        <div className="flex items-center gap-3">
-                          <input
-                            name="count"
-                            type="number"
-                            min="1"
-                            max="10"
-                            value={createModalCount}
-                            onChange={(e) => {
-                              const v = e.target.value;
-                              if (v === "") {
-                                setCreateModalCount("");
-                                return;
-                              }
-                              const n = parseInt(v, 10);
-                              if (!isNaN(n))
-                                setCreateModalCount(
-                                  Math.min(Math.max(n, 1), 10),
-                                );
-                            }}
-                            onBlur={(e) => {
-                              if (
-                                e.target.value === "" ||
-                                isNaN(parseInt(e.target.value, 10))
-                              )
-                                setCreateModalCount(1);
-                            }}
-                            className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all text-sm font-bold"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                        Kuvaus (valinnainen)
-                      </label>
-                      <textarea
-                        name="caption"
-                        rows={4}
-                        className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all text-sm font-medium resize-none"
-                        placeholder={t("placeholders.addDescription")}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowCreateModal(false)}
-                      className="flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
-                    >
-                      Peruuta
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-[2] py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-bold text-sm shadow-xl shadow-blue-500/20 transition-all active:scale-[0.98]"
-                    >
-                      Generoi julkaisut
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>,
-            document.body,
-          )}
-
-        {/* Upload Modal */}
-        {showUploadModal &&
-          createPortal(
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-              <div
-                className="absolute inset-0 bg-gray-900/40 backdrop-blur-md animate-in fade-in duration-300"
-                onClick={() => setShowUploadModal(false)}
+                onClick={() => {}}
               />
               <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl shadow-emerald-500/10 border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
                 <div className="px-6 py-6 border-b border-gray-50 flex items-center justify-between">
@@ -2383,7 +2025,7 @@ export default function ManagePostsPage() {
                         );
                     } catch (error) {
                       toast.error(error.response?.data?.error || error.message);
-                      setErrorMessage(error.message);
+                      notify.error(error.message);
                     } finally {
                       setUploadLoading(false);
                     }
@@ -2596,7 +2238,7 @@ export default function ManagePostsPage() {
             if (updatedPost) {
               // Päivitä editingPost state uudella datalla
               setEditingPost(updatedPost);
-              setSuccessMessage("Kuva vaihdettu onnistuneesti");
+              notify.success("Kuva vaihdettu onnistuneesti");
 
               // Päivitä myös posts-lista uudella datalla
               setPosts((prevPosts) =>
@@ -2608,7 +2250,7 @@ export default function ManagePostsPage() {
               // Älä sulje modaalia kun kuva vaihdetaan - anna käyttäjän nähdä uusi kuva
               // Modaali pysyy auki kunnes käyttäjä sulkee sen manuaalisesti
             } else {
-              setSuccessMessage("Tiedot tallennettu onnistuneesti");
+              notify.success("Tiedot tallennettu onnistuneesti");
               setShowEditModal(false);
               setEditingPost(null);
               fetchPosts();
@@ -3694,7 +3336,7 @@ export default function ManagePostsPage() {
                               if (!selectedAvatar) return;
                               try {
                                 if (!orgId) {
-                                  setErrorMessage(
+                                  notify.error(
                                     t("posts.messages.userIdNotFound"),
                                   );
                                   return;
@@ -3707,7 +3349,7 @@ export default function ManagePostsPage() {
                                     .eq("id", orgId)
                                     .single();
                                 if (userError || !userData?.company_id) {
-                                  setErrorMessage(
+                                  notify.error(
                                     t("posts.messages.errorCompanyId"),
                                   );
                                   return;
@@ -3740,11 +3382,11 @@ export default function ManagePostsPage() {
                                     action: "avatar_selected",
                                   }),
                                 });
-                                setSuccessMessage(
+                                notify.success(
                                   "Avatar valittu tälle postaukselle",
                                 );
                               } catch (e) {
-                                setErrorMessage("Avatarin valinta epäonnistui");
+                                notify.error("Avatarin valinta epäonnistui");
                               } finally {
                                 setShowEditModal(false);
                                 setEditingPost(null);
@@ -3791,7 +3433,7 @@ export default function ManagePostsPage() {
             setSelectedAvatar(null);
           }}
           onSave={() => {
-            setSuccessMessage("Avatar valittu tälle postaukselle");
+            notify.success("Avatar valittu tälle postaukselle");
             setShowEditModal(false);
             setEditingPost(null);
             setEditModalStep(1);
@@ -3826,36 +3468,34 @@ export default function ManagePostsPage() {
               onClose={() => setShowLimitWarning(false)}
               onCreateAnyway={() => {
                 setShowLimitWarning(false);
-                setCreateModalCount(1);
-                setShowCreateModal(true);
+                openModal({ type: "create", count: 1 });
               }}
             />,
             document.body,
           )}
 
-        {/* Success/Error Notifications */}
-        {successMessage && (
-          <div className="notification success-notification">
-            <div className="notification-content">
-              <span className="notification-icon">✅</span>
-              <span className="notification-message">{successMessage}</span>
-            </div>
-          </div>
-        )}
-
-        {errorMessage && (
-          <div className="notification error-notification">
-            <div className="notification-content">
-              <span className="notification-icon">❌</span>
-              <span className="notification-message">{errorMessage}</span>
-            </div>
-          </div>
-        )}
-
         {/* Image Bank Modal */}
         <ImageBankModal
           show={showImageBankModal}
           onClose={() => setShowImageBankModal(false)}
+        />
+
+        {/* Keyboard Shortcuts Modal */}
+        <KeyboardShortcutsModal
+          show={showShortcutsModal}
+          onClose={() => setShowShortcutsModal(false)}
+          t={t}
+        />
+
+        {/* Preview Post Modal */}
+        <PreviewPostModal
+          show={showPreviewModal}
+          post={previewPost}
+          onClose={() => {
+            setShowPreviewModal(false);
+            setPreviewPost(null);
+          }}
+          t={t}
         />
 
         {/* Kuvapankki Selector Modal */}
@@ -3881,6 +3521,18 @@ export default function ManagePostsPage() {
             </div>,
             document.body,
           )}
+        {/* Schedule Modal - Refactored */}
+        <SchedulePostModal
+          show={isOpen("schedule")}
+          post={modal.type === "schedule" ? modal.post : null}
+          socialAccounts={socialAccounts}
+          selectedAccounts={selectedAccounts}
+          setSelectedAccounts={setSelectedAccounts}
+          loadingAccounts={loadingAccounts}
+          onClose={closeModal}
+          onConfirm={handleSchedulePost}
+          t={t}
+        />
       </div>
     </>
   );

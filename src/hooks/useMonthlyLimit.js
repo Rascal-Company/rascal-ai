@@ -1,133 +1,95 @@
-import { useState, useEffect } from 'react'
-import { useAuth } from '../contexts/AuthContext'
-import { supabase } from '../lib/supabase'
-import { getUserOrgId } from '../lib/getUserOrgId'
-import { findStrategyByMonthAndYear, calculateMonthlyLimit } from '../utils/strategyHelpers'
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
+import { getUserOrgId } from "../lib/getUserOrgId";
+import {
+  findStrategyByMonthAndYear,
+  calculateMonthlyLimit,
+} from "../utils/strategyHelpers";
+import {
+  useSubscriptionStatus,
+  useUserStrategies,
+} from "./queries/useSubscription";
 
 export const useMonthlyLimit = () => {
-  const [limitData, setLimitData] = useState({
-    currentCount: 0,
-    monthlyLimit: 30,
-    remaining: 30,
-    canCreate: true,
-    isUnlimited: false,
-    loading: false,
-    error: null
-  })
-  
-  const { user } = useAuth()
+  const { user } = useAuth();
 
-  const fetchSubscriptionStatus = async (userId) => {
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('subscription_status')
-      .eq('id', userId)
-      .single()
+  // Shared queries - cached and reused across hooks
+  const subscriptionQuery = useSubscriptionStatus();
+  const strategiesQuery = useUserStrategies();
 
-    if (userError || !userData) {
-      throw new Error('Käyttäjän tietoja ei löytynyt')
-    }
+  // Current month's generated content count
+  const contentCountQuery = useQuery({
+    queryKey: ["monthlyContentCount", user?.id],
+    queryFn: async () => {
+      if (!user?.id || !strategiesQuery.data) return 0;
 
-    return userData.subscription_status
-  }
+      const userId = await getUserOrgId(user.id);
+      if (!userId) return 0;
 
-  const fetchUserStrategies = async (userId) => {
-    const { data: strategies, error: strategyErr } = await supabase
-      .from('content_strategy')
-      .select('id, month, target_month')
-      .eq('user_id', userId)
+      // Find current month's strategy
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
 
-    if (strategyErr) {
-      console.error('Error fetching strategies:', strategyErr)
-      return []
-    }
+      const currentStrategy = findStrategyByMonthAndYear(
+        strategiesQuery.data,
+        currentMonth,
+        currentYear,
+      );
 
-    return strategies || []
-  }
+      if (!currentStrategy?.id) return 0;
 
-  const findCurrentStrategy = async (userId) => {
-    const strategies = await fetchUserStrategies(userId)
-    if (strategies.length === 0) {
-      return null
-    }
+      // Count generated content for this strategy
+      const { count, error } = await supabase
+        .from("content")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("strategy_id", currentStrategy.id)
+        .eq("is_generated", true);
 
-    const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
-
-    return findStrategyByMonthAndYear(strategies, currentMonth, currentYear)
-  }
-
-  const countGeneratedContent = async (userId, strategyId) => {
-    const { count, error: cntErr } = await supabase
-      .from('content')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('strategy_id', strategyId)
-      .eq('is_generated', true)
-
-    if (cntErr) {
-      console.error('Error counting current month generated content:', cntErr)
-      return 0
-    }
-
-    return count || 0
-  }
-
-  const checkLimit = async () => {
-    if (!user?.id) return
-
-    setLimitData(prev => ({ ...prev, loading: true, error: null }))
-
-    try {
-      const userId = await getUserOrgId(user.id)
-      
-      if (!userId) {
-        throw new Error('Käyttäjän ID ei löytynyt')
+      if (error) {
+        console.error("Error counting current month generated content:", error);
+        return 0;
       }
 
-      const [subscriptionStatus, currentStrategy] = await Promise.all([
-        fetchSubscriptionStatus(userId),
-        findCurrentStrategy(userId)
-      ])
+      return count || 0;
+    },
+    enabled:
+      !!user?.id &&
+      !strategiesQuery.isLoading &&
+      !!strategiesQuery.data &&
+      strategiesQuery.data.length > 0,
+    staleTime: 1000 * 60 * 2, // 2 minutes - updates more frequently
+    placeholderData: 0,
+  });
 
-      const monthlyLimit = calculateMonthlyLimit(subscriptionStatus)
+  // Compute derived values
+  const subscriptionStatus = subscriptionQuery.data || "free";
+  const monthlyLimit = calculateMonthlyLimit(subscriptionStatus);
+  const currentCount = contentCountQuery.data || 0;
+  const isUnlimited = monthlyLimit >= 999999;
+  const remaining = isUnlimited
+    ? Infinity
+    : Math.max(0, monthlyLimit - currentCount);
+  const canCreate = isUnlimited || currentCount < monthlyLimit;
 
-      let currentCount = 0
-      if (currentStrategy?.id) {
-        currentCount = await countGeneratedContent(userId, currentStrategy.id)
-      }
+  const loading =
+    subscriptionQuery.isLoading ||
+    strategiesQuery.isLoading ||
+    contentCountQuery.isLoading;
 
-      const isUnlimited = monthlyLimit >= 999999
-      const remaining = isUnlimited ? Infinity : Math.max(0, monthlyLimit - currentCount)
-
-      setLimitData(prev => ({
-        ...prev,
-        currentCount,
-        monthlyLimit,
-        remaining,
-        canCreate: isUnlimited || currentCount < monthlyLimit,
-        isUnlimited,
-        loading: false,
-        error: null
-      }))
-    } catch (error) {
-      console.error('Error checking monthly limit:', error)
-      setLimitData(prev => ({
-        ...prev,
-        loading: false,
-        error: error.message
-      }))
-    }
-  }
-  
-  useEffect(() => {
-    checkLimit()
-  }, [user?.id])
+  const error =
+    subscriptionQuery.error || strategiesQuery.error || contentCountQuery.error;
 
   return {
-    ...limitData,
-    refresh: checkLimit
-  }
-}
-
+    currentCount,
+    monthlyLimit,
+    remaining,
+    canCreate,
+    isUnlimited,
+    loading,
+    error: error?.message || null,
+    refresh: () => contentCountQuery.refetch(),
+  };
+};

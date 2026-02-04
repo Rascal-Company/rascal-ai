@@ -1,0 +1,10 @@
+tree c43da166a3f37e49a75b6ae2bbfe79885c7b4114
+parent f75c64af112e77900a55dcc5bdc9622b64a503db
+author slemppa <sami@mak8r.fi> 1753561597 +0300
+committer slemppa <sami@mak8r.fi> 1753561597 +0300
+
+fix: lisätty puuttuvat /terms ja /privacy reitit App.jsx:ään
+
+- Lisätty TermsOfServicePage ja PrivacyPolicyPage importit
+- Lisätty /terms ja /privacy reitit julkisiin reitteihin
+- Footer-linkit toimivat nyt oikein

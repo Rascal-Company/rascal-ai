@@ -1,0 +1,5 @@
+fix: lisätty puuttuvat /terms ja /privacy reitit App.jsx:ään
+
+- Lisätty TermsOfServicePage ja PrivacyPolicyPage importit
+- Lisätty /terms ja /privacy reitit julkisiin reitteihin
+- Footer-linkit toimivat nyt oikein
