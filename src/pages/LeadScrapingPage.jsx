@@ -8,9 +8,8 @@ import ExportLeadsModal from "../components/ExportLeadsModal";
 export default function LeadScrapingPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("United States");
-  const [headcount, setHeadcount] = useState(50);
-  const [ownership, setOwnership] = useState("Private");
-  const [intentToSell, setIntentToSell] = useState(false);
+  const [headcountIndex, setHeadcountIndex] = useState(1); // Index into headcountRanges
+  const [ownership, setOwnership] = useState("Yksityinen");
   const [loading, setLoading] = useState(false);
   const [exampleCompanies] = useState([]);
   const [error, setError] = useState("");
@@ -28,6 +27,16 @@ export default function LeadScrapingPage() {
   const [leads] = useState([]);
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [showExportModal, setShowExportModal] = useState(false);
+
+  // Headcount ranges
+  const headcountRanges = [
+    { label: "1-10", value: "1-10", apiValue: 10 },
+    { label: "11-50", value: "11-50", apiValue: 50 },
+    { label: "51-200", value: "51-200", apiValue: 200 },
+    { label: "201-500", value: "201-500", apiValue: 500 },
+    { label: "501-1000", value: "501-1000", apiValue: 1000 },
+    { label: "1000+", value: "1000+", apiValue: 10000 },
+  ];
 
   // Location options
   const locationOptions = [
@@ -87,7 +96,12 @@ export default function LeadScrapingPage() {
   ];
 
   // Ownership options
-  const ownershipOptions = ["Private", "Public", "Non-Profit", "Government"];
+  const ownershipOptions = [
+    { label: "Yksityinen", value: "Private" },
+    { label: "Julkinen", value: "Public" },
+    { label: "Voittoa tavoittelematon", value: "Non-Profit" },
+    { label: "Julkishallinto", value: "Government" },
+  ];
 
   // Fetch saved searches
   const fetchSavedSearches = async () => {
@@ -135,9 +149,15 @@ export default function LeadScrapingPage() {
   const runSavedSearch = async (search) => {
     setSearchQuery(search.query);
     setLocation(search.location || "United States");
-    setHeadcount(search.headcount || 50);
-    setOwnership(search.ownership || "Private");
-    setIntentToSell(search.intent_to_sell || false);
+
+    // Find the headcount index that matches the saved headcount value
+    const savedHeadcount = search.headcount || 50;
+    const matchingIndex = headcountRanges.findIndex(
+      (range) => range.apiValue === savedHeadcount,
+    );
+    setHeadcountIndex(matchingIndex !== -1 ? matchingIndex : 1);
+
+    setOwnership(search.ownership || "Yksityinen");
   };
 
   // Delete saved search
@@ -273,13 +293,17 @@ export default function LeadScrapingPage() {
         throw new Error("Please log in to search for leads");
       }
 
+      // Get the current headcount range
+      const currentHeadcountRange = headcountRanges[headcountIndex];
+
       // Prepare filters for n8n
       const filters = {
         query: searchQuery,
         location,
-        headcount,
-        ownership,
-        intentToSell,
+        headcount: currentHeadcountRange.apiValue,
+        ownership:
+          ownershipOptions.find((opt) => opt.label === ownership)?.value ||
+          ownership,
       };
 
       // Prepare Apify configuration
@@ -287,9 +311,11 @@ export default function LeadScrapingPage() {
       const apifyJson = {
         query: searchQuery,
         location: [location],
-        companySize: `${headcount}`,
-        ownership: [ownership],
-        intentToSell,
+        companySize: `${currentHeadcountRange.apiValue}`,
+        ownership: [
+          ownershipOptions.find((opt) => opt.label === ownership)?.value ||
+            ownership,
+        ],
         maxResults: 1000,
       };
 
@@ -426,23 +452,23 @@ export default function LeadScrapingPage() {
           {/* Headcount */}
           <div>
             <label className="block text-sm font-medium text-gray-500 mb-2">
-              Headcount
+              Henkilömäärä
             </label>
             <div className="space-y-3">
               <input
                 type="range"
-                min="1"
-                max="10000"
-                step="10"
-                value={headcount}
-                onChange={(e) => setHeadcount(Number(e.target.value))}
+                min="0"
+                max={headcountRanges.length - 1}
+                step="1"
+                value={headcountIndex}
+                onChange={(e) => setHeadcountIndex(Number(e.target.value))}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-teal-500"
               />
               <div className="flex justify-between items-center">
                 <span className="text-2xl font-semibold text-teal-500">
-                  {headcount}
+                  {headcountRanges[headcountIndex].label}
                 </span>
-                <span className="text-sm text-gray-500">employees</span>
+                <span className="text-sm text-gray-500">työntekijää</span>
               </div>
             </div>
           </div>
@@ -450,7 +476,7 @@ export default function LeadScrapingPage() {
           {/* Ownership */}
           <div>
             <label className="block text-sm font-medium text-gray-500 mb-2">
-              Ownership
+              Omistus
             </label>
             <div className="relative">
               <select
@@ -459,8 +485,8 @@ export default function LeadScrapingPage() {
                 className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 bg-white cursor-pointer"
               >
                 {ownershipOptions.map((own) => (
-                  <option key={own} value={own}>
-                    {own}
+                  <option key={own.value} value={own.label}>
+                    {own.label}
                   </option>
                 ))}
               </select>
@@ -480,35 +506,6 @@ export default function LeadScrapingPage() {
                 </svg>
               </div>
             </div>
-          </div>
-
-          {/* Intent to Sell */}
-          <div>
-            <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-sm font-medium text-gray-700">
-                Intent to sell
-              </span>
-              <div className="relative">
-                <input
-                  type="checkbox"
-                  checked={intentToSell}
-                  onChange={(e) => setIntentToSell(e.target.checked)}
-                  className="sr-only"
-                />
-                <div
-                  onClick={() => setIntentToSell(!intentToSell)}
-                  className={`w-12 h-6 rounded-full transition-colors ${
-                    intentToSell ? "bg-teal-500" : "bg-gray-300"
-                  }`}
-                >
-                  <div
-                    className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-                      intentToSell ? "transform translate-x-6" : ""
-                    }`}
-                  />
-                </div>
-              </div>
-            </label>
           </div>
         </div>
 
@@ -752,9 +749,11 @@ export default function LeadScrapingPage() {
         onClose={() => setShowSaveSearchModal(false)}
         searchQuery={searchQuery}
         location={location}
-        headcount={headcount}
-        ownership={ownership}
-        intentToSell={intentToSell}
+        headcount={headcountRanges[headcountIndex].apiValue}
+        ownership={
+          ownershipOptions.find((opt) => opt.label === ownership)?.value ||
+          ownership
+        }
         onSave={handleSaveSearch}
       />
 

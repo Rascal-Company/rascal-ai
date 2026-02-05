@@ -14,7 +14,6 @@ const SaveSearchModal = ({
   location,
   headcount,
   ownership,
-  intentToSell,
   onSave,
 }) => {
   const [name, setName] = useState("");
@@ -44,12 +43,10 @@ const SaveSearchModal = ({
         location,
         headcount,
         ownership,
-        intent_to_sell: intentToSell,
         filters: {
           location,
           headcount,
           ownership,
-          intentToSell,
         },
       });
       setName("");
@@ -160,12 +157,6 @@ const SaveSearchModal = ({
                 <p>
                   <span className="text-gray-500">Omistus:</span>{" "}
                   <span className="font-medium text-gray-900">{ownership}</span>
-                </p>
-              )}
-              {intentToSell && (
-                <p>
-                  <span className="text-gray-500">Myynti-intent:</span>{" "}
-                  <span className="font-medium text-green-600">Kyllä</span>
                 </p>
               )}
             </div>
