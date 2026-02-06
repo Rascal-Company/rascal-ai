@@ -151,7 +151,7 @@ function PostCard({
           </div>
         </div>
 
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-1 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
           {!hideActions && (
             <button
               onClick={(e) => {
@@ -314,7 +314,7 @@ function PostCard({
             )}
           </div>
 
-          <div className="flex gap-2 isolate translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+          <div className="flex gap-2 isolate translate-y-0 opacity-100 lg:translate-y-2 lg:opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
             {!hideActions && post.status !== "Julkaistu" && (
               <>
                 {onPreview && (
