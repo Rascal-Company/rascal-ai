@@ -24,11 +24,11 @@ const mockRes = {
   json: vi.fn().mockReturnThis(),
 };
 
-vi.mock("../_lib/n8n-client.js", () => ({
+vi.mock("../../api/_lib/n8n-client.js", () => ({
   sendToN8N: mockSendToN8N,
 }));
 
-vi.mock("../_middleware/with-organization.js", () => ({
+vi.mock("../../api/_middleware/with-organization.js", () => ({
   withOrganization: (handler) => handler,
 }));
 
@@ -40,7 +40,7 @@ describe("onboarding-completed API endpoint", () => {
     process.env.N8N_11LABS_ICP_INTERVIEW_URL =
       "https://test-webhook.example.com";
 
-    const module = await import("./onboarding-completed.js");
+    const module = await import("../../api/organization/onboarding-completed.js");
     handler = module.default || module;
   });
 

@@ -35,12 +35,12 @@ const mockCors = {
 }
 
 // Mock modules
-vi.mock('../_lib/cors.js', () => ({
+vi.mock('../../api/_lib/cors.js', () => ({
   setCorsHeaders: mockCors.setCorsHeaders,
   handlePreflight: mockCors.handlePreflight
 }))
 
-vi.mock('../_middleware/with-organization.js', () => ({
+vi.mock('../../api/_middleware/with-organization.js', () => ({
   withOrganization: (handler) => handler
 }))
 
@@ -51,7 +51,7 @@ describe('dashboard-stats API endpoint', () => {
     vi.clearAllMocks()
     
     // Import handler after mocks are set up
-    const module = await import('./dashboard-stats.js')
+    const module = await import('../../api/analytics/dashboard-stats.js')
     handler = module.default || module
   })
 

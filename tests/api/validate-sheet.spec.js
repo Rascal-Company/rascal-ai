@@ -25,7 +25,7 @@ describe("validate-sheet API endpoint", () => {
     };
 
     // Import handler after mocks are set up
-    const module = await import("./validate-sheet.js");
+    const module = await import("../../api/integrations/validate-sheet.js");
     handler = module.default || module;
   });
 

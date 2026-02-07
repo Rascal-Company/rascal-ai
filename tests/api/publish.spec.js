@@ -15,16 +15,16 @@ const mockCors = {
 };
 
 // Mock modules
-vi.mock("../../_lib/cors.js", () => ({
+vi.mock("../../api/_lib/cors.js", () => ({
   setCorsHeaders: mockCors.setCorsHeaders,
   handlePreflight: mockCors.handlePreflight,
 }));
 
-vi.mock("../../_lib/n8n-client.js", () => ({
+vi.mock("../../api/_lib/n8n-client.js", () => ({
   sendToN8N: mockN8NClient.sendToN8N,
 }));
 
-vi.mock("../../_middleware/with-organization.js", () => ({
+vi.mock("../../api/_middleware/with-organization.js", () => ({
   withOrganization: (handler) => handler,
 }));
 
@@ -68,7 +68,7 @@ describe("blog/publish API endpoint", () => {
       "https://n8n.example.com/webhook/blog-publish";
 
     // Import handler after mocks are set up
-    const module = await import("./publish.js");
+    const module = await import("../../api/content/blog/publish.js");
     handler = module.default || module;
   });
 
