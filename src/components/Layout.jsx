@@ -1,6 +1,7 @@
-import { Outlet } from 'react-router-dom'
-import Sidebar from './Sidebar'
-import MobileNavigation from './MobileNavigation'
+import { Outlet } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import MobileNavigation from "./MobileNavigation";
+import MonthlyNpsModal from "./MonthlyNpsModal";
 
 export default function Layout() {
   return (
@@ -10,12 +11,7 @@ export default function Layout() {
       <div className="main-content">
         <Outlet />
       </div>
+      <MonthlyNpsModal />
     </div>
-  )
+  );
 }
-
-
-
-
-
-
