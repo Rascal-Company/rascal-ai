@@ -191,9 +191,9 @@ export default function KanbanTab({
         )}
       </div>
 
-      {/* Kanban Board - Horizontal Scroll with Gradient Indicator */}
+      {/* Kanban Board - Vertical on Mobile, Horizontal on Desktop */}
       <div className="relative">
-        <div className="flex flex-row gap-6 lg:gap-8 overflow-x-auto pb-8 snap-x no-scrollbar lg:no-scrollbar-none min-h-[800px] items-start">
+        <div className="flex flex-col md:flex-row gap-6 lg:gap-8 md:overflow-x-auto pb-8 md:snap-x no-scrollbar lg:no-scrollbar-none md:min-h-[800px] items-start">
           {columns.map((column) => {
             const isCollapsed = collapsedColumns[column.status];
             const filter = columnFilters[column.status] || "";
@@ -236,8 +236,10 @@ export default function KanbanTab({
             return (
               <div
                 key={column.status}
-                className={`flex-shrink-0 flex flex-col gap-6 p-4 rounded-[40px] transition-all duration-700 snap-start h-fit ${
-                  isCollapsed ? "w-[100px]" : "w-[320px] sm:w-[380px]"
+                className={`md:flex-shrink-0 flex flex-col gap-6 p-4 rounded-[40px] transition-all duration-700 md:snap-start h-fit ${
+                  isCollapsed
+                    ? "w-full md:w-[100px]"
+                    : "w-full md:w-[320px] lg:w-[380px]"
                 } ${
                   dragOverColumn === column.status
                     ? "bg-blue-50/40 ring-2 ring-blue-500/20 shadow-[0_32px_64px_-16px_rgba(59,130,246,0.15)] scale-[1.01]"
@@ -480,7 +482,7 @@ export default function KanbanTab({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 px-2">
           {posts
             .filter((p) => p.status === "Julkaistu" && p.source === "supabase")
             .map((post) => (

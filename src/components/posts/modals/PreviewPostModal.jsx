@@ -187,7 +187,7 @@ const PreviewPostModal = ({ show, post, onClose, t }) => {
           <span className="font-semibold">1,234</span> likes
         </div>
 
-        <div className="text-sm">
+        <div className="text-sm leading-relaxed whitespace-pre-wrap">
           <span className="font-semibold">your_brand</span>{" "}
           {currentMedia?.caption || post.caption || "No caption"}
         </div>

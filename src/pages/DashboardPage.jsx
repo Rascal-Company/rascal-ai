@@ -605,20 +605,20 @@ export default function DashboardPage() {
         description={t("dashboard.meta.description")}
         image="/hero.png"
       />
-      <div className="p-4 sm:p-6 lg:p-10 max-w-[1600px] mx-auto min-h-screen">
-        <div className="flex flex-col gap-2 mb-8 lg:mb-12">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+      <div className="p-3 sm:p-6 lg:p-10 max-w-[1600px] mx-auto min-h-screen">
+        <div className="flex flex-col gap-2 mb-6 sm:mb-8 lg:mb-12">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight">
             {t("dashboard.header.title")}
           </h1>
-          <p className="text-gray-500 text-base sm:text-lg">
+          <p className="text-gray-500 text-sm sm:text-base lg:text-lg">
             {t("dashboard.header.subtitle")}
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-6">
           {/* Row 1: Key Metrics Header & Cards */}
-          <div className="sm:col-span-2 lg:col-span-12 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
-            <h2 className="text-xl font-semibold text-gray-800 tracking-tight">
+          <div className="sm:col-span-2 lg:col-span-12 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 tracking-tight">
               {t("dashboard.metrics.title")}
             </h2>
             <div className="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto overflow-x-auto max-w-full">
@@ -636,7 +636,7 @@ export default function DashboardPage() {
 
           {/* KPI Row - Dedicated Grid for uniform sizing */}
           <div className="sm:col-span-2 lg:col-span-12">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 lg:gap-6">
               {statsLoading
                 ? Array(6)
                     .fill(0)
@@ -691,9 +691,9 @@ export default function DashboardPage() {
           {/* Row 2: Analytics side-by-side */}
 
           {/* Mixpost Analytics */}
-          <div className="sm:col-span-2 lg:col-span-8 bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className="sm:col-span-2 lg:col-span-8 bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 flex flex-col">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-3 sm:gap-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                 {t("dashboard.mixpost.title")}
               </h3>
               <div className="flex bg-gray-100 p-1 rounded-lg w-full sm:w-auto overflow-x-auto">
@@ -709,14 +709,14 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 flex-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 flex-1">
               {mixpostLoading ? (
                 Array(4)
                   .fill(0)
                   .map((_, i) => (
                     <div
                       key={i}
-                      className="bg-gray-50 rounded-lg h-28 animate-pulse"
+                      className="bg-gray-50 rounded-lg h-24 sm:h-28 animate-pulse"
                     ></div>
                   ))
               ) : mixpostData ? (
@@ -750,15 +750,15 @@ export default function DashboardPage() {
                 ].map((metric, i) => (
                   <div
                     key={i}
-                    className="p-5 rounded-2xl bg-gray-50/50 border border-gray-100 transition-all hover:bg-white hover:shadow-sm"
+                    className="p-4 sm:p-5 rounded-2xl bg-gray-50/50 border border-gray-100 transition-all hover:bg-white hover:shadow-sm"
                   >
                     <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
                       {metric.label}
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">
                       {metric.value}
                     </div>
-                    <div className="h-1.5 w-full bg-gray-200 mt-4 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-gray-200 mt-3 sm:mt-4 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full"
                         style={{ width: "70%", background: metric.color }}
@@ -767,7 +767,7 @@ export default function DashboardPage() {
                   </div>
                 ))
               ) : (
-                <div className="col-span-full text-center py-12 text-gray-400">
+                <div className="col-span-full text-center py-8 sm:py-12 text-gray-400 text-sm">
                   {t("dashboard.mixpost.noData")}
                 </div>
               )}
@@ -775,9 +775,9 @@ export default function DashboardPage() {
           </div>
 
           {/* GA4 Section */}
-          <div className="sm:col-span-2 lg:col-span-4 self-start bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex flex-col">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-lg font-semibold text-gray-900">
+          <div className="sm:col-span-2 lg:col-span-4 self-start bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6 flex flex-col">
+            <div className="flex justify-between items-center mb-6 sm:mb-8">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                 {t("dashboard.visitors.title")}
               </h3>
               {gaConnected && (
@@ -823,20 +823,20 @@ export default function DashboardPage() {
               <div className="h-40 bg-gray-50 rounded-2xl animate-pulse"></div>
             ) : (
               <div className="flex flex-col">
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="p-3 rounded-xl bg-blue-50/30 border border-blue-50">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6 sm:mb-8">
+                  <div className="p-3 sm:p-4 rounded-xl bg-blue-50/30 border border-blue-50">
                     <div className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-1">
                       {t("dashboard.visitors.total")}
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">
                       {gaVisitors.thisWeek.toLocaleString("fi-FI")}
                     </div>
                   </div>
-                  <div className="p-3 rounded-xl bg-orange-50/30 border border-orange-50">
+                  <div className="p-3 sm:p-4 rounded-xl bg-orange-50/30 border border-orange-50">
                     <div className="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">
                       {t("dashboard.visitors.today")}
                     </div>
-                    <div className="text-2xl font-bold text-gray-900">
+                    <div className="text-xl sm:text-2xl font-bold text-gray-900">
                       {gaVisitors.today.toLocaleString("fi-FI")}
                     </div>
                   </div>
@@ -898,11 +898,11 @@ export default function DashboardPage() {
 
           {/* Upcoming Posts */}
           <div className="sm:col-span-2 lg:col-span-8 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-white">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 flex justify-between items-center bg-white">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                 {t("dashboard.upcoming.title")}
               </h3>
-              <button className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+              <button className="text-xs font-semibold text-blue-600 hover:text-blue-700 whitespace-nowrap">
                 {t("dashboard.upcoming.today")}
               </button>
             </div>
@@ -910,16 +910,16 @@ export default function DashboardPage() {
               <table className="w-full text-left border-collapse min-w-[500px]">
                 <thead className="bg-gray-50/50">
                   <tr>
-                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <th className="px-3 sm:px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("dashboard.upcoming.headers.media")}
                     </th>
-                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <th className="px-3 sm:px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("dashboard.upcoming.headers.caption")}
                     </th>
-                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <th className="px-3 sm:px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("dashboard.upcoming.headers.channels")}
                     </th>
-                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <th className="px-3 sm:px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("dashboard.upcoming.headers.date")}
                     </th>
                   </tr>
@@ -932,7 +932,7 @@ export default function DashboardPage() {
                         <tr key={i}>
                           <td
                             colSpan={4}
-                            className="px-6 py-4 h-16 animate-pulse bg-gray-50/20"
+                            className="px-3 sm:px-6 py-3 sm:py-4 h-14 sm:h-16 animate-pulse bg-gray-50/20"
                           ></td>
                         </tr>
                       ))
@@ -943,7 +943,7 @@ export default function DashboardPage() {
                         onClick={() => handleScheduledPostClick(row)}
                         className="hover:bg-gray-50 transition-colors cursor-pointer group"
                       >
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
                           {(() => {
                             const url = Array.isArray(row.media_urls)
                               ? row.media_urls[0]
@@ -953,25 +953,25 @@ export default function DashboardPage() {
                             return url ? (
                               <img
                                 src={url}
-                                className="w-12 h-12 rounded-lg object-cover border border-gray-100 group-hover:scale-105 transition-transform"
+                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-gray-100 group-hover:scale-105 transition-transform"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setImageModalUrl(url);
                                 }}
                               />
                             ) : (
-                              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] text-gray-400 font-bold uppercase text-center leading-tight">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gray-100 flex items-center justify-center text-[10px] text-gray-400 font-bold uppercase text-center leading-tight">
                                 No image
                               </div>
                             );
                           })()}
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-700 line-clamp-2 max-w-[200px] leading-relaxed">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
+                          <div className="text-xs sm:text-sm font-medium text-gray-700 line-clamp-2 max-w-[200px] leading-relaxed">
                             {row.caption || "--"}
                           </div>
                         </td>
-                        <td className="px-6 py-4">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4">
                           <div className="flex flex-wrap gap-1.5">
                             {row.accounts?.map((acc, idx) => (
                               <span
@@ -983,7 +983,7 @@ export default function DashboardPage() {
                             ))}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-medium">
+                        <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 font-medium">
                           {formatUpcomingDate(row.publish_date)}
                         </td>
                       </tr>
@@ -992,7 +992,7 @@ export default function DashboardPage() {
                     <tr>
                       <td
                         colSpan={4}
-                        className="px-6 py-12 text-center text-gray-400"
+                        className="px-3 sm:px-6 py-8 sm:py-12 text-center text-gray-400 text-sm"
                       >
                         {t("dashboard.upcoming.empty")}
                       </td>
@@ -1005,8 +1005,8 @@ export default function DashboardPage() {
 
           {/* Campaigns */}
           <div className="sm:col-span-2 lg:col-span-4 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col">
-            <div className="px-6 py-4 border-b border-gray-100 bg-white">
-              <h3 className="text-lg font-semibold text-gray-900">
+            <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-white">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                 {t("dashboard.campaigns.title")}
               </h3>
             </div>
@@ -1014,10 +1014,10 @@ export default function DashboardPage() {
               <table className="w-full text-left">
                 <thead className="bg-gray-50/50">
                   <tr>
-                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                    <th className="px-4 sm:px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                       {t("dashboard.campaigns.headers.campaign")}
                     </th>
-                    <th className="px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">
+                    <th className="px-4 sm:px-6 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">
                       {t("dashboard.campaigns.headers.successRate")}
                     </th>
                   </tr>
@@ -1029,10 +1029,10 @@ export default function DashboardPage() {
                         key={row.id}
                         className="hover:bg-gray-50 transition-colors"
                       >
-                        <td className="px-6 py-4 text-sm font-semibold text-gray-700">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-semibold text-gray-700">
                           {row.name}
                         </td>
-                        <td className="px-6 py-4 text-right">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <div className="w-12 h-1 bg-gray-100 rounded-full overflow-hidden hidden xl:block">
                               <div
@@ -1051,7 +1051,7 @@ export default function DashboardPage() {
                     <tr>
                       <td
                         colSpan={2}
-                        className="px-6 py-12 text-center text-gray-400"
+                        className="px-4 sm:px-6 py-8 sm:py-12 text-center text-gray-400 text-sm"
                       >
                         {t("dashboard.campaigns.noCampaigns")}
                       </td>

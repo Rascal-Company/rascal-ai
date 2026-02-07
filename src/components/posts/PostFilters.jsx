@@ -59,7 +59,7 @@ const PostFilters = ({
         />
       </div>
 
-      <div className="flex gap-4 min-w-[300px]">
+      <div className="flex gap-4 md:min-w-[300px]">
         <div className="relative flex-1">
           <select
             value={typeFilter}

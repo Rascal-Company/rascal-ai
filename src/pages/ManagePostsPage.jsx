@@ -1759,7 +1759,7 @@ export default function ManagePostsPage() {
         <span className="text-xs font-bold sm:hidden">?</span>
       </button>
 
-      <div className="p-4 sm:p-8 lg:p-12 max-w-[1700px] mx-auto min-h-screen space-y-12">
+      <div className="p-3 sm:p-6 lg:p-12 max-w-[1700px] mx-auto min-h-screen space-y-6 sm:space-y-8 lg:space-y-12">
         {/* Page Header */}
         <PostHeader
           t={t}
@@ -1768,7 +1768,7 @@ export default function ManagePostsPage() {
         />
 
         {/* Tab Navigation & Action Bar Container */}
-        <div className="bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-row gap-2 sm:gap-6 justify-between items-center sticky top-4 z-40 transition-all hover:shadow-2xl overflow-hidden">
+        <div className="bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-col sm:flex-row gap-2 sm:gap-6 justify-between items-stretch sm:items-center sticky top-4 z-40 transition-all hover:shadow-2xl overflow-hidden">
           <PostTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}

@@ -27,17 +27,17 @@ const PostHeader = ({ t, monthlyLimit, nextMonthQuota }) => {
   return (
     <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8">
       <div className="space-y-2">
-        <h1 className="text-4xl font-black text-gray-900 tracking-tight leading-none">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 tracking-tight leading-none">
           {t("posts.header")}
         </h1>
-        <p className="text-gray-400 text-lg font-medium">
+        <p className="text-gray-400 text-sm sm:text-base lg:text-lg font-medium">
           {t("posts.subtitle") || "Hallitse ja aikatauluta somesisältöjäsi"}
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4 w-full lg:w-auto">
         {/* Quota Indicator: This Month */}
-        <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-blue-100 transition-all duration-500 min-w-0">
+        <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-4 sm:p-6 hover:shadow-2xl hover:border-blue-100 transition-all duration-500 min-w-0">
           <div className="flex justify-between items-start mb-4">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-blue-500 transition-colors truncate pr-2">
               {t("monthlyLimit.generatedThisMonth")}
@@ -54,10 +54,10 @@ const PostHeader = ({ t, monthlyLimit, nextMonthQuota }) => {
             )}
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-gray-900 leading-none">
+            <span className="text-2xl sm:text-3xl font-black text-gray-900 leading-none">
               {monthlyLimit.currentCount}
             </span>
-            <span className="text-sm font-bold text-gray-300">
+            <span className="text-xs sm:text-sm font-bold text-gray-300">
               / {monthlyLimit.isUnlimited ? "∞" : monthlyLimit.monthlyLimit}
             </span>
           </div>
@@ -72,7 +72,7 @@ const PostHeader = ({ t, monthlyLimit, nextMonthQuota }) => {
         </div>
 
         {/* Quota Indicator: Next Month */}
-        <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 min-w-0">
+        <div className="group bg-white rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/20 p-4 sm:p-6 hover:shadow-2xl hover:border-indigo-100 transition-all duration-500 min-w-0">
           <div className="flex justify-between items-start mb-4">
             <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors truncate pr-2">
               {t("monthlyLimit.generatedNextMonth")}
@@ -86,10 +86,10 @@ const PostHeader = ({ t, monthlyLimit, nextMonthQuota }) => {
             )}
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-black text-gray-900 leading-none">
+            <span className="text-2xl sm:text-3xl font-black text-gray-900 leading-none">
               {nextMonthQuota.nextMonthCount}
             </span>
-            <span className="text-sm font-bold text-gray-300">
+            <span className="text-xs sm:text-sm font-bold text-gray-300">
               /{" "}
               {nextMonthQuota.isUnlimited ? "∞" : nextMonthQuota.nextMonthLimit}
             </span>
