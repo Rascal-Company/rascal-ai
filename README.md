@@ -1,103 +1,196 @@
-# Rascal AI - Ammattimainen AI-pohjainen markkinointi- ja myyntityökalu
+# Rascal AI - Täyden palvelun markkinointi- ja myyntityökalu
 
-Rascal AI on täyden stackin myynnin ja markkinoinnin sovellus, joka yhdistää kampanjoiden ja segmenttien hallinnan, massapuhelut Google Sheets ‑datasta, CRM‑kontaktien haun sekä reaaliaikaisen analytiikan yhdeksi saumattomaksi kokonaisuudeksi. Frontend on rakennettu Reactilla (Vite, React Router) ja julkaisu toteutetaan Vercelin serverless‑/api‑reittien kautta. Kaikki kolmansien osapuolien HTTP‑kutsut kulkevat omien `/api/`‑endpointtien läpi, ja tiedot sekä autentikointi hoidetaan Supabasella (RLS käytössä).
-
-Käyttöoikeudet ja näkyvät toiminnot määräytyvät käyttäjäkohtaisilla feature‑lipuilla (`public.users.features`, `text[]`) sekä adminin hallitsemalla “CRM yhdistetty” ‑kytkimellä (`public.users.crm_connected`). Featuret haetaan backendista endpointilla `/api/user-features` ja hyödynnetään frontissa `useFeatures().has(name)`‑kutsulla (esim. `Sidebar.jsx`, `CallPanel.jsx`). CRM‑tabi on näkyvissä vain, jos käyttäjällä on “CRM”‑feature ja `crm_connected = true`; kytkin on muokattavissa `/admin` → “Käyttäjät” näkymässä visuaalisella vivulla.
-
-Tietovirta on suojattu JWT:llä: frontend välittää Bearer‑tokenin omille `/api/`‑reiteille, joissa luodaan käyttäjän tokenilla Supabase‑client, jolloin RLS rajoittaa näkyvyyden. API‑reiteissä mapataan `auth.users.id → public.users.id` ennen hakuja/inserttejä (kampanjat ja segmentit). Kampanja‑ ja segmenttien yksityiskohdat avataan modaaleihin sivunvaihdon sijasta. Massapuheluissa valitaan olemassa oleva kampanja (pakollinen) ja segmentti (valinnainen); tiedot kirjataan `call_logs`‑tauluun viittauksilla `new_campaign_id` ja `contact_segment_id`. Dashboard hakee onnistumismetriikat `/api/dashboard-success`‑endpointilta sekä kampanjakohtaiset tilastot `/api/campaigns`‑reitiltä.
+Rascal AI on ammattimainen AI-pohjainen SaaS-sovellus markkinointiin ja myyntiin. Sovellus yhdistää kampanjoiden hallinnan, sisällöntuotannon, massapuhelut, CRM-toiminnot, analytiikan ja automaation yhdeksi saumattomaksi kokonaisuudeksi.
 
 ## 🚀 Pääominaisuudet
 
 ### 🤖 AI-pohjaiset toiminnot
-- **Älykkäät soitot** - Outbound- ja inbound-soitot soittoskriptin mukaisesti
-- **Sisältöstrategia** - Rakentaa sisältöstrategian ihanneasiakasprofiilin mukaisesti
-- **Sisällöntuotanto** - Luo sisältöaihiot moneen eri kanavaan yrityksen tiedon pohjalta
+
+- **AI Chat** - Älykäs keskusteluavustaja markkinointi- ja myyntikysymyksiin
+- **Sisältöstrategia** - Rakentaa kattavan sisältöstrategian ihanneasiakasprofiilin mukaisesti
+- **Sisällöntuotanto** - Luo sisältöaihiot sosiaaliseen mediaan, blogiin ja uutiskirjeisiin
+- **Älykkäät soitot** - AI-ohjatut outbound- ja inbound-puhelut soittoskriptin mukaisesti
 - **Automaattinen raportointi** - Raportoi kaikki puhelut, keskustelut ja jatkotoimenpiteet
-- **AI Chat** - Älykäs chat-toiminto markkinointi- ja myyntikysymyksiin
 
-### 📊 Analytics ja seuranta
-- **Dashboard** - Keskitetty näkymä markkinointitoimintojen seurantaan
-- **Call Analytics** - Puheluiden analyysi ja raportointi
-- **Social Media Analytics** - Sosiaalisen median seuranta ja analyysi
-- **Content Performance** - Sisällön suorituskyvyn seuranta
-- **Google Analytics Integration** - Sivuston kävijätiedot dashboardissa (OAuth 2.0)
+### 📊 Kampanjat ja seuranta
 
-### 🔧 Hallinta ja automatisointi
-- **Mass-call Management** - Suurten puhelukampanjoiden hallinta
-- **Content Management** - Sisällön hallinta ja aikataulutus
-- **User Management** - Käyttäjien ja oikeuksien hallinta
-- **Integration Hub** - Yhteydet muihin järjestelmiin (Google Analytics, WordPress, jne.)
+- **Kampanjoiden hallinta** - Luo, hallinnoi ja seuraa markkinointikampanjoita
+- **Dashboard** - Keskitetty näkymä kaikkien toimintojen seurantaan
+- **Call Analytics** - Puheluiden yksityiskohtainen analyysi ja raportointi
+- **Social Media Analytics** - Sosiaalisen median suorituskyvyn seuranta
+- **Content Performance** - Sisällön suorituskyvyn mittarit
+- **Raportit** - Monipuoliset raportointityökalut
+
+### 📞 Puhelut ja asiakaskontaktit
+
+- **Mass Call -hallinta** - Suurten puhelukampanjoiden hallinta ja automatisointi
+- **Inbound-puhelut** - Saapuvien puheluiden hallinta ja skriptit
+- **Outbound-puhelut** - Lähtevien puheluiden kampanjat
+- **Puhelutyypit** - Mukautettavat puhelutyypit eri käyttötarkoituksiin
+- **Knowledge Base** - Tietopankki AI-puheluille
+- **Meeting Notes** - Automaattiset muistiinpanot kokouksista
+
+### 📱 Sosiaalinen media ja sisältö
+
+- **Postausten hallinta** - Luo, aikatauluta ja julkaise sisältöä
+- **Blog & Newsletter** - Blogiartikkeleiden ja uutiskirjeiden hallinta
+- **Kuvapankki** - Keskitetty mediapankki kaikille kuville ja videoille
+- **UGC Video** - User-generated content -videoiden hallinta
+- **Carousel-mallit** - Valmismallit karusellijulkaisuille
+- **Media Monitoring** - Median seuranta ja analyysi
+- **Testimonials** - Asiakassuositusten hallinta
+
+### 🎯 Liidien hallinta ja myynti
+
+- **Account Manager** - Asiakastilien hallinta ja seuranta
+- **Lead Scraping** - Liidien automaattinen kerääminen
+- **Lead Magnet** - Julkiset liidigeneraattorisivut tokenin avulla
+- **Lead Searches** - Liidien haku ja suodatus
+- **Vastaaja** - Automaattinen vastaajajärjestelmä
+
+### 🏢 Organisaatio ja hallinta
+
+- **Organization Members** - Tiimin jäsenten hallinta ja oikeudet
+- **Account Details** - Yksityiskohtaiset asiakastiedot
+- **Workspace Config** - Työtilan asetukset ja määritykset
+- **Admin Panel** - Kattava hallintapaneeli
+  - Käyttäjähallinta
+  - Call logs
+  - Message logs
+  - Testimonials-hallinta
+  - Järjestelmätiedot
+
+### 🔌 Integraatiot
+
+- **Supabase** - Tietokanta, autentikointi ja Row Level Security (RLS)
+- **N8N Workflows** - Automaatiointegraatiot useisiin toimintoihin
+- **Google Analytics** - OAuth 2.0 -integraatio analytiikkatietoihin
+- **WordPress/Mixpost** - Sisällönhallinta ja julkaisu
+- **Placid** - Dynaaminen kuvien generointi
+- **ElevenLabs** - AI-äänisynteesi puheluihin
+- **Vercel Blob Storage** - Tiedostojen tallennus
+- **Upstash Redis** - Rate limiting
 
 ## 🛠️ Teknologiat
 
 ### Frontend
-- **React 19** - Moderni käyttöliittymä
-- **Vite** - Nopea kehitysympäristö
-- **CSS Grid & Flexbox** - Responsiivinen ja ammattimainen design
-- **React Router** - Sivunavigaatio
+
+- **React 19** - Moderni, tehokas käyttöliittymä
+- **Vite** - Nopea kehitysympäristö ja build-työkalu
+- **Tailwind CSS 4** - Utility-first CSS-framework
+- **React Router v7** - Client-side routing
+- **TanStack Query** - Tehokas datan hallinta ja cachetus
+- **i18next** - Monikielisyystuki (fi/en)
+- **Lucide React** - Modernit ikonit
+- **Recharts** - Interaktiiviset kaaviot
+- **React Markdown** - Markdown-renderöinti
 
 ### Backend & API
-- **Supabase** - Tietokanta ja autentikaatio
-- **Vercel Functions** - Serverless API:t
-- **N8N Integration** - Workflow-automatisointi
-- **JWT Authentication** - Turvallinen kirjautuminen
 
-### Työkalut
-- **Husky** - Git hooks
-- **Standard Version** - Automaattinen versionhallinta
+- **Vercel Serverless Functions** - 140+ API-endpointtiä
+- **Supabase** - PostgreSQL-tietokanta ja autentikointi
+- **JWT Authentication** - Turvallinen kirjautuminen
+- **Row Level Security (RLS)** - Tietoturva tietokantatasolla
+- **N8N Integration** - Workflow-automatisointi
+- **Rate Limiting** - Upstash Redis -pohjainen
+
+### Työkalut ja laatu
+
+- **Vitest** - Yksikkö- ja integraatiotestit
 - **ESLint** - Koodin laadun tarkistus
-- **Commitlint** - Commit-viestien standardointi
+- **Husky** - Git hooks
+- **Commitlint** - Commit-viestien standardointi (Conventional Commits)
+- **Standard Version** - Automaattinen versionhallinta ja changelog
 
 ## 📁 Projektin rakenne
 
 ```
 rascal-ai/
-├── src/
-│   ├── pages/           # Sivukomponentit
-│   │   ├── LandingPage.jsx      # Etusivu (ammattimainen design)
-│   │   ├── DashboardPage.jsx    # Dashboard
-│   │   ├── AIChatPage.jsx       # AI Chat
-│   │   ├── CallPanel.jsx        # Puheluiden hallinta
+├── src/                           # Frontend-sovellus
+│   ├── pages/                     # Sivukomponentit
+│   │   ├── DashboardPage.jsx      # Dashboard
+│   │   ├── AIChatPage.jsx         # AI Chat
+│   │   ├── ContentStrategyPage.jsx # Sisältöstrategia
+│   │   ├── CampaignsPage.jsx      # Kampanjat
+│   │   ├── CallPanel.jsx          # Puheluiden hallinta
+│   │   ├── ManagePostsPage.jsx    # Postausten hallinta
+│   │   ├── BlogNewsletterPage.jsx # Blogi ja uutiskirjeet
+│   │   ├── AccountManagerPage.jsx # Asiakashallinta
+│   │   ├── LeadScrapingPage.jsx   # Liidien kerääminen
+│   │   ├── MediaMonitoringPage.jsx # Median seuranta
+│   │   ├── OrganizationMembersPage.jsx # Tiimin hallinta
+│   │   ├── AdminPage.jsx          # Admin-paneeli
+│   │   └── ...                    # 30+ muuta sivua
+│   ├── components/                # Uudelleenkäytettävät komponentit
+│   │   ├── auth/                  # Autentikaatio
+│   │   ├── campaigns/             # Kampanjakomponentit
+│   │   ├── ai-chat/               # Chat-komponentit
+│   │   ├── blog-newsletter/       # Blog-komponentit
+│   │   ├── Strategy/              # Strategiakomponentit
+│   │   ├── KeskenModal/           # Sisällön muokkaus
+│   │   ├── AccountDetailsTabs/    # Asiakastiedot
+│   │   └── ...                    # 90+ komponenttia
+│   ├── contexts/                  # React Context API
+│   │   ├── AuthContext.jsx        # Autentikaatio
+│   │   ├── PostsContext.jsx       # Postaukset
+│   │   ├── NotificationContext.jsx # Notifikaatiot
+│   │   ├── ToastContext.jsx       # Toast-ilmoitukset
+│   │   ├── MonitoringContext.jsx  # Seuranta
 │   │   └── ...
-│   ├── components/      # Yhteiset komponentit
-│   │   ├── auth/        # Autentikaatiokomponentit
-│   │   ├── Sidebar.jsx  # Sivupalkki
-│   │   └── ...
-│   ├── contexts/        # React Contextit
-│   ├── services/        # API-palvelut
-│   └── lib/            # Apukirjastot
-├── api/                 # Backend API:t
-│   ├── mass-call.js     # Mass-call hallinta
-│   ├── validate-sheet.js # Google Sheets validointi
-│   ├── analytics.js     # Analytics API
-│   ├── google-analytics-visitors.js # Google Analytics kävijätiedot
-│   ├── auth/google/     # Google OAuth 2.0 integraatio
-│   └── ...
-├── public/              # Julkiset tiedostot
-└── docs/                # Dokumentaatio
+│   ├── hooks/                     # Custom React Hooks
+│   ├── services/                  # API-palvelut
+│   │   ├── api.js                 # N8N API client
+│   │   └── mixpostApi.js          # Mixpost API client
+│   ├── lib/                       # Kirjastot
+│   │   └── supabase.js            # Supabase client
+│   ├── utils/                     # Apufunktiot
+│   ├── locales/                   # Käännökset (fi/en)
+│   └── styles/                    # Globaalit tyylit
+│
+├── api/                           # Vercel Serverless Functions
+│   ├── admin/                     # Admin-endpointit
+│   ├── ai/                        # AI-endpointit
+│   ├── analytics/                 # Analytiikka
+│   ├── auth/                      # Autentikaatio (Google OAuth)
+│   ├── avatars/                   # Avatar-hallinta
+│   ├── calls/                     # Puheluendpointit
+│   ├── campaigns/                 # Kampanjat
+│   ├── content/                   # Sisältöhallinta
+│   ├── integrations/              # Integraatiot
+│   ├── leads/                     # Liidien hallinta
+│   ├── monitoring/                # Seuranta
+│   ├── organization/              # Organisaatiohallinta
+│   ├── social/                    # Sosiaalinen media
+│   ├── strategy/                  # Strategia
+│   ├── users/                     # Käyttäjähallinta
+│   ├── webhooks/                  # Webhookit
+│   ├── _lib/                      # Jaetut kirjastot
+│   └── _middleware/               # Middleware-funktiot
+│
+├── public/                        # Staattiset tiedostot
+├── docs/                          # Dokumentaatio
+├── tests/                         # Testit
+└── supabase/                      # Supabase-konfiguraatio
 ```
 
 ## 🚀 Asennus ja käyttö
 
 ### 1. Kloonaa projekti
+
 ```bash
 git clone <repository-url>
 cd rascal-ai
 ```
 
 ### 2. Asenna riippuvuudet
+
 ```bash
 npm install
 ```
 
 ### 3. Ympäristömuuttujat
-Luo `.env.local` tiedosto projektin juureen. Voit kopioida `.env.example` tiedoston pohjaksi:
 
-```bash
-cp .env.example .env.local
-```
-
-Täydennä `.env.local` tiedosto oikeilla arvoilla:
+Luo `.env.local` tiedosto projektin juureen:
 
 ```bash
 # Supabase (pakollinen)
@@ -109,13 +202,8 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 VITE_API_KEY=your-api-key
 VITE_N8N_WEBHOOK_URL=https://your-n8n-instance.com/webhook
 
-# N8N Integration (pakollinen)
-N8N_SECRET_KEY=your-n8n-secret-key
-N8N_INTEGRATION_WEBHOOK_URL=https://your-n8n-instance.com/webhook/google-analytics
-N8N_GOOGLE_ANALYTICS_VISITORS_URL=https://your-n8n-instance.com/webhook/google-analytics-visitors
-
-# User Secrets Encryption (pakollinen salattujen tietojen tallennukseen)
-USER_SECRETS_ENCRYPTION_KEY=your-encryption-key
+# User Secrets Encryption (pakollinen)
+USER_SECRETS_ENCRYPTION_KEY=your-encryption-key-32-chars
 
 # Google Analytics OAuth (vapaaehtoinen)
 GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
@@ -124,63 +212,259 @@ GOOGLE_REDIRECT_URI=https://app.rascalai.fi/api/auth/google/callback
 
 # Mixpost Integration (vapaaehtoinen)
 VITE_MIXPOST_RASCAL_API_URL=https://mixpost.mak8r.fi
+VITE_MIXPOST_API_URL=https://mixpost.mak8r.fi
 
-# Muut N8N webhookit (vapaaehtoisia)
-N8N_LEADMAGNET_GET=https://your-n8n-instance.com/webhook/leadmagnet-get
+# Placid Integration (vapaaehtoinen)
+PLACID_API_TOKEN=your-placid-api-token
+PLACID_SDK_TOKEN=your-placid-sdk-token
+
+# N8N Webhooks (vapaaehtoiset)
+N8N_INTEGRATION_WEBHOOK_URL=https://your-n8n.com/webhook/google-analytics
+N8N_GET_STRATEGY_URL=https://your-n8n.com/webhook/get-strategy
+N8N_INBOUND_SETTINGS_WEBHOOK=https://your-n8n.com/webhook/inbound-settings
+N8N_PERSONAL_IMAGES=https://your-n8n.com/webhook/personal-images
+N8N_AVATAR_STATUS=https://your-n8n.com/webhook/get-avatar-status
+N8N_PLACID_TEMPLATE_CREATE=https://your-n8n.com/webhook/placid-template-create
+N8N_LEADMAGNET_GET=https://your-n8n.com/webhook/leadmagnet-get
+# ... ja muut N8N-webhookit tarpeen mukaan
+
+# Muut
+APP_URL=https://app.rascalai.fi
+VITE_ROOT_DOMAIN=rascalai.fi
 ```
 
-**Huom:** 
-- Frontend käyttää `VITE_`-etuliitteellisiä muuttujia (`import.meta.env.VITE_*`)
-- Backend käyttää `process.env.*` muuttujia
-- Katso `.env.example` tiedostosta kaikki saatavilla olevat muuttujat
+**Huom:**
 
-**Huom:** Tarkemmat ohjeet integraatioiden asettamiseen löytyvät `docs/`-kansiosta:
-- `docs/GOOGLE_ANALYTICS_OAUTH_SETUP.md` - Google Analytics OAuth 2.0
-- `docs/INTEGRATION_WEBHOOKS.md` - Integraatioiden webhookit
-- `docs/USER_SECRETS_SETUP.md` - Salattujen tietojen hallinta
+- Frontend käyttää `VITE_`-etuliitteellisiä muuttujia
+- Backend (API) käyttää `process.env.*` muuttujia
+- Katso yksittäiset API-tiedostot tarvittavista muuttujista
 
 ### 4. Käynnistä kehityspalvelin
+
 ```bash
 npm run dev
 ```
 
-Sovellus on nyt saatavilla osoitteessa `http://localhost:5173`
+Sovellus käynnistyy osoitteessa `http://localhost:5173`
+
+### 5. Testit
+
+```bash
+# Aja testit
+npm test
+
+# Testit UI:lla
+npm run test:ui
+
+# Coverage-raportti
+npm run test:coverage
+```
 
 ## 📚 Dokumentaatio
 
 Projektissa on laaja dokumentaatio `docs/`-kansiossa:
 
-- **GOOGLE_ANALYTICS_OAUTH_SETUP.md** - Google Analytics OAuth 2.0 -integraation asettaminen
-- **INTEGRATION_WEBHOOKS.md** - Integraatioiden webhookit ja automaatiot
+- **GOOGLE_ANALYTICS_OAUTH_SETUP.md** - Google Analytics OAuth 2.0 -integraatio
+- **INTEGRATION_WEBHOOKS.md** - N8N-webhookit ja automaatiot
 - **USER_SECRETS_SETUP.md** - Käyttäjien salattujen tietojen hallinta
-- **LEADMAGNET_SETUP.md** - Lead Magnet -toiminnallisuuden asettaminen
+- **LEADMAGNET_SETUP.md** - Lead Magnet -toiminnallisuus
 - **CSS_ARCHITECTURE.md** - CSS-arkkitehtuuri ja tyylit
 - **VERSIONING.md** - Versionhallinta ja changelog
 
-## 🔗 API Endpointit
+Lisäksi projektin juuressa:
 
-### Analytics
-- `GET /api/google-analytics-visitors` - Hakee Google Analytics -kävijätiedot N8N:stä
-- `GET /api/analytics` - Yleinen analytics API
-- `GET /api/dashboard-success` - Dashboardin onnistumismetriikat
+- **CLAUDE.md** - Kehitysohjeet ja best practices
+- **CHANGELOG.md** - Yksityiskohtainen muutosloki
+
+## 🔗 API Endpointit (140+)
 
 ### Autentikointi
+
 - `GET /api/auth/google/start` - Aloittaa Google OAuth 2.0 -virran
-- `GET /api/auth/google/callback` - Käsittelee Google OAuth -callbackin
+- `GET /api/auth/google/callback` - Käsittelee OAuth-callbackin
 
-### Integraatiot ja salaisuudet
-- `GET /api/users/secrets` - Hakee käyttäjän integraatiot (metadata)
-- `POST /api/users/secrets` - Tallentaa uuden integraation (Node.js AES-256-GCM salaus)
-- `GET /api/users/secrets?decrypt=true` - Hakee puretun salaisuuden käyttäjälle
-- `GET /api/users/secrets-service` - Service-to-service endpoint automaatioille (N8N/Make)
+### Kampanjat
 
-Katso tarkemmat API-dokumentaatiot `docs/`-kansiosta.
+- `GET /api/campaigns` - Listaa kampanjat
+- `POST /api/campaigns` - Luo uuden kampanjan
+- `GET /api/campaigns/[id]` - Hae kampanjan tiedot
+- `PUT /api/campaigns/[id]` - Päivitä kampanja
+- `DELETE /api/campaigns/[id]` - Poista kampanja
+
+### Puhelut
+
+- `POST /api/calls/mass` - Massapuhelut
+- `GET /api/calls/single` - Yksittäinen puhelu
+- `GET /api/calls/types` - Puhelutyypit
+- `POST /api/calls/types/create` - Luo uusi puhelutyyppi
+- `POST /api/calls/knowledge-base-upload` - Lataa tietopankki
+- `GET /api/calls/inbound-settings` - Inbound-asetukset
+
+### Sisältö
+
+- `GET /api/content/blog/list` - Listaa blogiartikkelit
+- `POST /api/content/blog/create` - Luo blogiartikkeli
+- `GET /api/content/blog/get-article/[slug]` - Hae artikkeli
+- `PUT /api/content/blog/update-article/[id]` - Päivitä artikkeli
+- `DELETE /api/content/blog/delete-article/[id]` - Poista artikkeli
+- `POST /api/content/blog/upload-image` - Lataa kuva
+- `POST /api/content/blog/publish` - Julkaise artikkeli
+- `GET /api/content/testimonials/list` - Listaa suositukset
+- `POST /api/content/media-management` - Median hallinta
+- `POST /api/content/import-post` - Tuo postaus
+
+### Liidit
+
+- `GET /api/leads` - Listaa liidit
+- `POST /api/leads/scraping` - Kerää liidejä
+- `GET /api/leads/searches` - Liidihaut
+- `GET /api/leads/magnet` - Lead magnet -tiedot
+
+### Analytiikka
+
+- `GET /api/analytics` - Yleinen analytiikka
+- `GET /api/analytics/dashboard-success` - Dashboard-metriikat
+- `GET /api/analytics/google-analytics-visitors` - Google Analytics -kävijät
+
+### Organisaatio
+
+- `GET /api/organization/members` - Tiimin jäsenet
+- `POST /api/organization/invites` - Kutsu jäsen
+- `GET /api/organization/account-members` - Asiakastilin jäsenet
+- `POST /api/organization/onboarding-completed` - Onboarding valmis
+
+### Admin
+
+- `GET /api/admin/data` - Admindatan haku
+- `GET /api/admin/call-logs` - Puhelulokit
+- `GET /api/admin/message-logs` - Viestilokit
+- `GET /api/admin/testimonials` - Suositukset
+
+### Käyttäjät
+
+- `GET /api/users/secrets` - Käyttäjän integraatiot
+- `POST /api/users/secrets` - Tallenna integraatio (salattu)
+- `GET /api/users/secrets?decrypt=true` - Hae salattu tieto
+- `GET /api/users/secrets-service` - Service-to-service endpoint
+
+### Integraatiot
+
+- `GET /api/integrations/google-analytics` - Google Analytics
+- `POST /api/integrations/mixpost` - Mixpost-integraatio
+- `POST /api/placid/auth` - Placid-autentikaatio
+- `POST /api/placid/create-template` - Luo Placid-template
+
+### Strategia
+
+- `GET /api/strategy` - Hae strategia
+- `POST /api/strategy` - Luo strategia
+
+### Webhookit
+
+- `POST /api/webhooks/[name]` - Yleiset webhookit
+
+### Muut
+
+- `POST /api/storage/upload` - Tiedostojen lataus
+- `GET /api/notifications` - Notifikaatiot
+- `GET /api/support` - Tuki
+- `GET /api/system/health` - Järjestelmän tila
+- `GET /api/workspace/config` - Työtilan asetukset
+- `POST /api/avatars/upload` - Lataa avatar
+- `GET /api/avatars/status` - Avatarin tila
+- `GET /api/segments` - Segmentit
+- `POST /api/social/publish` - Julkaise sosiaaliseen mediaan
+- ... ja paljon muuta
 
 ## 🚀 Julkaisu
 
-Projekti julkaistaan Vercelissä. Muista asettaa kaikki ympäristömuuttujat Vercel Dashboardissa ennen julkaisua.
+Projekti julkaistaan Vercelissä:
+
+1. Yhdistä GitHub-repository Verceliin
+2. Aseta kaikki ympäristömuuttujat Vercel Dashboardissa
+3. Deploy tapahtuu automaattisesti `main`-branchiin pushatessa
+
+### Build-komennot
+
+```bash
+# Tuotantoversio
+npm run build
+
+# Esikatselu
+npm run preview
+```
+
+## 🔒 Tietoturva
+
+- **JWT Authentication** - Turvallinen token-pohjainen autentikaatio
+- **Row Level Security (RLS)** - Supabase-tietokantatasolla
+- **Encrypted Secrets** - Käyttäjien salaisuudet salataan AES-256-GCM:llä
+- **Rate Limiting** - API-kutsujen rajoitus Upstash Redisillä
+- **CORS** - Määritetyt allowed origins
+- **Secure Headers** - Vercel-konfiguraatiossa
+
+## 🧪 Testaus
+
+Projekti käyttää Vitestiä yksikkö- ja integraatiotestaukseen:
+
+- **Unit Tests** - Yksittäisten funktioiden testaus
+- **Integration Tests** - API-endpointtien ja komponenttien integraatiotestit
+- **Coverage Reports** - Testikattavuusraportit
+
+```bash
+# Testit watchmodessa
+npm test
+
+# Testit UI:lla
+npm run test:ui
+
+# Coverage
+npm run test:coverage
+```
+
+## 📦 Versionhallinta
+
+Projekti käyttää Conventional Commits -formaattia ja Standard Versionia:
+
+```bash
+# Patch-versio (1.0.0 -> 1.0.1)
+npm run release:patch
+
+# Minor-versio (1.0.0 -> 1.1.0)
+npm run release:minor
+
+# Major-versio (1.0.0 -> 2.0.0)
+npm run release:major
+
+# Automaattinen versio commit-viestien perusteella
+npm run release
+```
+
+Katso tarkemmat ohjeet: [VERSIONING.md](VERSIONING.md)
+
+## 🤝 Kehitysohjeet
+
+Katso yksityiskohtaiset kehitysohjeet ja best practices tiedostosta [CLAUDE.md](CLAUDE.md), joka sisältää:
+
+- Implementation Best Practices
+- Writing Functions Best Practices
+- Writing Tests Best Practices
+- Code Organization
+- Keyboard Shortcuts (QNEW, QPLAN, QCODE, QCHECK, jne.)
+
+## 📊 Projektin tila
+
+- **Versio:** 1.120.1
+- **React:** 19.2.3
+- **Node.js:** >=18
+- **API Endpoints:** 140+
+- **Components:** 90+
+- **Pages:** 30+
 
 ## 📝 Lisenssi
 
 Proprietary - Kaikki oikeudet pidätetään.
-```
+
+---
+
+**Rascal AI** - Tehokasta markkinointia ja myyntiä AI:n avulla 🚀
