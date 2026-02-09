@@ -448,7 +448,8 @@
       "leads": "Liidit",
       "organizationMembers": "Organisaation hallinta",
       "monitoring": "Mediaseuranta",
-      "siteBuilder": "Sivustorakentaja"
+      "siteBuilder": "Sivustorakentaja",
+      "rascalMail": "Rascal Mail"
     },
     "settings": "Asetukset",
     "helpCenter": "Ohjekeskus",

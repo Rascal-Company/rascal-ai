@@ -15,6 +15,7 @@ const ALL_FEATURES = [
   "UGC",
   "Media Monitoring",
   "sitebuilder",
+  "Rascal Mail",
 ];
 
 const ALL_PLATFORMS = [
@@ -40,6 +41,7 @@ const getFeatureLabel = (feature) => {
     UGC: "UGC",
     "Media Monitoring": "Mediaseuranta",
     sitebuilder: "Sivustorakentaja",
+    "Rascal Mail": "Rascal Mail",
   };
   return labels[feature] || feature;
 };

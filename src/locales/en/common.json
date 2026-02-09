@@ -448,7 +448,8 @@
       "organizationMembers": "Organization Management",
       "accountManager": "Portfolio Management",
       "monitoring": "Media Monitoring",
-      "siteBuilder": "Site Builder"
+      "siteBuilder": "Site Builder",
+      "rascalMail": "Rascal Mail"
     },
     "settings": "Settings",
     "helpCenter": "Help Center",

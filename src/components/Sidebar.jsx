@@ -6,6 +6,7 @@ import { useFeatures } from "../hooks/useFeatures";
 import NotificationBell from "./NotificationBell";
 import TicketButton from "./TicketButton";
 import { OpenBuilderButton } from "./OpenBuilderButton";
+import { OpenMailButton } from "./OpenMailButton";
 
 const DEFAULT_LOGO_URL =
   "https://enrploxjigoyqajoqgkj.supabase.co/storage/v1/object/public/user-logos/1b60ac47-ac9a-4b0e-ba08-610a38380f3d/logo.png";
@@ -946,6 +947,13 @@ export default function Sidebar() {
           {!isCollapsed && hasFeature("sitebuilder") && (
             <div className="px-2">
               <OpenBuilderButton isCollapsed={isCollapsed} />
+            </div>
+          )}
+
+          {/* OpenMailButton in Tools section when expanded */}
+          {!isCollapsed && hasFeature("Rascal Mail") && (
+            <div className="px-2">
+              <OpenMailButton isCollapsed={isCollapsed} />
             </div>
           )}
 
