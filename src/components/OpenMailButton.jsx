@@ -18,8 +18,7 @@ export function OpenMailButton({ isCollapsed }) {
     if (import.meta.env.DEV) {
       mailUrl = "http://mail.localhost:3000";
     } else {
-      const rootDomain = import.meta.env.VITE_ROOT_DOMAIN || "rascalpages.fi";
-      mailUrl = `https://mail.${rootDomain}`;
+      mailUrl = "https://mail.rascalai.fi";
     }
 
     const handoffUrl = `${mailUrl}/auth/handoff#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
