@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import Button from "../components/Button";
 import SaveSearchModal from "../components/SaveSearchModal";
@@ -6,29 +7,37 @@ import SavedSearchesList from "../components/SavedSearchesList";
 import ExportLeadsModal from "../components/ExportLeadsModal";
 
 export default function LeadScrapingPage() {
+  const { t } = useTranslation("common");
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("United States");
-  const [headcountIndex, setHeadcountIndex] = useState(1); // Index into headcountRanges
-  const [ownership, setOwnership] = useState("Yksityinen");
+  const [headcountIndex, setHeadcountIndex] = useState(1);
+  const [ownership, setOwnership] = useState("Private");
+  const [maxResultsIndex, setMaxResultsIndex] = useState(2);
   const [loading, setLoading] = useState(false);
   const [exampleCompanies] = useState([]);
   const [error, setError] = useState("");
   const [jobId, setJobId] = useState(null);
 
-  // Feature 3: Saved searches
   const [savedSearches, setSavedSearches] = useState([]);
   const [showSaveSearchModal, setShowSaveSearchModal] = useState(false);
 
-  // Feature 5: Credits display
   const [credits, setCredits] = useState({ monthly: 0, used: 0 });
 
-  // Feature 6: CSV Export & Bulk selection
   // TODO: setLeads will be used when webhook callback is implemented to populate leads
   const [leads] = useState([]);
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [showExportModal, setShowExportModal] = useState(false);
 
-  // Headcount ranges
+  const maxResultsOptions = [
+    { label: "10", value: 10 },
+    { label: "25", value: 25 },
+    { label: "50", value: 50 },
+    { label: "100", value: 100 },
+    { label: "250", value: 250 },
+    { label: "500", value: 500 },
+    { label: "1000", value: 1000 },
+  ];
+
   const headcountRanges = [
     { label: "1-10", value: "1-10", apiValue: 10 },
     { label: "11-50", value: "11-50", apiValue: 50 },
@@ -38,7 +47,6 @@ export default function LeadScrapingPage() {
     { label: "1000+", value: "1000+", apiValue: 10000 },
   ];
 
-  // Location options
   const locationOptions = [
     "Albania",
     "Andorra",
@@ -95,15 +103,13 @@ export default function LeadScrapingPage() {
     "Vatican City",
   ];
 
-  // Ownership options
   const ownershipOptions = [
-    { label: "Yksityinen", value: "Private" },
-    { label: "Julkinen", value: "Public" },
-    { label: "Voittoa tavoittelematon", value: "Non-Profit" },
-    { label: "Julkishallinto", value: "Government" },
+    { labelKey: "leadScraping.ownershipPrivate", value: "Private" },
+    { labelKey: "leadScraping.ownershipPublic", value: "Public" },
+    { labelKey: "leadScraping.ownershipNonProfit", value: "Non-Profit" },
+    { labelKey: "leadScraping.ownershipGovernment", value: "Government" },
   ];
 
-  // Fetch saved searches
   const fetchSavedSearches = async () => {
     try {
       const {
@@ -121,12 +127,11 @@ export default function LeadScrapingPage() {
     }
   };
 
-  // Save search handler
   const handleSaveSearch = async (searchData) => {
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    if (!session) throw new Error("Please log in");
+    if (!session) throw new Error(t("leadScraping.errorLoginGeneric"));
 
     const response = await fetch("/api/leads/searches", {
       method: "POST",
@@ -138,29 +143,26 @@ export default function LeadScrapingPage() {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || "Failed to save search");
+      const err = await response.json();
+      throw new Error(err.error || t("leadScraping.errorSaveSearchFailed"));
     }
 
     await fetchSavedSearches();
   };
 
-  // Run saved search
   const runSavedSearch = async (search) => {
     setSearchQuery(search.query);
     setLocation(search.location || "United States");
 
-    // Find the headcount index that matches the saved headcount value
     const savedHeadcount = search.headcount || 50;
     const matchingIndex = headcountRanges.findIndex(
       (range) => range.apiValue === savedHeadcount,
     );
     setHeadcountIndex(matchingIndex !== -1 ? matchingIndex : 1);
 
-    setOwnership(search.ownership || "Yksityinen");
+    setOwnership(search.ownership || "Private");
   };
 
-  // Delete saved search
   const deleteSavedSearch = async (id) => {
     try {
       const {
@@ -178,7 +180,6 @@ export default function LeadScrapingPage() {
     }
   };
 
-  // Fetch credits
   const fetchCredits = async () => {
     try {
       const {
@@ -199,7 +200,6 @@ export default function LeadScrapingPage() {
     }
   };
 
-  // Toggle lead selection
   const toggleLeadSelection = (leadId) => {
     setSelectedLeads((prev) =>
       prev.includes(leadId)
@@ -208,31 +208,35 @@ export default function LeadScrapingPage() {
     );
   };
 
-  // Select all leads
   const selectAllLeads = () => {
     setSelectedLeads(leads.map((l) => l.id));
   };
 
-  // Clear selection
   const clearSelection = () => {
     setSelectedLeads([]);
   };
 
-  // Enrich selected leads
   const enrichSelectedLeads = async () => {
     const creditsNeeded = selectedLeads.length;
     const creditsRemaining = credits.monthly - credits.used;
 
     if (creditsNeeded > creditsRemaining) {
       alert(
-        `Ei tarpeeksi credittejä! Tarvitset ${creditsNeeded}, sinulla on ${creditsRemaining}`,
+        t("leadScraping.notEnoughCredits", {
+          needed: creditsNeeded,
+          remaining: creditsRemaining,
+        }),
       );
       return;
     }
 
     if (
       !confirm(
-        `Rikastat ${creditsNeeded} liidiä. Tämä käyttää ${creditsNeeded} credittiä. Jatketaanko?`,
+        t("leadScraping.confirmEnrich", {
+          count: creditsNeeded,
+          credits: creditsNeeded,
+          creditsPerLead: 1,
+        }),
       )
     ) {
       return;
@@ -242,7 +246,7 @@ export default function LeadScrapingPage() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      if (!session) throw new Error("Please log in");
+      if (!session) throw new Error(t("leadScraping.errorLoginGeneric"));
 
       const response = await fetch("/api/leads?action=enrich", {
         method: "POST",
@@ -254,19 +258,20 @@ export default function LeadScrapingPage() {
       });
 
       if (response.ok) {
-        alert("Rikastus aloitettu!");
+        alert(
+          t("leadScraping.enrichmentStarted", { count: creditsNeeded }),
+        );
         await fetchCredits();
         clearSelection();
       } else {
-        const error = await response.json();
-        throw new Error(error.error || "Rikastus epäonnistui");
+        const err = await response.json();
+        throw new Error(err.error || t("leadScraping.enrichmentFailed"));
       }
     } catch (err) {
-      alert(err.message || "Rikastus epäonnistui");
+      alert(err.message || t("leadScraping.enrichmentFailed"));
     }
   };
 
-  // Initialize data on mount
   useEffect(() => {
     fetchSavedSearches();
     fetchCredits();
@@ -274,7 +279,7 @@ export default function LeadScrapingPage() {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
-      setError("Please describe what you are looking for");
+      setError(t("leadScraping.errorEmptyQuery"));
       return;
     }
 
@@ -283,43 +288,34 @@ export default function LeadScrapingPage() {
     setJobId(null);
 
     try {
-      // Get authentication token
       const {
         data: { session },
         error: sessionError,
       } = await supabase.auth.getSession();
 
       if (sessionError || !session) {
-        throw new Error("Please log in to search for leads");
+        throw new Error(t("leadScraping.errorLoginSearch"));
       }
 
-      // Get the current headcount range
       const currentHeadcountRange = headcountRanges[headcountIndex];
 
-      // Prepare filters for n8n
       const filters = {
         query: searchQuery,
         location,
         headcount: currentHeadcountRange.apiValue,
-        ownership:
-          ownershipOptions.find((opt) => opt.label === ownership)?.value ||
-          ownership,
+        ownership,
       };
 
-      // Prepare Apify configuration
-      // This format matches the Pipeline Labs / Apify actor requirements
+      const currentMaxResults = maxResultsOptions[maxResultsIndex].value;
+
       const apifyJson = {
         query: searchQuery,
         location: [location],
         companySize: `${currentHeadcountRange.apiValue}`,
-        ownership: [
-          ownershipOptions.find((opt) => opt.label === ownership)?.value ||
-            ownership,
-        ],
-        maxResults: 1000,
+        ownership: [ownership],
+        maxResults: currentMaxResults,
       };
 
-      // Call the n8n endpoint
       const response = await fetch("/api/leads/scraping", {
         method: "POST",
         headers: {
@@ -329,26 +325,25 @@ export default function LeadScrapingPage() {
         body: JSON.stringify({
           filters,
           apifyJson,
-          leadLimit: 1000,
+          leadLimit: currentMaxResults,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Failed to start lead scraping");
+        throw new Error(
+          data.error || t("leadScraping.errorScrapingFailed"),
+        );
       }
 
       setJobId(data.jobId);
       setError("");
 
-      // Show success message
-      alert(
-        "Lead scraping started! You will be notified when results are ready.",
-      );
+      alert(t("leadScraping.scrapingStartedAlert"));
     } catch (err) {
       console.error("Search error:", err);
-      setError(err.message || "Failed to search for leads");
+      setError(err.message || t("leadScraping.errorSearchFailed"));
     } finally {
       setLoading(false);
     }
@@ -359,19 +354,21 @@ export default function LeadScrapingPage() {
       {/* Sidebar */}
       <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">Lead Scraping</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {t("leadScraping.pageTitle")}
+          </h1>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Chat Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              What are you looking for?
+              {t("leadScraping.searchLabel")}
             </label>
             <textarea
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="I want to find residents needing solar panel installation"
+              placeholder={t("leadScraping.searchPlaceholder")}
               rows={4}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-900 placeholder-gray-400"
             />
@@ -385,7 +382,7 @@ export default function LeadScrapingPage() {
             disabled={!searchQuery.trim()}
             className="w-full"
           >
-            💾 Tallenna haku
+            {t("leadScraping.saveSearch")}
           </Button>
 
           {/* Saved Searches List */}
@@ -399,7 +396,7 @@ export default function LeadScrapingPage() {
           {exampleCompanies.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-500 mb-2">
-                Example companies
+                {t("leadScraping.exampleCompanies")}
               </label>
               <div className="space-y-2">
                 {exampleCompanies.map((company, idx) => (
@@ -417,7 +414,7 @@ export default function LeadScrapingPage() {
           {/* Location */}
           <div>
             <label className="block text-sm font-medium text-gray-500 mb-2">
-              Location
+              {t("leadScraping.locationLabel")}
             </label>
             <div className="relative">
               <select
@@ -452,7 +449,7 @@ export default function LeadScrapingPage() {
           {/* Headcount */}
           <div>
             <label className="block text-sm font-medium text-gray-500 mb-2">
-              Henkilömäärä
+              {t("leadScraping.headcountLabel")}
             </label>
             <div className="space-y-3">
               <input
@@ -468,7 +465,9 @@ export default function LeadScrapingPage() {
                 <span className="text-2xl font-semibold text-teal-500">
                   {headcountRanges[headcountIndex].label}
                 </span>
-                <span className="text-sm text-gray-500">työntekijää</span>
+                <span className="text-sm text-gray-500">
+                  {t("leadScraping.employeesUnit")}
+                </span>
               </div>
             </div>
           </div>
@@ -476,7 +475,7 @@ export default function LeadScrapingPage() {
           {/* Ownership */}
           <div>
             <label className="block text-sm font-medium text-gray-500 mb-2">
-              Omistus
+              {t("leadScraping.ownershipLabel")}
             </label>
             <div className="relative">
               <select
@@ -485,8 +484,8 @@ export default function LeadScrapingPage() {
                 className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none text-gray-700 bg-white cursor-pointer"
               >
                 {ownershipOptions.map((own) => (
-                  <option key={own.value} value={own.label}>
-                    {own.label}
+                  <option key={own.value} value={own.value}>
+                    {t(own.labelKey)}
                   </option>
                 ))}
               </select>
@@ -507,6 +506,32 @@ export default function LeadScrapingPage() {
               </div>
             </div>
           </div>
+
+          {/* Max Results */}
+          <div>
+            <label className="block text-sm font-medium text-gray-500 mb-2">
+              {t("leadScraping.maxResultsLabel")}
+            </label>
+            <div className="space-y-3">
+              <input
+                type="range"
+                min="0"
+                max={maxResultsOptions.length - 1}
+                step="1"
+                value={maxResultsIndex}
+                onChange={(e) => setMaxResultsIndex(Number(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-teal-500"
+              />
+              <div className="flex justify-between items-center">
+                <span className="text-2xl font-semibold text-teal-500">
+                  {maxResultsOptions[maxResultsIndex].label}
+                </span>
+                <span className="text-sm text-gray-500">
+                  {t("leadScraping.maxResultsUnit")}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Search Button */}
@@ -517,7 +542,7 @@ export default function LeadScrapingPage() {
             disabled={!searchQuery.trim()}
             className="w-full"
           >
-            Search
+            {t("leadScraping.searchButton")}
           </Button>
         </div>
       </div>
@@ -526,10 +551,14 @@ export default function LeadScrapingPage() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with Credits */}
         <div className="p-6 border-b border-gray-200 bg-white flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-gray-900">Results</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            {t("leadScraping.resultsTitle")}
+          </h2>
 
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">Rikastus creditit:</span>
+            <span className="text-sm text-gray-600">
+              {t("leadScraping.enrichCreditsLabel")}
+            </span>
             <span className="text-lg font-bold text-blue-600">
               {credits.monthly - credits.used} / {credits.monthly}
             </span>
@@ -540,22 +569,26 @@ export default function LeadScrapingPage() {
         {selectedLeads.length > 0 && (
           <div className="p-4 bg-blue-50 border-b border-blue-200 flex items-center gap-4">
             <span className="font-medium text-gray-900">
-              {selectedLeads.length} valittu
+              {t("leadScraping.selectedCount", {
+                count: selectedLeads.length,
+              })}
             </span>
 
             <Button onClick={enrichSelectedLeads} size="sm">
-              ✨ Rikasta ({selectedLeads.length} €)
+              {t("leadScraping.enrichButton", {
+                count: selectedLeads.length,
+              })}
             </Button>
 
             <Button onClick={() => setShowExportModal(true)} size="sm">
-              📤 Vie CSV
+              {t("leadScraping.exportCsvButton")}
             </Button>
 
             <button
               onClick={clearSelection}
               className="text-sm text-gray-600 underline hover:text-gray-900"
             >
-              Tyhjennä valinta
+              {t("leadScraping.clearSelection")}
             </button>
           </div>
         )}
@@ -602,9 +635,11 @@ export default function LeadScrapingPage() {
                 </svg>
                 <div>
                   <p className="text-green-800 text-sm font-medium">
-                    Lead scraping started successfully!
+                    {t("leadScraping.scrapingStartedTitle")}
                   </p>
-                  <p className="text-green-700 text-xs mt-1">Job ID: {jobId}</p>
+                  <p className="text-green-700 text-xs mt-1">
+                    {t("leadScraping.jobIdLabel", { jobId })}
+                  </p>
                 </div>
               </div>
             </div>
@@ -614,9 +649,11 @@ export default function LeadScrapingPage() {
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-                <p className="text-gray-600">Starting lead scraping...</p>
+                <p className="text-gray-600">
+                  {t("leadScraping.startingScraping")}
+                </p>
                 <p className="text-gray-500 text-sm mt-2">
-                  This may take a few moments
+                  {t("leadScraping.pleaseWait")}
                 </p>
               </div>
             </div>
@@ -636,7 +673,9 @@ export default function LeadScrapingPage() {
                   }
                   className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 />
-                <span className="text-sm text-gray-600">Valitse kaikki</span>
+                <span className="text-sm text-gray-600">
+                  {t("leadScraping.selectAll")}
+                </span>
               </div>
 
               {leads.map((lead, idx) => (
@@ -645,7 +684,6 @@ export default function LeadScrapingPage() {
                   className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start gap-4">
-                    {/* Checkbox */}
                     <input
                       type="checkbox"
                       checked={selectedLeads.includes(lead.id || idx)}
@@ -655,33 +693,43 @@ export default function LeadScrapingPage() {
 
                     <div className="flex-1 grid grid-cols-2 gap-4">
                       <div>
-                        <p className="text-sm text-gray-500">Name</p>
+                        <p className="text-sm text-gray-500">
+                          {t("leadScraping.leadName")}
+                        </p>
                         <p className="font-medium text-gray-900">
                           {lead.fullName ||
                             lead.firstName + " " + lead.lastName}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Position</p>
+                        <p className="text-sm text-gray-500">
+                          {t("leadScraping.leadPosition")}
+                        </p>
                         <p className="font-medium text-gray-900">
                           {lead.position}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Company</p>
+                        <p className="text-sm text-gray-500">
+                          {t("leadScraping.leadCompany")}
+                        </p>
                         <p className="font-medium text-gray-900">
                           {lead.orgName}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">Location</p>
+                        <p className="text-sm text-gray-500">
+                          {t("leadScraping.leadLocation")}
+                        </p>
                         <p className="font-medium text-gray-900">
                           {lead.city}, {lead.country}
                         </p>
                       </div>
                       {lead.email && (
                         <div>
-                          <p className="text-sm text-gray-500">Email</p>
+                          <p className="text-sm text-gray-500">
+                            {t("leadScraping.leadEmail")}
+                          </p>
                           <p className="font-medium text-blue-600">
                             {lead.email}
                           </p>
@@ -689,16 +737,19 @@ export default function LeadScrapingPage() {
                       )}
                       {lead.phone && (
                         <div>
-                          <p className="text-sm text-gray-500">Phone</p>
+                          <p className="text-sm text-gray-500">
+                            {t("leadScraping.leadPhone")}
+                          </p>
                           <p className="font-medium text-gray-900">
                             {lead.phone}
                           </p>
                         </div>
                       )}
-                      {/* Score */}
                       {lead.score !== undefined && (
                         <div>
-                          <p className="text-sm text-gray-500">Pisteet</p>
+                          <p className="text-sm text-gray-500">
+                            {t("leadScraping.leadScore")}
+                          </p>
                           <div className="flex items-center gap-2">
                             <span className="font-bold text-lg text-gray-900">
                               {lead.score || 0}
@@ -733,9 +784,9 @@ export default function LeadScrapingPage() {
                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                   />
                 </svg>
-                <p className="text-lg">No results yet</p>
+                <p className="text-lg">{t("leadScraping.noResultsYet")}</p>
                 <p className="text-sm mt-2">
-                  Describe what you're looking for and click Search
+                  {t("leadScraping.noResultsHint")}
                 </p>
               </div>
             </div>
@@ -750,10 +801,7 @@ export default function LeadScrapingPage() {
         searchQuery={searchQuery}
         location={location}
         headcount={headcountRanges[headcountIndex].apiValue}
-        ownership={
-          ownershipOptions.find((opt) => opt.label === ownership)?.value ||
-          ownership
-        }
+        ownership={ownership}
         onSave={handleSaveSearch}
       />
 
