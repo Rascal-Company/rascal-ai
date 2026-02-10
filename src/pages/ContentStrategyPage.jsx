@@ -350,27 +350,7 @@ export default function ContentStrategyPage() {
         throw new Error("Organisaation ID puuttuu");
       }
 
-      const response = await axios.post(
-        "/api/strategy/approve",
-        {
-          strategy_id: item.id,
-          month: item.month,
-          company_id: companyId,
-          user_id: orgId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "x-api-key": import.meta.env.N8N_SECRET_KEY || "fallback-key",
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (response.status !== 200 || !response.data?.success) {
-        throw new Error(response.data?.error || "API-vastaus epäonnistui");
-      }
-
+      // Update user status to Approved
       try {
         await axios.post(
           "/api/strategy/status",
@@ -388,6 +368,7 @@ export default function ContentStrategyPage() {
         console.error("Error updating user status:", userError);
       }
 
+      // Update UI immediately after DB save succeeds
       const updated = {
         ...item,
         strategy: editText,
@@ -399,6 +380,27 @@ export default function ContentStrategyPage() {
       setEditId(null);
       refreshUserStatus();
       toast.success(t("errors.approvalSuccess"));
+
+      // Send N8N webhook in background - don't block the user
+      try {
+        await axios.post(
+          "/api/strategy/approve",
+          {
+            strategy_id: item.id,
+            month: item.month,
+            company_id: companyId,
+            user_id: orgId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+      } catch (webhookError) {
+        console.error("Webhook notification failed:", webhookError);
+      }
     } catch (e) {
       console.error("Error in handleSaveAndApprove:", e);
       const errorMessage =
@@ -423,27 +425,7 @@ export default function ContentStrategyPage() {
         throw new Error("Käyttäjä ei ole kirjautunut");
       }
 
-      const response = await axios.post(
-        "/api/strategy/approve",
-        {
-          strategy_id: item.id,
-          month: item.month,
-          company_id: companyId,
-          user_id: orgId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "x-api-key": import.meta.env.N8N_SECRET_KEY || "fallback-key",
-            "Content-Type": "application/json",
-          },
-        },
-      );
-
-      if (response.status !== 200 || !response.data?.success) {
-        throw new Error(response.data?.error || "API-vastaus epäonnistui");
-      }
-
+      // Save approval to DB first
       const { data: updatedStrategy, error } = await supabase
         .from("content_strategy")
         .update({
@@ -460,6 +442,7 @@ export default function ContentStrategyPage() {
         return;
       }
 
+      // Update user status to Approved
       try {
         await axios.post(
           "/api/strategy/status",
@@ -477,6 +460,7 @@ export default function ContentStrategyPage() {
         console.error("Error updating user status:", userError);
       }
 
+      // Update UI immediately after DB save succeeds
       const updated = {
         ...item,
         approved: true,
@@ -485,6 +469,27 @@ export default function ContentStrategyPage() {
       setStrategy(strategy.map((s) => (s.id === item.id ? updated : s)));
       refreshUserStatus();
       toast.success(t("errors.confirmationSuccess"));
+
+      // Send N8N webhook in background - don't block the user
+      try {
+        await axios.post(
+          "/api/strategy/approve",
+          {
+            strategy_id: item.id,
+            month: item.month,
+            company_id: companyId,
+            user_id: orgId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+      } catch (webhookError) {
+        console.error("Webhook notification failed:", webhookError);
+      }
     } catch (e) {
       console.error("Error in handleApproveStrategy:", e);
       const errorMessage =
