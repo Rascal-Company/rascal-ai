@@ -788,6 +788,7 @@
       "view": "View",
       "edit": "Edit",
       "publish": "Publish",
+      "publishing": "Publishing...",
       "createNew": "+ Create content",
       "cancel": "Cancel",
       "delete": "Delete",
@@ -815,6 +816,7 @@
     },
     "createModal": {
       "title": "Create content",
+      "subtitle": "Create new content with AI",
       "fields": {
         "title": "Title",
         "type": "Type",
@@ -826,6 +828,19 @@
       },
       "cancel": "Cancel",
       "create": "Create content"
+    },
+    "editModal": {
+      "title": "Edit content",
+      "fields": {
+        "title": "Title",
+        "type": "Type",
+        "blogText": "Blog text"
+      },
+      "placeholders": {
+        "blogText": "Blog text in markdown"
+      },
+      "markdownTips": "Markdown tips",
+      "metaDescription": "Meta Description"
     },
     "viewModal": {
       "originalIdea": "Original idea:",

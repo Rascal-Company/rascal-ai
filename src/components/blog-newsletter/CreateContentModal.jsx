@@ -23,7 +23,7 @@ export function CreateContentModal({ isOpen, onClose, onSubmit }) {
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{t("blogNewsletter.createModal.title")}</h2>
-              <p className="text-xs text-gray-500 font-medium">Luo uutta sisältöä tekoälyllä</p>
+              <p className="text-xs text-gray-500 font-medium">{t("blogNewsletter.createModal.subtitle")}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-50 rounded-lg text-gray-400 hover:text-gray-900 transition-colors">

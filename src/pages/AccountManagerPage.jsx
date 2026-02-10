@@ -37,7 +37,8 @@ export default function AccountManagerPage() {
           contact_person,
           contact_email,
           last_sign_in_at
-        `);
+        `)
+        .neq("status", "Canceled");
 
       if (!isAdmin) {
         query = query.eq("account_manager_id", currentUserId);

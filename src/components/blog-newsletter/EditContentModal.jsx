@@ -23,7 +23,7 @@ export function EditContentModal({ isOpen, content, onClose, onSubmit }) {
             </div>
             <div className="min-w-0">
               <h2 className="text-lg font-bold text-gray-900 truncate">{t("blogNewsletter.editModal.title") || "Muokkaa sisältöä"}</h2>
-              <p className="text-xs text-gray-400 font-medium">{content.type === "Blog" ? "Blog" : "Newsletter"}</p>
+              <p className="text-xs text-gray-400 font-medium">{content.type === "Blog" ? t("general.blog") : t("general.newsletter")}</p>
             </div>
           </div>
           <button
@@ -67,7 +67,7 @@ export function EditContentModal({ isOpen, content, onClose, onSubmit }) {
             {/* Title input */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                Otsikko <span className="text-red-500">*</span>
+                {t("blogNewsletter.editModal.fields.title")} <span className="text-red-500">*</span>
               </label>
               <input
                 name="title"
@@ -81,29 +81,29 @@ export function EditContentModal({ isOpen, content, onClose, onSubmit }) {
 
             {/* Type badge (read-only) */}
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tyyppi:</span>
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t("blogNewsletter.editModal.fields.type")}:</span>
               <span className="px-3 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold uppercase tracking-wider rounded-lg">
-                {content.type === "Blog" ? "Blog" : "Newsletter"}
+                {content.type === "Blog" ? t("general.blog") : t("general.newsletter")}
               </span>
             </div>
 
             {/* Blog text */}
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-1">
-                Blogiteksti
+                {t("blogNewsletter.editModal.fields.blogText")}
               </label>
               <textarea
                 name="blog_post"
                 rows={12}
                 className="w-full px-4 py-3 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all text-sm font-medium resize-none font-mono"
                 defaultValue={content.blog_post || ""}
-                placeholder="Blogiteksti markdownina"
+                placeholder={t("blogNewsletter.editModal.placeholders.blogText")}
               />
             </div>
 
             {/* Markdown tips */}
             <div className="p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-              <div className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2">Markdown-vinkit</div>
+              <div className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-2">{t("blogNewsletter.editModal.markdownTips")}</div>
               <div className="flex flex-wrap gap-2 text-xs text-blue-800">
                 <code className="px-2 py-0.5 bg-blue-100 rounded"># Otsikko 1</code>
                 <code className="px-2 py-0.5 bg-blue-100 rounded">## Otsikko 2</code>
@@ -116,7 +116,7 @@ export function EditContentModal({ isOpen, content, onClose, onSubmit }) {
             {content.meta_description && (
               <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <h4 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                  Meta Description
+                  {t("blogNewsletter.editModal.metaDescription")}
                 </h4>
                 <p className="text-sm text-gray-600">{content.meta_description}</p>
               </div>

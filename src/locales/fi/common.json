@@ -839,6 +839,7 @@
     },
     "createModal": {
       "title": "Luo sisältö",
+      "subtitle": "Luo uutta sisältöä tekoälyllä",
       "fields": {
         "title": "Otsikko",
         "type": "Tyyppi",
@@ -850,6 +851,19 @@
       },
       "cancel": "Peruuta",
       "create": "Luo sisältö"
+    },
+    "editModal": {
+      "title": "Muokkaa sisältöä",
+      "fields": {
+        "title": "Otsikko",
+        "type": "Tyyppi",
+        "blogText": "Blogiteksti"
+      },
+      "placeholders": {
+        "blogText": "Blogiteksti markdownina"
+      },
+      "markdownTips": "Markdown-vinkit",
+      "metaDescription": "Meta Description"
     },
     "viewModal": {
       "originalIdea": "Alkuperäinen idea:",
