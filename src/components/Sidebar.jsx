@@ -7,6 +7,7 @@ import NotificationBell from "./NotificationBell";
 import TicketButton from "./TicketButton";
 import { OpenBuilderButton } from "./OpenBuilderButton";
 import { OpenMailButton } from "./OpenMailButton";
+import { OpenAdminButton } from "./OpenAdminButton";
 
 const DEFAULT_LOGO_URL =
   "https://enrploxjigoyqajoqgkj.supabase.co/storage/v1/object/public/user-logos/1b60ac47-ac9a-4b0e-ba08-610a38380f3d/logo.png";
@@ -349,24 +350,6 @@ const MeetingNotesIcon = () => (
   </svg>
 );
 
-const AccountManagerIcon = () => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M17 20H22V18C22 16.3431 20.6569 15 19 15C18.0444 15 17.1931 15.4468 16.6438 16.1429M17 20H7M17 20V18C17 15.2386 14.7614 13 12 13C9.23858 13 7 15.2386 7 18V20M7 20H2V18C2 16.3431 3.34315 15 5 15C5.95561 15 6.80686 15.4468 7.35625 16.1429M15 7C15 9.20914 13.2091 11 11 11C8.79086 11 7 9.20914 7 7C7 4.79086 8.79086 3 11 3C13.2091 3 15 4.79086 15 7Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
 const OrganizationIcon = () => (
   <svg
     width="20"
@@ -554,12 +537,6 @@ const getMenuItems = (t) => [
     feature: "Meeting Notes",
   },
   {
-    label: t("sidebar.labels.accountManager"),
-    path: "/account-manager",
-    icon: AccountManagerIcon,
-    moderatorOrSuperadminOnly: true,
-  },
-  {
     label: t("sidebar.labels.organizationMembers"),
     path: "/organization-members",
     icon: OrganizationIcon,
@@ -579,9 +556,10 @@ function SidebarNavItem({ item, isActive, isCollapsed, onClick }) {
           flex items-center w-full rounded-lg transition-all duration-150 text-left
           outline-none cursor-pointer border-none
           ${isCollapsed ? "justify-center px-3 py-2.5" : "px-4 py-2.5 gap-3"}
-          ${isActive
-            ? "!bg-[#ff6600] !text-white shadow-[0_2px_8px_rgba(255,102,0,0.3)] font-semibold"
-            : "!bg-transparent !text-gray-300 hover:!bg-gray-800/80 hover:!text-white"
+          ${
+            isActive
+              ? "!bg-[#ff6600] !text-white shadow-[0_2px_8px_rgba(255,102,0,0.3)] font-semibold"
+              : "!bg-transparent !text-gray-300 hover:!bg-gray-800/80 hover:!text-white"
           }
         `}
       >
@@ -698,11 +676,6 @@ export default function Sidebar() {
       return orgRole === "owner" || orgRole === "admin";
     }
     if (item.superadminOnly && !isSuperAdmin) return false;
-    if (item.moderatorOrSuperadminOnly) {
-      return (
-        user?.systemRole === "moderator" || user?.systemRole === "superadmin"
-      );
-    }
     if (item.moderatorOnly && !isSuperAdmin && !isModerator) return false;
     return true;
   };
@@ -718,12 +691,7 @@ export default function Sidebar() {
     ["/ai-chat", "/vastaaja", "/meeting-notes"].includes(i.path),
   );
   const adminItems = menuItems.filter((i) =>
-    [
-      "/admin",
-      "/admin-blog",
-      "/account-manager",
-      "/organization-members",
-    ].includes(i.path),
+    ["/admin", "/admin-blog", "/organization-members"].includes(i.path),
   );
 
   // Feature-gated visibility
@@ -882,7 +850,9 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className={`flex-1 py-2 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
+        <nav
+          className={`flex-1 py-2 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}
+        >
           {/* Dashboard */}
           <ul className="space-y-0.5 px-2 pb-2 list-none m-0">
             {menuItems
@@ -970,6 +940,13 @@ export default function Sidebar() {
               isItemVisible={isItemVisible}
               hasFeature={hasFeature}
             />
+          )}
+
+          {/* Open Admin Button */}
+          {isModerator && (
+            <div className="px-2">
+              <OpenAdminButton isCollapsed={isCollapsed} />
+            </div>
           )}
         </nav>
 

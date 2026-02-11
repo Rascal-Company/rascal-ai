@@ -106,6 +106,25 @@ export default function MobileNavigation() {
     setIsOpen(false);
   };
 
+  const handleOpenAdmin = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      alert(t("alerts.error.loginRequired"));
+      return;
+    }
+    let adminUrl = "";
+    if (import.meta.env.DEV) {
+      adminUrl = "http://localhost:5173";
+    } else {
+      adminUrl = import.meta.env.VITE_ADMIN_URL || "https://internal.rascal.ai";
+    }
+    const handoffUrl = `${adminUrl}/auth/handoff#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
+    window.open(handoffUrl, "_blank");
+    setIsOpen(false);
+  };
+
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
@@ -177,6 +196,12 @@ export default function MobileNavigation() {
               {hasFeature("Rascal Mail") && (
                 <button className="mobile-nav-item" onClick={handleOpenMail}>
                   {t("sidebar.labels.rascalMail")}
+                </button>
+              )}
+
+              {isModerator && (
+                <button className="mobile-nav-item" onClick={handleOpenAdmin}>
+                  {t("sidebar.labels.rascalAdmin")}
                 </button>
               )}
             </nav>
