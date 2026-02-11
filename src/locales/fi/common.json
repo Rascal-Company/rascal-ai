@@ -2187,6 +2187,7 @@
       "title": "Sessio-asetukset",
       "description": "Määritä kuinka kauan sessio pysyy aktiivisena inaktiivisuuden jälkeen.",
       "select": "Valitse timeout:",
+      "minutes": "{{count}} minuuttia",
       "custom": "Mukautettu",
       "customLabel": "Mukautettu timeout (minuutteina):",
       "customNote": "Sallittu arvo: 5-120 minuuttia",

@@ -2127,6 +2127,7 @@
       "title": "Session settings",
       "description": "Define how long the session remains active after inactivity.",
       "select": "Select timeout:",
+      "minutes": "{{count}} minutes",
       "custom": "Custom",
       "customLabel": "Custom timeout (minutes):",
       "customNote": "Allowed value: 5-120 minutes",

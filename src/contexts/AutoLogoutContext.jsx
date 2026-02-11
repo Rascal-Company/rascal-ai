@@ -61,7 +61,7 @@ export const AutoLogoutProvider = ({ children }) => {
     setShowWarning(false)
     
             // Ilmoita muille välilehdille logoutista
-        if (broadcastChannelRef.current && broadcastChannelRef.current.readyState === 'open') {
+        if (broadcastChannelRef.current) {
           try {
             broadcastChannelRef.current.postMessage({ type: 'LOGOUT' })
           } catch (error) {
@@ -170,7 +170,7 @@ export const AutoLogoutProvider = ({ children }) => {
     resetTimers()
     
     // Ilmoita muille välilehdille aktiviteetista
-    if (broadcastChannelRef.current && broadcastChannelRef.current.readyState === 'open') {
+    if (broadcastChannelRef.current) {
       try {
         broadcastChannelRef.current.postMessage({ type: 'ACTIVITY' })
       } catch (error) {
@@ -235,7 +235,7 @@ export const AutoLogoutProvider = ({ children }) => {
       if (isActive) {
         resetTimers()
         // Ilmoita muille välilehdille aktiviteetista
-        if (broadcastChannelRef.current && broadcastChannelRef.current.readyState === 'open') {
+        if (broadcastChannelRef.current) {
           try {
             broadcastChannelRef.current.postMessage({ type: 'ACTIVITY' })
           } catch (error) {
@@ -252,26 +252,19 @@ export const AutoLogoutProvider = ({ children }) => {
       document.addEventListener(event, handleActivity, { passive: true })
     })
 
-    // Lisää visibility change listener - POISTETTU KÄYTÖSTÄ RELOAD-ONGELMAN VUOKSI
-    /*
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
-        // Tarkista inaktiivisuus kun välilehti tulee aktiiviseksi
         checkInactivity()
-      } else {
-        // Pysäytä ajastimet kun välilehti ei ole aktiivinen
-        clearTimers()
       }
     }
 
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    */
 
     return () => {
       ACTIVITY_EVENTS.forEach(event => {
         document.removeEventListener(event, handleActivity)
       })
-      // document.removeEventListener('visibilitychange', handleVisibilityChange)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       clearTimers()
     }
   }, [isActive, resetTimers, checkInactivity, clearTimers, user])
@@ -306,6 +299,13 @@ export const AutoLogoutProvider = ({ children }) => {
     }
   }, [isActive, checkInactivity, resetTimers, user])
 
+  const updateTimeout = useCallback((newTimeout) => {
+    setCurrentTimeout(newTimeout)
+    if (isActive && user) {
+      updateLastActivity()
+    }
+  }, [isActive, user])
+
   const value = {
     showWarning,
     countdown,
@@ -314,7 +314,8 @@ export const AutoLogoutProvider = ({ children }) => {
     extendSession,
     handleLogout,
     setActivityState,
-    hideWarningDialog
+    hideWarningDialog,
+    updateTimeout
   }
 
   return (

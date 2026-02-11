@@ -17,7 +17,7 @@ const TimeoutSettings = () => {
   const { t } = useTranslation('common')
 
   const location = useLocation()
-  const { currentTimeout } = useAutoLogout()
+  const { currentTimeout, updateTimeout } = useAutoLogout()
 
   useEffect(() => {
     const savedTimeout = getTimeoutPreference()
@@ -36,6 +36,7 @@ const TimeoutSettings = () => {
   const handleSave = () => {
     const timeoutToSave = isCustom ? customTimeout : selectedTimeout
     saveTimeoutPreference(timeoutToSave)
+    updateTimeout(timeoutToSave)
     setShowSaved(true)
 
     setTimeout(() => {
@@ -44,11 +45,12 @@ const TimeoutSettings = () => {
   }
 
   const handleReset = () => {
+    localStorage.removeItem('rascal_auto_logout_timeout')
     const contextTimeout = getContextTimeout(location.pathname)
     setSelectedTimeout(contextTimeout)
     setCustomTimeout(contextTimeout)
     setIsCustom(false)
-    localStorage.removeItem('rascal_auto_logout_timeout')
+    updateTimeout(contextTimeout)
     setShowSaved(true)
 
     setTimeout(() => {
@@ -83,7 +85,7 @@ const TimeoutSettings = () => {
                   }}
                   className="w-4 h-4 text-primary-500 border-gray-300 focus:ring-primary-500"
                 />
-                <span className="text-sm text-gray-700">{option.label}</span>
+                <span className="text-sm text-gray-700">{t('settings.timeout.minutes', { count: option.value })}</span>
               </label>
             ))}
 

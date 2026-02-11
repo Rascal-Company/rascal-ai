@@ -80,6 +80,24 @@ export default function AIChatPage() {
   // Clean message helper
   const cleanMessage = (content) => {
     if (!content) return content;
+
+    const trimmed = content.trim();
+
+    // Filter out tool call invocations
+    if (/^Calling\s+\w+\s+with\s+input:/i.test(trimmed)) {
+      return null;
+    }
+
+    // Filter out raw JSON tool results (pageContent, metadata blobs)
+    if (
+      (trimmed.startsWith("[{") || trimmed.startsWith('{"')) &&
+      (trimmed.includes('"pageContent"') ||
+        trimmed.includes('"metadata"') ||
+        trimmed.includes('"response"'))
+    ) {
+      return null;
+    }
+
     const promptRegex = /\[prompt:.*?\]/gi;
     let cleaned = content.replace(promptRegex, "").trim();
     cleaned = cleaned.replace(/^\[viesti\]\s*/i, "").trim();
@@ -300,7 +318,8 @@ export default function AIChatPage() {
                   role: normalizedRole,
                   content: cleanMessage(msg.content),
                 };
-              });
+              })
+              .filter((msg) => msg.content);
 
             setMessages(formattedMessages);
             setTimeout(() => {
@@ -721,7 +740,8 @@ export default function AIChatPage() {
             role: normalizedRole,
             content: cleanMessage(msg.content),
           };
-        });
+        })
+        .filter((msg) => msg.content);
 
       console.log("[loadThread] Formatted messages:", formattedMessages.length);
       console.log("[loadThread] Messages:", formattedMessages);

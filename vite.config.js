@@ -1,10 +1,45 @@
 import { defineConfig } from "vite";
+import { writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
+function versionJsonPlugin() {
+  let buildHash;
+  let outDir;
+
+  return {
+    name: "version-json",
+    config(_, { command }) {
+      if (command === "build") {
+        buildHash = Date.now().toString(36);
+        return {
+          define: {
+            __BUILD_HASH__: JSON.stringify(buildHash),
+          },
+        };
+      }
+    },
+    configResolved(config) {
+      outDir = config.build.outDir;
+    },
+    closeBundle() {
+      if (buildHash && outDir) {
+        writeFileSync(
+          resolve(outDir, "version.json"),
+          JSON.stringify({ buildHash }),
+        );
+      }
+    },
+  };
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  define: {
+    __BUILD_HASH__: JSON.stringify("dev"),
+  },
+  plugins: [react(), tailwindcss(), versionJsonPlugin()],
   server: {
     proxy: {
       "/api": {

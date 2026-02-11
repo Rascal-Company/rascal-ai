@@ -47,12 +47,12 @@ export const WARNING_TIME = 5
 // Aktiviteetin tunnistus debounce-ajalla (millisekunteina)
 export const ACTIVITY_DEBOUNCE = 1000
 
-// Timeout-asetukset käyttäjälle
+// Timeout-asetukset käyttäjälle (labelit käännetään komponentissa)
 export const TIMEOUT_OPTIONS = [
-  { value: 15, label: '15 minuuttia' },
-  { value: 20, label: '20 minuuttia' },
-  { value: 30, label: '30 minuuttia' },
-  { value: 45, label: '45 minuuttia' }
+  { value: 15 },
+  { value: 20 },
+  { value: 30 },
+  { value: 45 }
 ]
 
 // LocalStorage avaimet
