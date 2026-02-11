@@ -302,6 +302,7 @@ export default function ManagePostsPageOptimized() {
             idea: postData.title,
             type: postData.type,
             companyId: userData.company_id,
+            userId: userData.id,
             caption: postData.caption
           })
         })

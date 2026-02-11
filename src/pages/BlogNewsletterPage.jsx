@@ -127,6 +127,7 @@ export default function BlogNewsletterPage() {
             content: contentData.content,
             type: contentData.type,
             companyId: companyId,
+            userId: orgId,
           }),
         });
 

@@ -77,6 +77,7 @@ const MonitoringCreatePostPage = () => {
           caption: body,
           type: type,
           companyId: userData.company_id,
+          userId: userId,
           count: 1,
           action: 'media_monitoring',
           sourceUrl: sourceUrl || null
