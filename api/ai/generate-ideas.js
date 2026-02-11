@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { idea, content, type, companyId, caption, count, action, sourceUrl } = req.body
+    const { idea, content, type, companyId, userId, caption, count, action, sourceUrl } = req.body
 
     // Debug log - poista tuotannossa
     console.log('[generate-ideas] Request body:', JSON.stringify({ idea: !!idea, type, companyId: !!companyId, count }))
@@ -42,6 +42,7 @@ export default async function handler(req, res) {
       content: content ? String(content) : null,
       type: finalType ? String(finalType) : null,
       companyId: String(companyId),
+      userId: userId ? String(userId) : null,
       caption: caption ? String(caption) : null,
       count: Number(postCount),
       sourceUrl: sourceUrl ? String(sourceUrl) : null,
