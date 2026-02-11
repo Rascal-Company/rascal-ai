@@ -10,13 +10,6 @@ export default function CarouselApprovalModal({
 }) {
   if (!show) return null;
 
-  console.log("🔍 CarouselApprovalModal t function:", t);
-  console.log("🔍 Title translation:", t?.("approvalModal.title"));
-  console.log(
-    "🔍 Description translation:",
-    t?.("approvalModal.description", { count: segmentCount }),
-  );
-
   return createPortal(
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
       <div

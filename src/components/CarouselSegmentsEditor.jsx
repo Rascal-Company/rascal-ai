@@ -1,30 +1,21 @@
 import React, {
   useState,
-  useEffect,
   useLayoutEffect,
   useRef,
   forwardRef,
   useImperativeHandle,
 } from "react";
 import { supabase } from "../lib/supabase";
-import { getUserOrgId } from "../lib/getUserOrgId";
-import { useAuth } from "../contexts/AuthContext";
-import Button from "./Button";
 import CarouselApprovalModal from "./CarouselApprovalModal";
 
 const CarouselSegmentsEditor = forwardRef(
   ({ segments = [], contentId, onSave, t }, ref) => {
-    const { user } = useAuth();
     const [segmentEdits, setSegmentEdits] = useState({});
     const [saving, setSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState(null);
     const [showApprovalModal, setShowApprovalModal] = useState(false);
     const [pendingUpdates, setPendingUpdates] = useState([]);
     const textareaRefs = useRef({});
-
-    useEffect(() => {
-      console.log("🎭 showApprovalModal state changed:", showApprovalModal);
-    }, [showApprovalModal]);
 
     const adjustTextareaHeight = (textarea) => {
       if (!textarea) return;
@@ -44,28 +35,24 @@ const CarouselSegmentsEditor = forwardRef(
     }, [segments, segmentEdits]);
 
     const performSave = async (updates) => {
-      console.log("💾 performSave called with updates:", updates);
       try {
         setSaving(true);
         setSaveMessage(null);
 
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!session?.access_token) throw new Error("Autentikointi puuttuu");
+        for (const update of updates) {
+          const { error } = await supabase
+            .from("segments")
+            .update({
+              text: update.text || null,
+              approved: update.approved,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", update.recordId)
+            .eq("content_id", update.carouselRecordId);
 
-        const response = await fetch("/api/integrations/airtable/carousels", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({ action: "approve", updates: updates }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Tallennus epäonnistui");
+          if (error) {
+            throw new Error(`Segmentin ${update.recordId} päivitys epäonnistui`);
+          }
         }
 
         setSaveMessage({
@@ -76,9 +63,6 @@ const CarouselSegmentsEditor = forwardRef(
         setTimeout(() => {
           setSegmentEdits({});
           setSaveMessage(null);
-          console.log(
-            "🔔 Calling onSave callback (this will close KeskenModal)",
-          );
           if (onSave) onSave();
         }, 2000);
       } catch (error) {
@@ -93,16 +77,12 @@ const CarouselSegmentsEditor = forwardRef(
     };
 
     const handleSave = async () => {
-      console.log("💿 handleSave called");
       if (!contentId) {
         setSaveMessage({ type: "error", text: "Content ID puuttuu" });
         return;
       }
 
       try {
-        const userId = await getUserOrgId(user?.id);
-        if (!userId) throw new Error("Käyttäjätietojen haku epäonnistui");
-
         const updates = [];
         sortedSegments.forEach((segment) => {
           const segmentId = segment.id;
@@ -123,8 +103,6 @@ const CarouselSegmentsEditor = forwardRef(
           }
         });
 
-        console.log("📊 Updates prepared:", updates);
-
         if (updates.length === 0) {
           setSaveMessage({
             type: "info",
@@ -137,14 +115,10 @@ const CarouselSegmentsEditor = forwardRef(
           (update) => update.approved === true,
         );
 
-        console.log("✅ Has approved segments:", hasApprovedSegments);
-
         if (hasApprovedSegments) {
-          console.log("🎯 Showing approval modal");
           setPendingUpdates(updates);
           setShowApprovalModal(true);
         } else {
-          console.log("⏭️ No approved segments, saving directly");
           await performSave(updates);
         }
       } catch (error) {
@@ -157,34 +131,20 @@ const CarouselSegmentsEditor = forwardRef(
     };
 
     const handleApprovalConfirm = async () => {
-      console.log("✔️ Approval confirmed, closing modal and saving");
       setShowApprovalModal(false);
       await performSave(pendingUpdates);
       setPendingUpdates([]);
     };
 
     const handleApprovalCancel = () => {
-      console.log("❌ Approval cancelled");
       setShowApprovalModal(false);
       setPendingUpdates([]);
     };
 
     // Expose functions to parent component
     useImperativeHandle(ref, () => ({
-      hasPendingChanges: () => {
-        const hasChanges = Object.keys(segmentEdits).length > 0;
-        console.log(
-          "🔍 hasPendingChanges called, result:",
-          hasChanges,
-          "segmentEdits:",
-          segmentEdits,
-        );
-        return hasChanges;
-      },
-      triggerSave: () => {
-        console.log("🚀 triggerSave called from parent");
-        handleSave();
-      },
+      hasPendingChanges: () => Object.keys(segmentEdits).length > 0,
+      triggerSave: () => handleSave(),
     }));
 
     const handleToggleAll = () => {
@@ -287,26 +247,14 @@ const CarouselSegmentsEditor = forwardRef(
                         <button
                           type="button"
                           onClick={(e) => {
-                            console.log(
-                              "🔄 Toggle clicked - segmentId:",
-                              segmentId,
-                              "currentApproved:",
-                              currentApproved,
-                              "newValue:",
-                              !currentApproved,
-                            );
                             e.stopPropagation();
-                            setSegmentEdits((prev) => {
-                              const newEdits = {
-                                ...prev,
-                                [segmentId]: {
-                                  ...prev[segmentId],
-                                  approved: !currentApproved,
-                                },
-                              };
-                              console.log("📝 New segmentEdits:", newEdits);
-                              return newEdits;
-                            });
+                            setSegmentEdits((prev) => ({
+                              ...prev,
+                              [segmentId]: {
+                                ...prev[segmentId],
+                                approved: !currentApproved,
+                              },
+                            }));
                           }}
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                             currentApproved ? "bg-emerald-500" : "bg-gray-100"

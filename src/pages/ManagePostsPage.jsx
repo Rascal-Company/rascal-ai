@@ -479,6 +479,7 @@ export default function ManagePostsPage() {
             idea: postData.title,
             type: postData.type,
             companyId: userData.company_id,
+            userId: orgId,
             caption: postData.caption,
             count: count,
           }),
