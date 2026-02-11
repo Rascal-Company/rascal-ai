@@ -247,6 +247,16 @@ npm run dev
 
 Sovellus käynnistyy osoitteessa `http://localhost:5173`
 
+#### Vercel Development Server
+
+To run the application with Vercel's development environment, which includes Vercel-specific features like Serverless Functions and Edge Middleware, use the following command:
+
+```bash
+vercel dev
+```
+
+The application will start on `http://localhost:3000` (or another available port).
+
 ### 5. Testit
 
 ```bash
