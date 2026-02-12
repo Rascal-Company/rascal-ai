@@ -457,6 +457,7 @@
   },
   "posts": {
     "header": "Social media content",
+    "subtitle": "Manage and schedule your social media content",
     "searchPlaceholder": "Search social media content...",
     "filters": {
       "allStatuses": "All statuses",
@@ -766,6 +767,7 @@
   },
   "blogNewsletter": {
     "header": "Blogs and newsletters",
+    "subtitle": "Manage blogs and newsletters",
     "searchPlaceholder": "Search blogs and newsletters...",
     "filters": {
       "allStatuses": "All statuses",
@@ -2318,6 +2320,7 @@
     "createAnyway": "Create anyway (not available)",
     "loading": "Loading monthly quota...",
     "generatedThisMonth": "generated content this month",
+    "remaining": "remaining",
     "onlyRemaining": "Only {count} remaining",
     "quotaFull": "Monthly quota full",
     "loadingNextMonth": "Loading next month's quota...",

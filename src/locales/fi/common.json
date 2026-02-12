@@ -457,6 +457,7 @@
   },
   "posts": {
     "header": "Sosiaalisen median sisältö",
+    "subtitle": "Hallitse ja aikatauluta somesisältöjäsi",
     "searchPlaceholder": "Etsi sosiaalisen median sisältöä...",
     "tabs": {
       "posts": "Julkaisut",
@@ -789,6 +790,7 @@
   },
   "blogNewsletter": {
     "header": "Blogit ja uutiskirjeet",
+    "subtitle": "Hallinnoi blogeja ja uutiskirjeitä",
     "searchPlaceholder": "Etsi blogeja ja newslettereja...",
     "filters": {
       "allStatuses": "Kaikki statukset",
@@ -2415,6 +2417,7 @@
     "createAnyway": "Luo silti (ei käytettävissä)",
     "loading": "Ladataan kuukausirajaa...",
     "generatedThisMonth": "generoitua sisältöä tässä kuussa",
+    "remaining": "jäljellä",
     "onlyRemaining": "Vain {count} jäljellä",
     "quotaFull": "Kuukausiraja täynnä",
     "loadingNextMonth": "Ladataan seuraavan kuun kiintiötä...",
