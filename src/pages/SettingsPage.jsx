@@ -13,6 +13,14 @@ import VoiceSection from "../components/settings/VoiceSection";
 import AccountTypeSection from "../components/settings/AccountTypeSection";
 import UserInfoModal from "../components/UserInfoModal";
 
+const SETTINGS_TABS = new Set([
+  "profile",
+  "avatar",
+  "carousel",
+  "features",
+  "security",
+]);
+
 export default function SettingsPage() {
   const { user, organization } = useAuth();
   const { t } = useTranslation("common");
@@ -45,7 +53,10 @@ export default function SettingsPage() {
   const [logoUploading, setLogoUploading] = useState(false);
   const [logoMessage, setLogoMessage] = useState("");
   const [logoDragActive, setLogoDragActive] = useState(false);
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, setActiveTab] = useState(() => {
+    const tabFromUrl = searchParams.get("tab");
+    return SETTINGS_TABS.has(tabFromUrl) ? tabFromUrl : "profile";
+  });
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [orgMemberData, setOrgMemberData] = useState(null);
 
@@ -215,7 +226,9 @@ export default function SettingsPage() {
       setEmailMessage(t("settings.email.changeSuccess"));
       setShowEmailChange(false);
       setEmailData({ newEmail: "", confirmEmail: "" });
-      setSearchParams({}, { replace: true });
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete("email");
+      setSearchParams(nextParams, { replace: true });
       const refreshUserData = async () => {
         if (user?.id) {
           try {
@@ -253,6 +266,38 @@ export default function SettingsPage() {
       refreshUserData();
     }
   }, [searchParams, setSearchParams, user?.id]);
+
+  // Restore active settings tab from URL on refresh/navigation.
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (!tabFromUrl) return;
+    if (!SETTINGS_TABS.has(tabFromUrl)) return;
+    if (tabFromUrl !== activeTab) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams, activeTab]);
+
+  // Keep URL in sync with active tab without cluttering default profile state.
+  useEffect(() => {
+    const currentTabParam = searchParams.get("tab");
+    const normalizedCurrent = currentTabParam || "profile";
+    if (
+      currentTabParam &&
+      SETTINGS_TABS.has(currentTabParam) &&
+      currentTabParam !== activeTab
+    ) {
+      return;
+    }
+    if (normalizedCurrent === activeTab) return;
+
+    const nextParams = new URLSearchParams(searchParams);
+    if (activeTab === "profile") {
+      nextParams.delete("tab");
+    } else {
+      nextParams.set("tab", activeTab);
+    }
+    setSearchParams(nextParams, { replace: true });
+  }, [activeTab, searchParams, setSearchParams]);
 
   const isInvitedUser = organization && organization.role === "member";
   const email = isInvitedUser
