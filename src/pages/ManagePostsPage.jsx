@@ -457,17 +457,6 @@ export default function ManagePostsPage() {
         throw new Error(t("posts.messages.userIdNotFound"));
       }
 
-      // Hae company_id users taulusta
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("company_id")
-        .eq("id", orgId)
-        .single();
-
-      if (userError || !userData?.company_id) {
-        throw new Error(t("posts.messages.companyIdNotFound"));
-      }
-
       // Lähetetään idea-generation kutsu N8N:lle
       try {
         const response = await fetch("/api/ai/generate-ideas", {
@@ -478,7 +467,7 @@ export default function ManagePostsPage() {
           body: JSON.stringify({
             idea: postData.title,
             type: postData.type,
-            companyId: userData.company_id,
+            companyId: orgId,
             userId: orgId,
             caption: postData.caption,
             count: count,

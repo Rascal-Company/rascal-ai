@@ -268,13 +268,13 @@ export default function ManagePostsPageOptimized() {
     const formData = new FormData(e.target)
     
     try {
-      // Haetaan käyttäjän user_id ja company_id users taulusta
+      // Haetaan käyttäjän user_id users taulusta
       const { data: userData, error: userError } = await supabase
         .from('users')
-        .select('id, company_id')
+        .select('id')
         .eq('auth_user_id', user.id)
         .single()
-      
+
       if (userError || !userData?.id) {
         throw new Error('Käyttäjän ID ei löytynyt')
       }
@@ -287,12 +287,6 @@ export default function ManagePostsPageOptimized() {
 
       // Lähetetään idea-generation kutsu N8N:lle
       try {
-        console.log('Sending idea generation request:', {
-          idea: postData.title,
-          type: postData.type,
-          companyId: userData.company_id
-        })
-
         const response = await fetch('/api/ai/generate-ideas', {
           method: 'POST',
           headers: {
@@ -301,7 +295,7 @@ export default function ManagePostsPageOptimized() {
           body: JSON.stringify({
             idea: postData.title,
             type: postData.type,
-            companyId: userData.company_id,
+            companyId: userData.id,
             userId: userData.id,
             caption: postData.caption
           })

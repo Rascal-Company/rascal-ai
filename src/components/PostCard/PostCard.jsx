@@ -67,7 +67,7 @@ function PostCard({
           }
         }}
       >
-        <div className="relative w-12 h-12 flex-shrink-0 rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
+        <div className="relative w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden bg-gray-50 border border-gray-100">
           {mediaUrl ? (
             isVideo ? (
               <video src={mediaUrl} className="w-full h-full object-cover" />
@@ -81,7 +81,7 @@ function PostCard({
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-300">
               <svg
-                className="w-4 h-4"
+                className="w-5 h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -117,38 +117,27 @@ function PostCard({
         </div>
 
         <div className="flex-1 min-w-0 py-0.5">
-          <div className="flex items-center gap-2 mb-0.5">
-            <span
-              className={`text-[8px] font-black uppercase tracking-tight px-1.5 py-0.5 rounded-md ${
-                post.type === "Reels"
-                  ? "bg-indigo-50 text-indigo-600"
-                  : post.type === "Carousel"
-                    ? "bg-blue-50 text-blue-600"
-                    : "bg-gray-50 text-gray-500"
-              }`}
-            >
-              {post.type}
-            </span>
-            <h3
-              className="text-[11px] font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors"
-              title={post.title}
-            >
-              {post.title || t("posts.carouselsTab.postCard.untitled")}
-            </h3>
-          </div>
-          <div className="flex items-center gap-4 text-[9px] font-medium text-gray-400">
-            <span className="truncate max-w-[120px]">
-              {post.caption || t("posts.carouselsTab.postCard.noDescription")}
-            </span>
-            <span className="flex-shrink-0">
-              •{" "}
-              {post.originalData?.created_at
-                ? new Date(post.originalData.created_at).toLocaleDateString(
-                    t("common.locale") === "fi" ? "fi-FI" : "en-US",
-                  )
-                : "--"}
-            </span>
-          </div>
+          <span
+            className={`text-[8px] font-black uppercase tracking-tight px-1.5 py-0.5 rounded-md inline-block mb-1 ${
+              post.type === "Reels"
+                ? "bg-indigo-50 text-indigo-600"
+                : post.type === "Carousel"
+                  ? "bg-blue-50 text-blue-600"
+                  : "bg-gray-50 text-gray-500"
+            }`}
+          >
+            {post.type}
+          </span>
+          <p className="text-[10px] text-gray-500 line-clamp-2 leading-relaxed mb-1">
+            {post.caption || t("posts.carouselsTab.postCard.noDescription")}
+          </p>
+          <span className="text-[9px] font-medium text-gray-400">
+            {post.originalData?.created_at
+              ? new Date(post.originalData.created_at).toLocaleDateString(
+                  t("common.locale") === "fi" ? "fi-FI" : "en-US",
+                )
+              : "--"}
+          </span>
         </div>
 
         <div className="flex gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">

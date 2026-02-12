@@ -110,14 +110,6 @@ export default function BlogNewsletterPage() {
         throw new Error("Organisaation ID ei löytynyt");
       }
 
-      const { data: userData } = await supabase
-        .from("users")
-        .select("company_id")
-        .eq("id", orgId)
-        .single();
-
-      const companyId = userData?.company_id || null;
-
       try {
         const response = await fetch("/api/ai/generate-ideas", {
           method: "POST",
@@ -126,7 +118,7 @@ export default function BlogNewsletterPage() {
             idea: contentData.title,
             content: contentData.content,
             type: contentData.type,
-            companyId: companyId,
+            companyId: orgId,
             userId: orgId,
           }),
         });

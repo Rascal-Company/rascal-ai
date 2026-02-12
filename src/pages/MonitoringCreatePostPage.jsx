@@ -53,17 +53,6 @@ const MonitoringCreatePostPage = () => {
         throw new Error('Organisaation ID ei löytynyt')
       }
 
-      // Hae company_id users taulusta
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('company_id')
-        .eq('id', userId)
-        .single()
-
-      if (userError || !userData?.company_id) {
-        throw new Error('Company ID ei löytynyt')
-      }
-
       // Lähetä postaus generoitavaksi
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.access_token) {
@@ -76,7 +65,7 @@ const MonitoringCreatePostPage = () => {
           idea: title,
           caption: body,
           type: type,
-          companyId: userData.company_id,
+          companyId: userId,
           userId: userId,
           count: 1,
           action: 'media_monitoring',
