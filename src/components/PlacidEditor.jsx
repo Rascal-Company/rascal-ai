@@ -13,6 +13,34 @@ export default function PlacidEditor({ placidId, onClose }) {
     onCloseRef.current = onClose;
   }, [onClose]);
 
+  const applyShadowRootContrastFix = () => {
+    if (!containerRef.current) return;
+
+    const host = containerRef.current.querySelector("placid-editor");
+    const root = host?.shadowRoot;
+    if (!root) return;
+
+    const styleId = "rascal-placid-contrast-fix";
+    if (root.getElementById(styleId)) return;
+
+    const style = document.createElement("style");
+    style.id = styleId;
+    style.textContent = `
+      :host { color-scheme: light !important; }
+      input, textarea, select, option, [contenteditable="true"] {
+        color: #111827 !important;
+        background: #ffffff !important;
+        -webkit-text-fill-color: #111827 !important;
+        caret-color: #111827 !important;
+      }
+      input, textarea, select {
+        border-color: #d1d5db !important;
+      }
+    `;
+
+    root.appendChild(style);
+  };
+
   // 1. Load Placid SDK Script
   useEffect(() => {
     window.EditorSDKConfig = {
@@ -107,6 +135,8 @@ export default function PlacidEditor({ placidId, onClose }) {
           }
 
           editorInstanceRef.current = instance;
+          // Allow SDK internals to mount before injecting style into shadow root.
+          setTimeout(applyShadowRootContrastFix, 350);
 
           instance.on("editor:closed", () => {
             onCloseRef.current();

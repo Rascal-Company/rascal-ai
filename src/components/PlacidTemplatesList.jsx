@@ -5,12 +5,14 @@ import { useAuth } from "../contexts/AuthContext";
 import { useToast } from "../contexts/ToastContext";
 import { getUserOrgId } from "../lib/getUserOrgId";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import PlacidEditor from "./PlacidEditor";
 
 export default function PlacidTemplatesList() {
   const { user } = useAuth();
   const toast = useToast();
   const { t } = useTranslation("common");
+  const [searchParams, setSearchParams] = useSearchParams();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingTemplate, setEditingTemplate] = useState(null);
@@ -65,6 +67,29 @@ export default function PlacidTemplatesList() {
   useEffect(() => {
     fetchTemplates();
   }, [user]);
+
+  // Restore currently edited template after refresh (?placid=<templateId>).
+  useEffect(() => {
+    const placidFromUrl = searchParams.get("placid");
+    const nextEditingTemplate = placidFromUrl || null;
+    setEditingTemplate((prev) =>
+      prev === nextEditingTemplate ? prev : nextEditingTemplate,
+    );
+  }, [searchParams]);
+
+  const openEditor = (placidId) => {
+    setEditingTemplate(placidId);
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set("placid", placidId);
+    setSearchParams(nextParams, { replace: true });
+  };
+
+  const closeEditor = () => {
+    setEditingTemplate(null);
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("placid");
+    setSearchParams(nextParams, { replace: true });
+  };
 
   const handleCreateTemplate = async () => {
     if (!user?.id) return;
@@ -261,7 +286,7 @@ export default function PlacidTemplatesList() {
                 </div>
               </div>
               <button
-                onClick={() => setEditingTemplate(template.placid_id)}
+                onClick={() => openEditor(template.placid_id)}
                 className="placid-templates-edit-button"
               >
                 {t("posts.actions.edit")}
@@ -272,10 +297,7 @@ export default function PlacidTemplatesList() {
       )}
 
       {editingTemplate && (
-        <PlacidEditor
-          placidId={editingTemplate}
-          onClose={() => setEditingTemplate(null)}
-        />
+        <PlacidEditor placidId={editingTemplate} onClose={closeEditor} />
       )}
     </div>
   );
