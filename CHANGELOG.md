@@ -2,6 +2,92 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.120.2](https://github.com/slemppa/rascal-ai/compare/v1.120.1...v1.120.2) (2026-02-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **integrations:** Requires NANGO_SECRET_KEY environment variable
+
+### 🔧 Chores
+
+* trigger deployment ([7c68e1a](https://github.com/slemppa/rascal-ai/commit/7c68e1a2a1e290fafda0f77de8ff707d5498f32c))
+* trigger deployment ([cef858a](https://github.com/slemppa/rascal-ai/commit/cef858a0dc77cff66dc5857ce1587f1f976e19bf))
+
+
+### ♻️ Code Refactoring
+
+* **api:** reorganize test files to fix Vercel build limit ([bbbbad3](https://github.com/slemppa/rascal-ai/commit/bbbbad32018dc4f1d12741cf2c6e0b7820873c7b))
+* **carousel:** save segment approvals directly to Supabase ([294a22d](https://github.com/slemppa/rascal-ai/commit/294a22d9ab7b485761bc5bc233e7b77cdfe0fc6f))
+* continue Tailwind migration ([54671b3](https://github.com/slemppa/rascal-ai/commit/54671b38234d0f576a45d892e65a33c52a5e57f8))
+* convert inline styles to Tailwind in more components ([9651b15](https://github.com/slemppa/rascal-ai/commit/9651b153841ff3dd2c1229df4ad7b3b992e41d7f))
+* convert OnboardingModal to Tailwind CSS ([26d8ff8](https://github.com/slemppa/rascal-ai/commit/26d8ff8640aa10edb0e4fc68379d829cbf134955))
+* **leads:** improve search filters UX and localization ([22f93de](https://github.com/slemppa/rascal-ai/commit/22f93de0e55d05e51c01b8f5bd804e6f300ea442))
+* **ManagePostsPage:** remove debug logs and disable avatar fetch ([e8681d6](https://github.com/slemppa/rascal-ai/commit/e8681d63804d8b8ba8bac8c93b2b29f3b7a02d1f))
+* migrate CSS to Tailwind utility classes ([06b9265](https://github.com/slemppa/rascal-ai/commit/06b9265eddd7a62eae3b528af7a84a64b187046b))
+* **settings:** remove steps from social media instructions ([6c8cfa9](https://github.com/slemppa/rascal-ai/commit/6c8cfa90a14b5e4d188472a1c88249ef9b6feb82))
+* **ui:** convert kanban columns to tabs and fix companyId payload ([f63838f](https://github.com/slemppa/rascal-ai/commit/f63838f40c0ab7e5136577bd1561cd2aa58cd581))
+
+
+### 🐛 Bug Fixes
+
+* add userId to all generate-ideas API calls ([9e7be07](https://github.com/slemppa/rascal-ai/commit/9e7be07656157d55d91acb580e4b351368c20d67))
+* **ai-chat:** migrate from Zep to n8n_chat_histories and fix UI bugs ([bf308c1](https://github.com/slemppa/rascal-ai/commit/bf308c17aad82d5b8d6c8ea56846b41c9f2b5110))
+* **api:** ensure onboarding webhook sends for all organization roles ([9d57aed](https://github.com/slemppa/rascal-ai/commit/9d57aed0825681585c96e4e2ec1798f282135e3d))
+* **api:** pass userId through generate-ideas handler to N8N webhook ([3e45da9](https://github.com/slemppa/rascal-ai/commit/3e45da92563976915a23a06eefa366a901fe9b52))
+* **calls:** close modal after saving call type ([7121d64](https://github.com/slemppa/rascal-ai/commit/7121d64aaf5c6843350fa2011e9dcb468b274201))
+* **calls:** prevent duplicate records when editing call types ([7988bf8](https://github.com/slemppa/rascal-ai/commit/7988bf8b779a4cde15ea03d6b2fcff026f72c7c0))
+* **calls:** prevent React error when PDF upload fails with object error ([5e6018b](https://github.com/slemppa/rascal-ai/commit/5e6018bf7fbc11cdbf318aa51695bbc30cdf0989)), closes [#31](https://github.com/slemppa/rascal-ai/issues/31)
+* **deploy:** include api/_lib and api/_middleware in deployments ([2ca1cff](https://github.com/slemppa/rascal-ai/commit/2ca1cffcca8fd49627baa0659e28b57214ff4375))
+* **deploy:** include api/_lib directory in Vercel deployments ([d9ba6f4](https://github.com/slemppa/rascal-ai/commit/d9ba6f41e9997d90323fd727c9f82cf5dbb21dee))
+* **features:** add system role check for moderators in FeaturesTab ([2367445](https://github.com/slemppa/rascal-ai/commit/2367445fd18e83bebc72f995934c39b6ce497447))
+* **features:** enable onboarding toggle for admin users ([cc932db](https://github.com/slemppa/rascal-ai/commit/cc932db8889c70d24a772cfd6358dbf594cbca30))
+* filter raw JSON in chat, add auto-reload, fix session ([189751d](https://github.com/slemppa/rascal-ai/commit/189751df6e59944745539c2437a7bbc02d15dd82))
+* **i18n:** add missing translation keys ([0947cdb](https://github.com/slemppa/rascal-ai/commit/0947cdbcebb5060babd90c9227c9a70bad9b1e81))
+* **i18n:** update Finnish Tone of Voice label ([bc06c2a](https://github.com/slemppa/rascal-ai/commit/bc06c2a57852821cce3303d7afc49b59276a38d7))
+* **monitoring:** paranna navigaationappien selkeyttä ([80d0ad3](https://github.com/slemppa/rascal-ai/commit/80d0ad3cbd97366e54be94a0eb393b4aecccb01e))
+* **nango:** handle auth webhook with operation=creation ([7c9383a](https://github.com/slemppa/rascal-ai/commit/7c9383af00a6e7aefd19b326c37bff94632402ee))
+* **nango:** make webhook signature verification non-blocking ([b4d12ac](https://github.com/slemppa/rascal-ai/commit/b4d12acf3aaa7680870aa5b191c6d2911cca4eb1))
+* **placid:** improve editor contrast and persist state ([b19da1a](https://github.com/slemppa/rascal-ai/commit/b19da1a0c1819807d6869bd1b0de9d5765a5fa28))
+* remove api/_middleware from .vercelignore to fix module not found errors ([749b597](https://github.com/slemppa/rascal-ai/commit/749b5971a0260b567c59562682247daea3333425))
+* **settings:** remove button background override ([606f6cd](https://github.com/slemppa/rascal-ai/commit/606f6cde3150a91302778d85cee3393611624c1e))
+* **strategy:** improve modal responsiveness and make approval resilient ([14bb29b](https://github.com/slemppa/rascal-ai/commit/14bb29b0c3700f92c4c3a84193489ac1bd001f1b))
+* **strategy:** korjaa minimoitu nappi näkyviin vahvistuksen jälkeen ([b6df830](https://github.com/slemppa/rascal-ai/commit/b6df8302b7e86a997b9f3315b6e0778c2ff29411))
+* **ui:** filter canceled users and add missing i18n keys for blog modals ([3c571d3](https://github.com/slemppa/rascal-ai/commit/3c571d3a3967345f72d7538dfad7a7adbcba1627))
+* **ui:** improve mobile responsiveness and fix preview modal ([c823f93](https://github.com/slemppa/rascal-ai/commit/c823f93f543d5199107813bbaaf5cb4068204ce3))
+
+
+### ✨ Features
+
+* add carousel segment approval workflow ([9281348](https://github.com/slemppa/rascal-ai/commit/9281348fb24fb909ce568f3f8c5eb2596a5e337b))
+* **analytics:** add GA4 tracking with SPA route change support ([0f063b9](https://github.com/slemppa/rascal-ai/commit/0f063b91b5cba3e7cf4bdfbd70b3cd9fed762917))
+* **calendar:** add time grid and enhanced drag-and-drop scheduling ([847e082](https://github.com/slemppa/rascal-ai/commit/847e0827cef9f7a7035fa225a6606e7341d23403))
+* **calls:** add international phone number support for mass calls ([41a7447](https://github.com/slemppa/rascal-ai/commit/41a7447fd95a166c6e75b48e10e56cb86d50a80f))
+* **calls:** add international phone number support for single calls ([1517e41](https://github.com/slemppa/rascal-ai/commit/1517e4103349ce3f45ea00ce5bc903001cbadb2d))
+* **calls:** implement client-side file upload to bypass API limits ([e0a75f9](https://github.com/slemppa/rascal-ai/commit/e0a75f9d99e8659cdb08d9b07c7bba921d48c36f))
+* improve org member selection to handle multiple memberships ([637795f](https://github.com/slemppa/rascal-ai/commit/637795f8b8a35f8aee57d1c5067ed7e93faa1fc0))
+* improve org member selection to handle multiple memberships ([a1f965c](https://github.com/slemppa/rascal-ai/commit/a1f965c931ed52c4709e03761ed069cda75c3d60))
+* **integrations:** add beta badges to Google Ads and Meta Ads ([7981830](https://github.com/slemppa/rascal-ai/commit/7981830e3095c3cf2a6d3580c7ea947439312b9a))
+* **integrations:** implement Nango backend-initiated OAuth flow ([5b48d29](https://github.com/slemppa/rascal-ai/commit/5b48d292a9aabe1e2124bbc463641db36b379cca))
+* **lead-scraping:** add max results slider and migrate to i18n keys ([ff935e2](https://github.com/slemppa/rascal-ai/commit/ff935e20cc47c5a13c14a4a9e49000e928226a57))
+* **leads:** add saved searches, enrichment UI, and CSV export ([aa9a141](https://github.com/slemppa/rascal-ai/commit/aa9a1419b0c05f4a77f9d8969f627bd558f3a1b4))
+* **mail:** add Rascal Mail button to sidebar ([9d76405](https://github.com/slemppa/rascal-ai/commit/9d764056d88f73b423132b567155b034afd60e48))
+* **mail:** add Rascal Mail to mobile nav and use rascalai.fi domain ([1c229bc](https://github.com/slemppa/rascal-ai/commit/1c229bcbeb50381b4886e300eee001ba69a857bf))
+* merge Tailwind migration branch to main ([e0e2ed5](https://github.com/slemppa/rascal-ai/commit/e0e2ed5b39e3aacfce04d3cc69df2a2cde518046))
+* **nps:** implement monthly NPS survey modal ([1b62a7e](https://github.com/slemppa/rascal-ai/commit/1b62a7ecbd81067f1b045ccf868f6549cfab326d))
+* **organization:** allow owners to modify owner roles ([32373e5](https://github.com/slemppa/rascal-ai/commit/32373e5c5f97875ee19dbd461a37858de47f4cd7))
+* **placid:** allow moderators to access Placid templates ([40d7927](https://github.com/slemppa/rascal-ai/commit/40d7927965ce46bc7fb5c29481e8a0aaef35178c))
+* **settings:** add instructions link to social media connection ([22d41f7](https://github.com/slemppa/rascal-ai/commit/22d41f7e73e32abde119f72c540a55eb0704600a))
+* **sidebar:** replace account manager with admin handoff ([6ec4e3a](https://github.com/slemppa/rascal-ai/commit/6ec4e3a1db19348f31766904bf87910627c907c3))
+* **strategy:** restore TOV help button and reduce NPS snooze ([1b79e9e](https://github.com/slemppa/rascal-ai/commit/1b79e9ee2d849700d93b552d8c457e2a9d1350ee))
+
+
+### 📚 Documentation
+
+* add Vercel dev server instructions and onboarding guide ([3ba963e](https://github.com/slemppa/rascal-ai/commit/3ba963e0e2f7bf6b37f9cad3fbffe6a05e2cc1e7))
+* add version bump rules to QGIT and fix Git section formatting ([b7847d5](https://github.com/slemppa/rascal-ai/commit/b7847d583454ee6e2945cf5bc9ef2f65aa5c09b9))
+* update README to reflect current architecture and features ([8a566f1](https://github.com/slemppa/rascal-ai/commit/8a566f1311253c6cce3279353d2a7656a7f1e04f))
+
 ### [1.120.1](https://github.com/slemppa/rascal-ai/compare/v1.120.0...v1.120.1) (2026-01-23)
 
 
