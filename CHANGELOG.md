@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.122.0](https://github.com/slemppa/rascal-ai/compare/v1.120.2...v1.122.0) (2026-02-13)
+
+
+### 🐛 Bug Fixes
+
+* **posts:** harden mobile responsiveness and calendar layout ([12856d0](https://github.com/slemppa/rascal-ai/commit/12856d027a05b88695f2f87e6ad30af5a1a23a82))
+
+
+### 🔧 Chores
+
+* **release:** 1.121.0 ([67ac475](https://github.com/slemppa/rascal-ai/commit/67ac475bb532382204d74d35816796f7646050da))
+
+
+### ✨ Features
+
+* **chat:** replace polling with ReadableStream streaming ([0403681](https://github.com/slemppa/rascal-ai/commit/04036819bcbec920c0a4cda74c32d038df110732))
+* **leads:** revamp lead scraping UI and add buyer persona ([509dc09](https://github.com/slemppa/rascal-ai/commit/509dc095958d070516b7979b8c590a08af21931d))
+* **posts:** add back-to-drafts action for ready posts ([945eb4e](https://github.com/slemppa/rascal-ai/commit/945eb4ed37ced598e74d95eff9ae186125fe6ad0))
+
 ## [1.121.0](https://github.com/slemppa/rascal-ai/compare/v1.120.2...v1.121.0) (2026-02-13)
 
 
