@@ -29,11 +29,19 @@ const PostFilters = ({
   counts = { type: {}, status: {} },
 }) => {
   if (!show) return null;
+  const shortPlaceholder = t("posts.filters.searchPlaceholderShort");
+  const longPlaceholder = t("posts.filters.searchPlaceholder");
+  const searchPlaceholder =
+    shortPlaceholder && shortPlaceholder !== "posts.filters.searchPlaceholderShort"
+      ? shortPlaceholder
+      : longPlaceholder && longPlaceholder !== "posts.filters.searchPlaceholder"
+        ? longPlaceholder
+        : "Hae...";
 
   return (
-    <div className="flex flex-col md:flex-row gap-6">
+    <div className="posts-filters-bar flex flex-col md:flex-row gap-6 mt-4 sm:mt-6 mb-4 sm:mb-6 pb-3 md:pb-0">
       <div className="relative flex-1 group">
-        <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none text-gray-300 group-focus-within:text-blue-500 transition-colors">
+        <div className="absolute inset-y-0 left-4 sm:left-6 flex items-center pointer-events-none text-gray-300 group-focus-within:text-blue-500 transition-colors">
           <svg
             className="w-5 h-5"
             fill="none"
@@ -52,19 +60,17 @@ const PostFilters = ({
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder={
-            t("posts.filters.searchPlaceholder") || "Hae julkaisuja..."
-          }
-          className="w-full pl-16 pr-8 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 font-medium text-sm"
+          placeholder={searchPlaceholder}
+          className="w-full !pl-12 sm:!pl-16 !pr-4 sm:!pr-8 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all placeholder:text-gray-300 font-medium text-sm"
         />
       </div>
 
-      <div className="flex gap-4 md:min-w-[300px]">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:min-w-[300px]">
         <div className="relative flex-1">
           <select
             value={typeFilter}
             onChange={(e) => onTypeChange(e.target.value)}
-            className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
+            className="w-full !pl-4 sm:!pl-6 !pr-10 sm:!pr-11 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-[11px] sm:text-xs font-bold uppercase tracking-wide sm:tracking-widest text-gray-600"
           >
             <option value="">
               {t("posts.filters.allTypes")}
@@ -91,7 +97,7 @@ const PostFilters = ({
               {counts.type.Video > 0 && ` (${counts.type.Video})`}
             </option>
           </select>
-          <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
+          <div className="absolute inset-y-0 right-4 sm:right-6 flex items-center pointer-events-none text-gray-300">
             <svg
               className="w-4 h-4"
               fill="none"
@@ -112,7 +118,7 @@ const PostFilters = ({
           <select
             value={statusFilter}
             onChange={(e) => onStatusChange(e.target.value)}
-            className="w-full px-6 py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-xs font-bold uppercase tracking-widest text-gray-600"
+            className="w-full !pl-4 sm:!pl-6 !pr-10 sm:!pr-11 py-3.5 sm:py-4 bg-white border border-gray-100 rounded-[24px] shadow-sm focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer text-[11px] sm:text-xs font-bold uppercase tracking-wide sm:tracking-widest text-gray-600"
           >
             <option value="">
               {t("posts.filters.allStatuses")}
@@ -137,7 +143,7 @@ const PostFilters = ({
               {counts.status.Julkaistu > 0 && ` (${counts.status.Julkaistu})`}
             </option>
           </select>
-          <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-gray-300">
+          <div className="absolute inset-y-0 right-4 sm:right-6 flex items-center pointer-events-none text-gray-300">
             <svg
               className="w-4 h-4"
               fill="none"

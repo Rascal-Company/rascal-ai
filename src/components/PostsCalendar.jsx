@@ -204,6 +204,14 @@ export default function PostsCalendar({
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
   }, []);
 
+  const mobileMonthDays = useMemo(() => {
+    if (viewType !== "month") return [];
+    return weeks
+      .flat()
+      .filter((cell) => cell && cell.isCurrentMonth !== false)
+      .sort((a, b) => a.day - b.day);
+  }, [weeks, viewType]);
+
   const goPrev = () => {
     setCurrent((prev) => {
       const d = new Date(prev);
@@ -414,10 +422,10 @@ export default function PostsCalendar({
   return (
     <div className="bg-white rounded-[40px] border border-gray-100 shadow-[0_32px_96px_-16px_rgba(0,0,0,0.06)] overflow-hidden flex flex-col">
       {/* Premium Header */}
-      <div className="p-8 md:p-10 border-b border-gray-50 flex flex-col md:flex-row items-center justify-between gap-6 bg-gradient-to-br from-white to-gray-50/30">
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col">
-            <h2 className="text-2xl font-black text-gray-900 tracking-tight capitalize">
+      <div className="calendar-header p-4 pt-6 sm:p-6 md:p-10 border-b border-gray-50 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 sm:gap-6 bg-gradient-to-br from-white to-gray-50/30">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 w-full md:flex-1 md:min-w-0 md:grid md:grid-cols-[minmax(0,1fr)_220px] md:items-center">
+          <div className="calendar-period-block flex flex-col min-w-0 pl-2 sm:pl-0">
+            <h2 className="calendar-period-label text-lg sm:text-2xl font-black text-gray-900 md:tracking-tight capitalize leading-[1.45] pt-1 md:pt-0 break-words">
               {monthLabel}
             </h2>
             <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">
@@ -425,10 +433,10 @@ export default function PostsCalendar({
             </p>
           </div>
 
-          <div className="flex items-center bg-gray-100/80 p-1 rounded-2xl">
+          <div className="calendar-nav-controls inline-flex items-center justify-center bg-gray-100/80 p-1 rounded-2xl w-auto md:w-[220px] md:flex-shrink-0">
             <button
               onClick={goPrev}
-              className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 hover:text-gray-900"
+              className="p-2.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 hover:text-gray-900"
             >
               <svg
                 className="w-4 h-4"
@@ -446,13 +454,13 @@ export default function PostsCalendar({
             </button>
             <button
               onClick={goToday}
-              className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors"
+              className="calendar-today-btn px-2.5 sm:px-4 py-2.5 text-[10px] font-black uppercase tracking-wide sm:tracking-widest text-gray-500 hover:text-gray-900 transition-colors whitespace-nowrap mx-0.5"
             >
               {t("calendar.today")}
             </button>
             <button
               onClick={goNext}
-              className="p-2 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 hover:text-gray-900"
+              className="p-2.5 hover:bg-white hover:shadow-sm rounded-xl transition-all text-gray-500 hover:text-gray-900"
             >
               <svg
                 className="w-4 h-4"
@@ -471,7 +479,7 @@ export default function PostsCalendar({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="calendar-controls-row flex items-center justify-between md:justify-end gap-3 w-full md:w-auto">
           {!isMobile && (
             <div className="flex p-1 bg-gray-100/80 rounded-2xl mr-4">
               {["month", "week", "day"].map((type) => (
@@ -494,11 +502,33 @@ export default function PostsCalendar({
             </div>
           )}
 
+          {isMobile && (
+            <div className="calendar-mobile-view-switch flex p-1 bg-gray-100/80 rounded-2xl flex-1 min-w-0 mx-2">
+              {["month", "week", "day"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setViewType(type)}
+                  className={`flex-1 px-2 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all ${
+                    viewType === type
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-400 hover:text-gray-600"
+                  }`}
+                >
+                  {type === "month"
+                    ? t("calendar.view.month")
+                    : type === "week"
+                      ? t("calendar.view.week")
+                      : t("calendar.view.day")}
+                </button>
+              ))}
+            </div>
+          )}
+
           {onRefresh && (
             <button
               onClick={onRefresh}
               disabled={refreshing}
-              className="p-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all text-gray-400 hover:text-blue-500 disabled:opacity-50"
+              className="calendar-refresh-btn p-2.5 sm:p-3 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all text-gray-400 hover:text-blue-500 disabled:opacity-50 mr-2"
             >
               <svg
                 className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
@@ -518,12 +548,12 @@ export default function PostsCalendar({
         </div>
       </div>
 
-      <div className="p-4 md:p-8 bg-gray-50/20">
+      <div className="p-4 sm:p-6 md:p-8 bg-gray-50/20">
         {/* Time-grid layout for week and day views */}
         {(viewType === "week" || viewType === "day") && (
-          <div className="flex gap-0 max-h-[600px] overflow-y-auto custom-scrollbar">
+          <div className="calendar-time-layout flex gap-0 max-h-[600px] overflow-y-auto custom-scrollbar px-3 sm:px-0">
             {/* Time labels column - sticky */}
-            <div className="w-16 flex-shrink-0 sticky left-0 bg-gray-50/20 z-10 relative">
+            <div className="calendar-time-label-col w-16 flex-shrink-0 sticky left-0 bg-gray-50/20 z-10 relative">
               <div className="h-12 border-b border-gray-200 sticky top-0 bg-gray-50/90 backdrop-blur-sm z-20" />{" "}
               {/* Header spacing */}
               <div className="relative" style={{ height: "1152px" }}>
@@ -540,7 +570,7 @@ export default function PostsCalendar({
             </div>
 
             {/* Days columns */}
-            <div className="flex-1 flex gap-2">
+            <div className="calendar-time-days flex-1 flex gap-2">
               {weeks[0]?.map((cell, ci) => {
                 const isToday = cell?.key === todayKey;
                 const isDragOver = dragOverDate === cell?.key;
@@ -691,48 +721,115 @@ export default function PostsCalendar({
           </div>
         )}
 
-        {/* Month view - keep original grid layout */}
+        {/* Month view */}
         {viewType === "month" && (
           <>
-            <div className="grid grid-cols-7 mb-4">
-              {weekdayLabels.map((label) => (
-                <div
-                  key={label}
-                  className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest py-2"
-                >
-                  {label}
+            {isMobile ? (
+              <div className="space-y-2">
+                {mobileMonthDays.map((cell, idx) => {
+                  const isToday = cell.key === todayKey;
+                  const dayDate = new Date(cell.key);
+                  const weekday = dayDate.toLocaleDateString(dateLocale, {
+                    weekday: "short",
+                  });
+
+                  return (
+                    <button
+                      key={cell.key || idx}
+                      onClick={() => handleDateClick(cell.key)}
+                      className={`w-full text-left p-4 rounded-2xl border transition-all ${
+                        isToday
+                          ? "bg-blue-50/40 border-blue-200"
+                          : "bg-white border-gray-100 hover:border-gray-200"
+                      }`}
+                    >
+                      <div className="calendar-month-day-header flex items-center justify-between gap-3 mb-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span
+                            className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black ${
+                              isToday
+                                ? "bg-blue-600 text-white"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                          >
+                            {cell.day}
+                          </span>
+                          <span className="text-xs font-bold uppercase tracking-wide text-gray-500">
+                            {weekday}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-wide text-gray-400">
+                          {cell.events.length} {t("calendar.title")}
+                        </span>
+                      </div>
+
+                      {cell.events.length > 0 ? (
+                        <div className="calendar-month-events space-y-1.5">
+                          {cell.events.slice(0, 2).map((ev, evIdx) => (
+                            <div
+                              key={ev.id || evIdx}
+                              className={`calendar-month-event-pill p-2 pl-3 rounded-lg border text-[11px] font-semibold line-clamp-1 ${getEventStyles(ev.channel || ev.type)}`}
+                            >
+                              {ev.time ? `${ev.time} - ` : ""}
+                              {ev.title}
+                            </div>
+                          ))}
+                          {cell.events.length > 2 && (
+                            <p className="text-[10px] font-bold text-gray-400 pl-1">
+                              +{cell.events.length - 2}
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-gray-400 italic">
+                          {t("calendar.modals.selectPost.empty")}
+                        </p>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-7 mb-4">
+                  {weekdayLabels.map((label) => (
+                    <div
+                      key={label}
+                      className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest py-2"
+                    >
+                      {label}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            <div className="grid gap-3 grid-cols-7">
-              {weeks.map((week, wi) => (
-                <React.Fragment key={wi}>
-                  {week.map((cell, ci) => {
-                    if (!cell && viewType === "month")
-                      return (
-                        <div
-                          key={`empty-${wi}-${ci}`}
-                          className="aspect-[4/5] md:aspect-square"
-                        />
-                      );
+                <div className="grid gap-3 grid-cols-7">
+                  {weeks.map((week, wi) => (
+                    <React.Fragment key={wi}>
+                      {week.map((cell, ci) => {
+                        if (!cell && viewType === "month")
+                          return (
+                            <div
+                              key={`empty-${wi}-${ci}`}
+                              className="aspect-[4/5] md:aspect-square"
+                            />
+                          );
 
-                    const isToday = cell?.key === todayKey;
-                    const isSelected = selectedPost?.dateKey === cell?.key;
+                        const isToday = cell?.key === todayKey;
+                        const isSelected = selectedPost?.dateKey === cell?.key;
 
-                    const isDragOver = dragOverDate === cell?.key;
+                        const isDragOver = dragOverDate === cell?.key;
 
-                    return (
-                      <div
-                        key={cell?.key || ci}
-                        onMouseEnter={() => cell && setHoveredDate(cell.key)}
-                        onMouseLeave={() => setHoveredDate(null)}
-                        onDragOver={(e) =>
-                          cell && handleCellDragOver(e, cell.key)
-                        }
-                        onDragLeave={handleCellDragLeave}
-                        onDrop={(e) => cell && handleCellDrop(e, cell.key)}
-                        className={`
+                        return (
+                          <div
+                            key={cell?.key || ci}
+                            onMouseEnter={() => cell && setHoveredDate(cell.key)}
+                            onMouseLeave={() => setHoveredDate(null)}
+                            onDragOver={(e) =>
+                              cell && handleCellDragOver(e, cell.key)
+                            }
+                            onDragLeave={handleCellDragLeave}
+                            onDrop={(e) => cell && handleCellDrop(e, cell.key)}
+                            className={`
                       relative group/cell aspect-[4/5] md:aspect-square p-2.5 rounded-[24px] border transition-all duration-500 flex flex-col gap-2 overflow-hidden
                       ${cell?.isCurrentMonth === false ? "bg-transparent border-transparent opacity-30 shadow-none" : "bg-white border-gray-100 shadow-sm hover:shadow-2xl hover:shadow-gray-200/50 hover:-translate-y-1.5"}
                       ${isToday ? "ring-2 ring-blue-500 ring-offset-2" : ""}
@@ -742,7 +839,7 @@ export default function PostsCalendar({
                       >
                         {cell && (
                           <>
-                            <div className="flex justify-between items-center z-10">
+                            <div className="calendar-month-day-header flex justify-between items-center z-10">
                               <span
                                 className={`text-[13px] font-black ${isToday ? "text-blue-600" : "text-gray-900 opacity-40"}`}
                               >
@@ -775,7 +872,7 @@ export default function PostsCalendar({
                                 )}
                             </div>
 
-                            <div className="flex-1 overflow-y-auto space-y-1.5 no-scrollbar scroll-smooth">
+                            <div className="calendar-month-events flex-1 overflow-y-auto space-y-1.5 no-scrollbar scroll-smooth">
                               {cell.events.map((ev, idx) => (
                                 <div
                                   key={ev.id || idx}
@@ -788,7 +885,7 @@ export default function PostsCalendar({
                                     e.stopPropagation();
                                     onEventClick?.(ev);
                                   }}
-                                  className={`p-2 rounded-lg border transition-all cursor-move group/event shadow-sm hover:shadow-lg hover:scale-[1.02] active:cursor-grabbing ${
+                                  className={`calendar-month-event-pill p-2 rounded-lg border transition-all cursor-move group/event shadow-sm hover:shadow-lg hover:scale-[1.02] active:cursor-grabbing ${
                                     draggedEvent?.id === ev.id
                                       ? "opacity-40 scale-95"
                                       : ""
@@ -818,12 +915,14 @@ export default function PostsCalendar({
                             )}
                           </>
                         )}
-                      </div>
-                    );
-                  })}
-                </React.Fragment>
-              ))}
-            </div>
+                          </div>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
