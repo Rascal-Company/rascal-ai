@@ -5,6 +5,9 @@ import { withOrganization } from '../_middleware/with-organization.js'
  * Palauttaa kirjautuneen käyttäjän tiedot
  */
 async function handler(req, res) {
+  if (req.method === 'PATCH') {
+    return handlePatch(req, res)
+  }
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
@@ -103,6 +106,7 @@ async function handler(req, res) {
       features: features,
       enrichment_credits_monthly: enrichmentCreditsMonthly,
       enrichment_credits_used: enrichmentCreditsUsed,
+      buyer_persona: orgData.buyer_persona ?? null,
       created_at: orgData.created_at,
       updated_at: orgData.updated_at,
     }
@@ -120,6 +124,36 @@ async function handler(req, res) {
       error: 'Internal server error',
       message: error.message 
     })
+  }
+}
+
+async function handlePatch(req, res) {
+  try {
+    const { buyer_persona } = req.body || {}
+    const allowedFields = {}
+
+    if (buyer_persona !== undefined) {
+      allowedFields.buyer_persona = buyer_persona
+    }
+
+    if (Object.keys(allowedFields).length === 0) {
+      return res.status(400).json({ error: 'No valid fields to update' })
+    }
+
+    const { error } = await req.supabase
+      .from('users')
+      .update(allowedFields)
+      .eq('id', req.organization.id)
+
+    if (error) {
+      console.error('[api/users/me] PATCH error:', error)
+      return res.status(500).json({ error: error.message })
+    }
+
+    return res.status(200).json({ success: true })
+  } catch (error) {
+    console.error('Error in PATCH /api/users/me:', error)
+    return res.status(500).json({ error: 'Internal server error' })
   }
 }
 

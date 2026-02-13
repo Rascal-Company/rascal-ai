@@ -1550,8 +1550,9 @@
 
 @layer components {
   .lead-scraping-page {
-    @apply w-full h-full min-h-screen flex flex-col overflow-hidden relative p-0;
+    @apply w-full flex overflow-hidden relative p-0;
     margin: calc(var(--main-content-padding) * -1);
+    height: calc(100vh);
   }
 
   .lead-scraping-content-wrapper {

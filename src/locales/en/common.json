@@ -2543,7 +2543,7 @@
     "resultsTitle": "Results",
     "enrichCreditsLabel": "Enrichment credits:",
     "selectedCount": "{{count}} selected",
-    "enrichButton": "Enrich ({{count}} €)",
+    "enrichButton": "Enrich ({{count}})",
     "exportCsvButton": "Export CSV",
     "clearSelection": "Clear selection",
     "scrapingStartedTitle": "Lead scraping started successfully!",

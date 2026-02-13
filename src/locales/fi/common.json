@@ -2795,7 +2795,7 @@
     "resultsTitle": "Tulokset",
     "enrichCreditsLabel": "Rikastus creditit:",
     "selectedCount": "{{count}} valittu",
-    "enrichButton": "Rikasta ({{count}} €)",
+    "enrichButton": "Rikasta ({{count}})",
     "exportCsvButton": "Vie CSV",
     "clearSelection": "Tyhjennä valinta",
     "scrapingStartedTitle": "Liidien haku käynnistetty!",

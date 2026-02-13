@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { supabase } from "../lib/supabase";
 import Button from "../components/Button";
 import SaveSearchModal from "../components/SaveSearchModal";
 import SavedSearchesList from "../components/SavedSearchesList";
 import ExportLeadsModal from "../components/ExportLeadsModal";
+import ConfirmationToast from "../components/ConfirmationToast";
+import { useNotification } from "../hooks/useNotification";
 
 export default function LeadScrapingPage() {
   const { t } = useTranslation("common");
+  const notify = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
-  const [location, setLocation] = useState("United States");
+  const [location, setLocation] = useState("Finland");
   const [headcountIndex, setHeadcountIndex] = useState(1);
   const [ownership, setOwnership] = useState("Private");
   const [maxResultsIndex, setMaxResultsIndex] = useState(2);
@@ -23,10 +27,51 @@ export default function LeadScrapingPage() {
 
   const [credits, setCredits] = useState({ monthly: 0, used: 0 });
 
-  // TODO: setLeads will be used when webhook callback is implemented to populate leads
-  const [leads] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [selectedLeads, setSelectedLeads] = useState([]);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showEnrichConfirm, setShowEnrichConfirm] = useState(false);
+  const [viewingLead, setViewingLead] = useState(null);
+
+  const [buyerPersona, setBuyerPersona] = useState("");
+  const [buyerPersonaDraft, setBuyerPersonaDraft] = useState("");
+  const [showBuyerPersona, setShowBuyerPersona] = useState(false);
+  const [savingPersona, setSavingPersona] = useState(false);
+
+  const [filterText, setFilterText] = useState("");
+  const [filterHasEmail, setFilterHasEmail] = useState(false);
+  const [filterHasPhone, setFilterHasPhone] = useState(false);
+  const [filterCountry, setFilterCountry] = useState("");
+  const [filterMinScore, setFilterMinScore] = useState(0);
+  const [sortField, setSortField] = useState("created_at");
+  const [sortDir, setSortDir] = useState("desc");
+
+  const filteredLeads = leads
+    .filter((lead) => {
+      if (filterHasEmail && !lead.email) return false;
+      if (filterHasPhone && !lead.phone) return false;
+      if (filterCountry && lead.country !== filterCountry) return false;
+      if (filterMinScore > 0 && (lead.score || 0) < filterMinScore) return false;
+      if (filterText) {
+        const q = filterText.toLowerCase();
+        const searchable = [
+          lead.fullName, lead.firstName, lead.lastName,
+          lead.email, lead.orgName, lead.position, lead.city,
+        ].filter(Boolean).join(" ").toLowerCase();
+        if (!searchable.includes(q)) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      const dir = sortDir === "asc" ? 1 : -1;
+      if (sortField === "score") return ((a.score || 0) - (b.score || 0)) * dir;
+      if (sortField === "created_at") return (new Date(a.created_at || 0) - new Date(b.created_at || 0)) * dir;
+      const aVal = (a[sortField] || "").toLowerCase();
+      const bVal = (b[sortField] || "").toLowerCase();
+      return aVal.localeCompare(bVal) * dir;
+    });
+
+  const leadCountries = [...new Set(leads.map((l) => l.country).filter(Boolean))].sort();
 
   const maxResultsOptions = [
     { label: "10", value: 10 },
@@ -110,6 +155,23 @@ export default function LeadScrapingPage() {
     { labelKey: "leadScraping.ownershipGovernment", value: "Government" },
   ];
 
+  const fetchLeads = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch("/api/leads", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await response.json();
+      setLeads(data.leads || []);
+    } catch (err) {
+      console.error("Failed to fetch leads:", err);
+    }
+  };
+
   const fetchSavedSearches = async () => {
     try {
       const {
@@ -187,7 +249,7 @@ export default function LeadScrapingPage() {
       } = await supabase.auth.getSession();
       if (!session) return;
 
-      const response = await fetch("/api/organization/account", {
+      const response = await fetch("/api/users/me", {
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
       const data = await response.json();
@@ -195,8 +257,41 @@ export default function LeadScrapingPage() {
         monthly: data.enrichment_credits_monthly || 0,
         used: data.enrichment_credits_used || 0,
       });
+      setBuyerPersona(data.buyer_persona || "");
+      setBuyerPersonaDraft(data.buyer_persona || "");
     } catch (err) {
       console.error("Failed to fetch credits:", err);
+    }
+  };
+
+  const saveBuyerPersona = async () => {
+    setSavingPersona(true);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session) return;
+
+      const response = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ buyer_persona: buyerPersonaDraft }),
+      });
+
+      if (response.ok) {
+        setBuyerPersona(buyerPersonaDraft);
+        notify.success("Ostajapersoona tallennettu");
+      } else {
+        notify.error("Tallentaminen epäonnistui");
+      }
+    } catch (err) {
+      console.error("Failed to save buyer persona:", err);
+      notify.error("Tallentaminen epäonnistui");
+    } finally {
+      setSavingPersona(false);
     }
   };
 
@@ -209,19 +304,19 @@ export default function LeadScrapingPage() {
   };
 
   const selectAllLeads = () => {
-    setSelectedLeads(leads.map((l) => l.id));
+    setSelectedLeads(filteredLeads.map((l) => l.id));
   };
 
   const clearSelection = () => {
     setSelectedLeads([]);
   };
 
-  const enrichSelectedLeads = async () => {
+  const enrichSelectedLeads = () => {
     const creditsNeeded = selectedLeads.length;
     const creditsRemaining = credits.monthly - credits.used;
 
     if (creditsNeeded > creditsRemaining) {
-      alert(
+      notify.warning(
         t("leadScraping.notEnoughCredits", {
           needed: creditsNeeded,
           remaining: creditsRemaining,
@@ -230,17 +325,12 @@ export default function LeadScrapingPage() {
       return;
     }
 
-    if (
-      !confirm(
-        t("leadScraping.confirmEnrich", {
-          count: creditsNeeded,
-          credits: creditsNeeded,
-          creditsPerLead: 1,
-        }),
-      )
-    ) {
-      return;
-    }
+    setShowEnrichConfirm(true);
+  };
+
+  const confirmEnrich = async () => {
+    setShowEnrichConfirm(false);
+    const creditsNeeded = selectedLeads.length;
 
     try {
       const {
@@ -258,7 +348,7 @@ export default function LeadScrapingPage() {
       });
 
       if (response.ok) {
-        alert(
+        notify.success(
           t("leadScraping.enrichmentStarted", { count: creditsNeeded }),
         );
         await fetchCredits();
@@ -268,11 +358,12 @@ export default function LeadScrapingPage() {
         throw new Error(err.error || t("leadScraping.enrichmentFailed"));
       }
     } catch (err) {
-      alert(err.message || t("leadScraping.enrichmentFailed"));
+      notify.error(err.message || t("leadScraping.enrichmentFailed"));
     }
   };
 
   useEffect(() => {
+    fetchLeads();
     fetchSavedSearches();
     fetchCredits();
   }, []);
@@ -340,7 +431,7 @@ export default function LeadScrapingPage() {
       setJobId(data.jobId);
       setError("");
 
-      alert(t("leadScraping.scrapingStartedAlert"));
+      notify.success(t("leadScraping.scrapingStartedAlert"));
     } catch (err) {
       console.error("Search error:", err);
       setError(err.message || t("leadScraping.errorSearchFailed"));
@@ -350,13 +441,13 @@ export default function LeadScrapingPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="lead-scraping-page flex bg-gray-50">
       {/* Sidebar */}
       <div className="w-96 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-gray-900">
+        <div className="h-[73px] shrink-0 px-6 border-b border-gray-200 flex items-center">
+          <h2 className="text-xl font-semibold text-gray-900">
             {t("leadScraping.pageTitle")}
-          </h1>
+          </h2>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -534,6 +625,52 @@ export default function LeadScrapingPage() {
           </div>
         </div>
 
+        {/* Buyer Persona */}
+        <div className="px-6">
+          <button
+            onClick={() => {
+              setShowBuyerPersona(!showBuyerPersona);
+              setBuyerPersonaDraft(buyerPersona);
+            }}
+            className="w-full flex items-center justify-between py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <span>Ostajapersoona</span>
+            <svg className={`w-4 h-4 transition-transform ${showBuyerPersona ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          {showBuyerPersona && (
+            <div className="pb-4 space-y-3">
+              <textarea
+                value={buyerPersonaDraft}
+                onChange={(e) => setBuyerPersonaDraft(e.target.value)}
+                rows={8}
+                placeholder="Kuvaile ihanneasiakkaasi..."
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 resize-y focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              />
+              {buyerPersonaDraft !== buyerPersona && (
+                <div className="flex gap-2">
+                  <Button
+                    onClick={saveBuyerPersona}
+                    loading={savingPersona}
+                    size="sm"
+                    className="flex-1"
+                  >
+                    Tallenna
+                  </Button>
+                  <Button
+                    onClick={() => setBuyerPersonaDraft(buyerPersona)}
+                    variant="secondary"
+                    size="sm"
+                  >
+                    Peruuta
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Search Button */}
         <div className="p-6 border-t border-gray-200">
           <Button
@@ -550,25 +687,132 @@ export default function LeadScrapingPage() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header with Credits */}
-        <div className="p-6 border-b border-gray-200 bg-white flex justify-between items-center">
+        <div className="h-[73px] shrink-0 px-6 border-b border-gray-200 bg-white flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-900">
             {t("leadScraping.resultsTitle")}
           </h2>
 
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">
-              {t("leadScraping.enrichCreditsLabel")}
-            </span>
-            <span className="text-lg font-bold text-blue-600">
-              {credits.monthly - credits.used} / {credits.monthly}
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">
+                {t("leadScraping.enrichCreditsLabel")}
+              </span>
+              <span className="text-lg font-bold text-blue-600">
+                {credits.monthly - credits.used} / {credits.monthly}
+              </span>
+            </div>
+            <Button
+              onClick={() => { fetchLeads(); fetchCredits(); }}
+              variant="secondary"
+              size="sm"
+            >
+              {t("leadScraping.refreshButton", "Päivitä")}
+            </Button>
           </div>
         </div>
 
+        {/* Filter bar */}
+        {leads.length > 0 && (
+          <div className="shrink-0 border-b border-gray-200 bg-white">
+            <div className="px-6 py-3 flex items-center gap-6">
+              {/* Search */}
+              <div className="relative flex-1 max-w-xs">
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input
+                  type="text"
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                  placeholder={t("leadScraping.filterPlaceholder", "Hae nimellä, yrityksellä...")}
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
+                />
+              </div>
+
+              {/* Dropdowns */}
+              {leadCountries.length > 1 && (
+                <select
+                  value={filterCountry}
+                  onChange={(e) => setFilterCountry(e.target.value)}
+                  className="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">{t("leadScraping.filterAllCountries", "Kaikki maat")}</option>
+                  {leadCountries.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              )}
+
+              {/* Toggles */}
+              <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setFilterHasEmail((v) => !v)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filterHasEmail ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                >
+                  {t("leadScraping.filterHasEmail", "Sähköposti")}
+                </button>
+                <button
+                  onClick={() => setFilterHasPhone((v) => !v)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${filterHasPhone ? "bg-white text-gray-900 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                >
+                  {t("leadScraping.filterHasPhone", "Puhelin")}
+                </button>
+              </div>
+
+              {/* Score */}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 whitespace-nowrap">Score &ge;</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="10"
+                  value={filterMinScore}
+                  onChange={(e) => setFilterMinScore(Number(e.target.value))}
+                  className="w-20 h-1.5 accent-blue-500"
+                />
+                <span className="text-xs font-medium text-gray-700 w-6">{filterMinScore}</span>
+              </div>
+
+              {/* Sort */}
+              <div className="flex items-center gap-1.5 ml-auto">
+                <select
+                  value={sortField}
+                  onChange={(e) => setSortField(e.target.value)}
+                  className="px-3 py-2 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="created_at">{t("leadScraping.sortDate", "Uusin ensin")}</option>
+                  <option value="fullName">{t("leadScraping.sortName", "Nimi")}</option>
+                  <option value="orgName">{t("leadScraping.sortCompany", "Yritys")}</option>
+                  <option value="score">{t("leadScraping.sortScore", "Score")}</option>
+                  <option value="country">{t("leadScraping.sortCountry", "Maa")}</option>
+                </select>
+                <button
+                  onClick={() => setSortDir((d) => d === "asc" ? "desc" : "asc")}
+                  className="p-2 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors"
+                >
+                  {sortDir === "asc" ? "\u2191" : "\u2193"}
+                </button>
+              </div>
+
+              {/* Count + Export */}
+              <span className="text-xs text-gray-400">{filteredLeads.length}/{leads.length}</span>
+              <Button
+                onClick={() => setShowExportModal(true)}
+                variant="secondary"
+                size="sm"
+                disabled={filteredLeads.length === 0}
+              >
+                {t("leadScraping.exportCsvButton", "Vie CSV")}
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Actions bar (shown when leads selected) */}
         {selectedLeads.length > 0 && (
-          <div className="p-4 bg-blue-50 border-b border-blue-200 flex items-center gap-4">
-            <span className="font-medium text-gray-900">
+          <div className="px-6 py-2.5 bg-blue-50 border-b border-blue-200 flex items-center gap-4">
+            <span className="text-sm font-medium text-gray-900">
               {t("leadScraping.selectedCount", {
                 count: selectedLeads.length,
               })}
@@ -580,10 +824,6 @@ export default function LeadScrapingPage() {
               })}
             </Button>
 
-            <Button onClick={() => setShowExportModal(true)} size="sm">
-              {t("leadScraping.exportCsvButton")}
-            </Button>
-
             <button
               onClick={clearSelection}
               className="text-sm text-gray-600 underline hover:text-gray-900"
@@ -593,7 +833,7 @@ export default function LeadScrapingPage() {
           </div>
         )}
 
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 min-h-0 overflow-auto p-6">
           {/* Error message */}
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -657,17 +897,17 @@ export default function LeadScrapingPage() {
                 </p>
               </div>
             </div>
-          ) : leads.length > 0 ? (
-            <div className="space-y-4">
+          ) : filteredLeads.length > 0 ? (
+            <div className="space-y-2">
               {/* Select all checkbox */}
               <div className="flex items-center gap-2 pb-2 border-b border-gray-200">
                 <input
                   type="checkbox"
                   checked={
-                    selectedLeads.length === leads.length && leads.length > 0
+                    selectedLeads.length === filteredLeads.length && filteredLeads.length > 0
                   }
                   onChange={() =>
-                    selectedLeads.length === leads.length
+                    selectedLeads.length === filteredLeads.length
                       ? clearSelection()
                       : selectAllLeads()
                   }
@@ -678,95 +918,74 @@ export default function LeadScrapingPage() {
                 </span>
               </div>
 
-              {leads.map((lead, idx) => (
+              {filteredLeads.map((lead, idx) => (
                 <div
                   key={lead.id || idx}
-                  className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
+                  className="bg-white px-4 py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+                  onClick={() => setViewingLead(lead)}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       checked={selectedLeads.includes(lead.id || idx)}
                       onChange={() => toggleLeadSelection(lead.id || idx)}
-                      className="mt-1 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                     />
 
-                    <div className="flex-1 grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          {t("leadScraping.leadName")}
-                        </p>
-                        <p className="font-medium text-gray-900">
+                    <div className="flex-1 flex items-center gap-4 min-w-0">
+                      <div className="w-44 shrink-0">
+                        <p className="font-medium text-sm text-gray-900 truncate">
                           {lead.fullName ||
                             lead.firstName + " " + lead.lastName}
                         </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          {t("leadScraping.leadPosition")}
-                        </p>
-                        <p className="font-medium text-gray-900">
+                        <p className="text-xs text-gray-500 truncate">
                           {lead.position}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          {t("leadScraping.leadCompany")}
-                        </p>
-                        <p className="font-medium text-gray-900">
-                          {lead.orgName}
+                      <div className="w-36 shrink-0">
+                        <p className="text-sm text-gray-900 truncate">{lead.orgName}</p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {[lead.city, lead.country].filter(Boolean).join(", ")}
                         </p>
                       </div>
-                      <div>
-                        <p className="text-sm text-gray-500">
-                          {t("leadScraping.leadLocation")}
-                        </p>
-                        <p className="font-medium text-gray-900">
-                          {lead.city}, {lead.country}
-                        </p>
+                      <div className="flex-1 min-w-0">
+                        {lead.email && (
+                          <p className="text-sm text-blue-600 truncate">{lead.email}</p>
+                        )}
+                        {lead.phone && (
+                          <p className="text-xs text-gray-500">{lead.phone}</p>
+                        )}
                       </div>
-                      {lead.email && (
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            {t("leadScraping.leadEmail")}
-                          </p>
-                          <p className="font-medium text-blue-600">
-                            {lead.email}
-                          </p>
-                        </div>
-                      )}
-                      {lead.phone && (
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            {t("leadScraping.leadPhone")}
-                          </p>
-                          <p className="font-medium text-gray-900">
-                            {lead.phone}
-                          </p>
-                        </div>
-                      )}
-                      {lead.score !== undefined && (
-                        <div>
-                          <p className="text-sm text-gray-500">
-                            {t("leadScraping.leadScore")}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-lg text-gray-900">
-                              {lead.score || 0}
-                            </span>
-                            <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                              <div
-                                className="h-full bg-green-500"
-                                style={{ width: `${lead.score || 0}%` }}
-                              />
-                            </div>
+                      {lead.score != null && (
+                        <div className="flex items-center gap-2 shrink-0">
+                          <div className="w-16 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-green-500"
+                              style={{ width: `${lead.score || 0}%` }}
+                            />
                           </div>
+                          <span className="text-xs font-semibold text-gray-600 w-7 text-right">
+                            {lead.score || 0}
+                          </span>
                         </div>
                       )}
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+          ) : leads.length > 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-gray-500">
+                <p className="text-lg">{t("leadScraping.noFilterResults", "Ei tuloksia suodattimilla")}</p>
+                <button
+                  onClick={() => { setFilterText(""); setFilterHasEmail(false); setFilterHasPhone(false); setFilterCountry(""); }}
+                  className="text-sm text-blue-600 hover:underline mt-2"
+                >
+                  {t("leadScraping.clearFilters", "Tyhjennä suodattimet")}
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">
@@ -808,10 +1027,189 @@ export default function LeadScrapingPage() {
       <ExportLeadsModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
-        selectedLeads={leads.filter((l) =>
-          selectedLeads.includes(l.id || leads.indexOf(l)),
-        )}
+        selectedLeads={
+          selectedLeads.length > 0
+            ? filteredLeads.filter((l) => selectedLeads.includes(l.id))
+            : filteredLeads
+        }
       />
+
+      <ConfirmationToast
+        show={showEnrichConfirm}
+        message={t("leadScraping.confirmEnrich", {
+          count: selectedLeads.length,
+          credits: selectedLeads.length,
+          creditsPerLead: 1,
+        })}
+        onSave={confirmEnrich}
+        onDiscard={() => setShowEnrichConfirm(false)}
+        saveLabel={t("leadScraping.enrichButton", { count: selectedLeads.length })}
+        discardLabel={t("common.cancel", "Peruuta")}
+      />
+
+      {viewingLead && <LeadDetailModal lead={viewingLead} onClose={() => setViewingLead(null)} />}
     </div>
+  );
+}
+
+function LeadDetailModal({ lead, onClose }) {
+  const [descExpanded, setDescExpanded] = useState(false);
+
+  const fullName = lead.fullName || [lead.firstName, lead.lastName].filter(Boolean).join(" ");
+  const location = [lead.city, lead.state, lead.country].filter(Boolean).join(", ");
+  const orgLocation = [lead.orgCity, lead.orgState, lead.orgCountry].filter(Boolean).join(", ");
+  const orgIndustry = Array.isArray(lead.orgIndustry) ? lead.orgIndustry.join(", ") : lead.orgIndustry;
+  const orgLinkedin = Array.isArray(lead.orgLinkedinUrl) ? lead.orgLinkedinUrl[0] : lead.orgLinkedinUrl;
+  const functional = Array.isArray(lead.functional) ? lead.functional.join(", ") : lead.functional;
+  const specialties = Array.isArray(lead.org_specialties) ? lead.org_specialties.join(", ") : lead.org_specialties;
+
+  const truncateUrl = (url) => {
+    if (!url) return "";
+    try {
+      const u = new URL(url.startsWith("http") ? url : `https://${url}`);
+      return u.hostname.replace("www.", "");
+    } catch {
+      return url.length > 30 ? url.slice(0, 30) + "..." : url;
+    }
+  };
+
+  const LinkValue = ({ href, children }) => {
+    const url = href && href.startsWith("http") ? href : `https://${href}`;
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline truncate block">
+        {children || truncateUrl(href)}
+      </a>
+    );
+  };
+
+  const Field = ({ label, children }) => {
+    if (!children && children !== 0) return null;
+    return (
+      <div>
+        <div className="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-0.5">{label}</div>
+        <div className="text-sm text-gray-900">{children}</div>
+      </div>
+    );
+  };
+
+  const scoreColor = (lead.score || 0) >= 70 ? "text-green-600" : (lead.score || 0) >= 40 ? "text-amber-600" : "text-gray-400";
+
+  const description = lead.orgDescription || "";
+  const showDescToggle = description.length > 150;
+  const displayDesc = descExpanded ? description : description.slice(0, 150);
+
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+      <div className="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-2xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        {/* Header */}
+        <div className="shrink-0 px-6 py-5 bg-gradient-to-r from-gray-50 to-white flex items-start justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold shrink-0">
+              {(fullName || "?")[0].toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg font-bold text-gray-900 truncate">{fullName}</h2>
+              {lead.position && <p className="text-sm text-gray-600">{lead.position}{lead.seniority ? ` · ${lead.seniority}` : ""}</p>}
+              {lead.orgName && <p className="text-sm text-gray-400">{lead.orgName}</p>}
+              {location && <p className="text-xs text-gray-400 mt-0.5">{location}</p>}
+            </div>
+          </div>
+          <div className="flex items-start gap-3 shrink-0">
+            {lead.score != null && (
+              <div className="text-center px-3 py-1 rounded-lg bg-white border border-gray-200">
+                <div className={`text-2xl font-bold ${scoreColor}`}>{lead.score}</div>
+                <div className="text-[10px] text-gray-400 uppercase tracking-wider">Score</div>
+              </div>
+            )}
+            <button onClick={onClose} className="mt-1 p-1.5 hover:bg-gray-200 rounded-lg text-gray-400 hover:text-gray-700 transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-5">
+          {/* Contact + Company side by side */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* Yhteystiedot */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider pb-2 border-b border-gray-100">Yhteystiedot</h3>
+              <div className="space-y-3">
+                {lead.email && (
+                  <Field label="Sähköposti">
+                    <a href={`mailto:${lead.email}`} className="text-blue-600 hover:text-blue-800 hover:underline">{lead.email}</a>
+                    {lead.email_status && <span className="ml-2 text-xs text-gray-400">({lead.email_status})</span>}
+                  </Field>
+                )}
+                {lead.phone && (
+                  <Field label="Puhelin">
+                    <a href={`tel:${lead.phone}`} className="text-blue-600 hover:text-blue-800 hover:underline">{lead.phone}</a>
+                  </Field>
+                )}
+                {lead.linkedinUrl && (
+                  <Field label="LinkedIn">
+                    <LinkValue href={lead.linkedinUrl} />
+                  </Field>
+                )}
+                {functional && <Field label="Toiminnot">{functional}</Field>}
+              </div>
+              {lead.score_criteria && (
+                <div className="pt-3 mt-3 border-t border-gray-100">
+                  <div className="text-[11px] font-medium text-gray-400 uppercase tracking-wide mb-1">Pisteytyksen perustelu</div>
+                  <p className="text-sm text-gray-600 leading-relaxed">{lead.score_criteria}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Yritystiedot */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider pb-2 border-b border-gray-100">Yritystiedot</h3>
+              <div className="space-y-3">
+                {lead.orgName && <Field label="Yritys">{lead.orgName}</Field>}
+                {orgIndustry && <Field label="Toimiala">{orgIndustry}</Field>}
+                {(lead.orgSize || lead.orgFoundedYear) && (
+                  <div className="flex gap-6">
+                    {lead.orgSize && <Field label="Koko">{lead.orgSize} hlö</Field>}
+                    {lead.orgFoundedYear && <Field label="Perustettu">{lead.orgFoundedYear}</Field>}
+                  </div>
+                )}
+                {orgLocation && <Field label="Sijainti">{orgLocation}</Field>}
+                {lead.orgWebsite && (
+                  <Field label="Verkkosivusto">
+                    <LinkValue href={lead.orgWebsite} />
+                  </Field>
+                )}
+                {orgLinkedin && (
+                  <Field label="LinkedIn">
+                    <LinkValue href={orgLinkedin} />
+                  </Field>
+                )}
+                {specialties && <Field label="Erikoisalat">{specialties}</Field>}
+              </div>
+            </div>
+          </div>
+
+          {/* Description - full width */}
+          {description && (
+            <div className="pt-4 border-t border-gray-100">
+              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Yrityksen kuvaus</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {displayDesc}{showDescToggle && !descExpanded && "..."}
+              </p>
+              {showDescToggle && (
+                <button onClick={() => setDescExpanded(!descExpanded)} className="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                  {descExpanded ? "Näytä vähemmän" : "Näytä lisää"}
+                </button>
+              )}
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
