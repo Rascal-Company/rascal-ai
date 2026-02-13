@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.121.0](https://github.com/slemppa/rascal-ai/compare/v1.120.2...v1.121.0) (2026-02-13)
+
+
+### ✨ Features
+
+* **chat:** replace polling with ReadableStream streaming ([708b169](https://github.com/slemppa/rascal-ai/commit/708b1697327ad0401eaee27f506b13bc6b8fc556))
+
 ### [1.120.2](https://github.com/slemppa/rascal-ai/compare/v1.120.1...v1.120.2) (2026-02-13)
 
 
