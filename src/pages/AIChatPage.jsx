@@ -12,6 +12,49 @@ import {
   ChatSidebar,
 } from "../components/ai-chat";
 
+function parseN8nStream(buffer) {
+  const contentParts = [];
+  let depth = 0;
+  let start = -1;
+  let inString = false;
+  let escape = false;
+
+  for (let i = 0; i < buffer.length; i++) {
+    const ch = buffer[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (inString) {
+      if (ch === "\\") escape = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      continue;
+    }
+    if (ch === "{") {
+      if (depth === 0) start = i;
+      depth++;
+    } else if (ch === "}") {
+      depth--;
+      if (depth === 0 && start >= 0) {
+        try {
+          const obj = JSON.parse(buffer.substring(start, i + 1));
+          if (obj.type === "item" && obj.content != null) {
+            contentParts.push(obj.content);
+          }
+        } catch {}
+        start = -1;
+      }
+    }
+  }
+
+  const remaining = start >= 0 ? buffer.substring(start) : "";
+  return { contentParts, remaining };
+}
+
 export default function AIChatPage() {
   const { t } = useTranslation("common");
   const [searchParams] = useSearchParams();
@@ -66,6 +109,7 @@ export default function AIChatPage() {
   const pollingIntervalRef = useRef(null);
   const lastMessageCountRef = useRef(0);
   const lastAssistantMessageRef = useRef(null);
+  const abortControllerRef = useRef(null);
   const [, forceUpdate] = useState(0);
 
   // Open database tab from URL param
@@ -353,7 +397,7 @@ export default function AIChatPage() {
     pollingIntervalRef.current = setTimeout(poll, POLL_INTERVAL);
   };
 
-  // Send message
+  // Send message with streaming response
   const sendMessage = async () => {
     if (sendingRef.current || !input.trim() || loading) return;
     sendingRef.current = true;
@@ -383,21 +427,21 @@ export default function AIChatPage() {
       return;
     }
 
+    // Cancel any ongoing stream
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
+
     const userMessageContent = input;
-    setMessages((prev) => [
-      ...prev,
-      { role: "user", content: userMessageContent },
-    ]);
-    setInput("");
+    const aiMessageId = `ai_${Date.now()}`;
 
     setMessages((prev) => [
       ...prev,
-      {
-        role: "assistant",
-        content: t("assistant.errors.processingResponse"),
-        isProcessing: true,
-      },
+      { role: "user", content: userMessageContent },
+      { id: aiMessageId, role: "assistant", content: "", isStreaming: true },
     ]);
+    setInput("");
     setLoading(true);
 
     try {
@@ -441,80 +485,90 @@ export default function AIChatPage() {
         clientMessageId,
       };
 
-      if (activeThreadId) {
-        try {
-          const {
-            data: { session: currentSession },
-          } = await supabase.auth.getSession();
-          if (!currentSession?.access_token) {
-            throw new Error("No session");
-          }
-
-          const currentResponse = await axios.get(
-            `/api/ai/messages?threadId=${activeThreadId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${currentSession.access_token}`,
-              },
-            },
-          );
-          const currentMessages = currentResponse.data?.messages || [];
-          lastMessageCountRef.current = currentMessages.length;
-
-          const assistantMessages = currentMessages.filter(
-            (msg) =>
-              (msg.role === "AI" ||
-                msg.role === "ai" ||
-                msg.role === "assistant") &&
-              msg.content,
-          );
-          if (assistantMessages.length > 0) {
-            lastAssistantMessageRef.current = cleanMessage(
-              assistantMessages[assistantMessages.length - 1].content,
-            );
-          } else {
-            lastAssistantMessageRef.current = null;
-          }
-        } catch (err) {
-          lastMessageCountRef.current = messages.length;
-          lastAssistantMessageRef.current = null;
-        }
-
-        setTimeout(() => startPolling(activeThreadId), 500);
-      }
-
       const {
         data: { session },
       } = await supabase.auth.getSession();
       if (!session?.access_token) {
-        setMessages((prev) => prev.filter((m) => !m.isProcessing));
-        setMessages((prev) => [
-          ...prev,
-          {
-            role: "assistant",
-            content: t("assistant.errors.loginRequiredRefresh"),
-          },
-        ]);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMessageId
+              ? {
+                  ...msg,
+                  content: t("assistant.errors.loginRequiredRefresh"),
+                  isStreaming: false,
+                  isError: true,
+                }
+              : msg,
+          ),
+        );
         setLoading(false);
         sendingRef.current = false;
         return;
       }
 
-      try {
-        await axios.post("/api/ai/chat", payload, {
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
-        });
-      } catch (error) {
-        stopPolling();
-        setMessages((prev) => prev.filter((m) => !m.isProcessing));
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: t("assistant.sendError") },
-        ]);
+      const response = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        signal: abortControllerRef.current.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
       }
+
+      // Check if response is JSON (duplicate detection) or stream
+      const contentType = response.headers.get("content-type") || "";
+      if (contentType.includes("application/json")) {
+        const json = await response.json();
+        if (json.duplicated) {
+          // Duplicate request - remove the empty AI message
+          setMessages((prev) => prev.filter((msg) => msg.id !== aiMessageId));
+          setLoading(false);
+          sendingRef.current = false;
+          return;
+        }
+      }
+
+      // Read the streaming response (n8n sends JSON objects with type/content)
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = "";
+      let jsonBuffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        jsonBuffer += chunk;
+
+        const { contentParts, remaining } = parseN8nStream(jsonBuffer);
+        jsonBuffer = remaining;
+
+        if (contentParts.length > 0) {
+          fullText += contentParts.join("");
+
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === aiMessageId ? { ...msg, content: fullText } : msg,
+            ),
+          );
+        }
+      }
+
+      // Mark streaming as complete
+      const finalText = cleanMessage(fullText) || fullText;
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === aiMessageId
+            ? { ...msg, content: finalText, isStreaming: false }
+            : msg,
+        ),
+      );
 
       if (activeThreadId) {
         await updateThreadTimestamp(activeThreadId);
@@ -523,13 +577,37 @@ export default function AIChatPage() {
       setLoading(false);
       sendingRef.current = false;
     } catch (error) {
-      setMessages((prev) => prev.filter((m) => !m.isProcessing));
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: t("assistant.sendError") },
-      ]);
+      if (error.name === "AbortError") {
+        // User cancelled - mark as complete with partial text
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMessageId ? { ...msg, isStreaming: false } : msg,
+          ),
+        );
+      } else {
+        console.error("Stream error:", error);
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMessageId
+              ? {
+                  ...msg,
+                  content: t("assistant.sendError"),
+                  isStreaming: false,
+                  isError: true,
+                }
+              : msg,
+          ),
+        );
+      }
       setLoading(false);
       sendingRef.current = false;
+    }
+  };
+
+  const cancelStream = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
     }
   };
 
@@ -865,11 +943,10 @@ export default function AIChatPage() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible" && currentThreadId) {
-        loadThread(currentThreadId);
-        if (pollingIntervalRef.current) {
-          // Continue polling
-        } else if (messages.some((m) => m.isProcessing)) {
-          startPolling(currentThreadId);
+        // Only reload thread if not currently streaming
+        const isStreaming = messages.some((m) => m.isStreaming);
+        if (!isStreaming) {
+          loadThread(currentThreadId);
         }
       }
     };
@@ -879,9 +956,14 @@ export default function AIChatPage() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [currentThreadId, messages]);
 
-  // Cleanup polling on unmount
+  // Cleanup polling and streaming on unmount
   useEffect(() => {
-    return () => stopPolling();
+    return () => {
+      stopPolling();
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [currentThreadId]);
 
   // File validation

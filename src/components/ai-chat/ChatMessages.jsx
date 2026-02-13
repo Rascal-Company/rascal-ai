@@ -6,10 +6,6 @@ export function ChatMessages({ messages, loading }) {
   const { t } = useTranslation("common");
   const messagesEndRef = useRef(null);
 
-  // Debug log
-  console.log("[ChatMessages] Rendering with messages:", messages.length);
-  console.log("[ChatMessages] Loading:", loading);
-
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -22,20 +18,18 @@ export function ChatMessages({ messages, loading }) {
           <WelcomeScreen />
         ) : (
           <>
-            {messages.map((message, index) => {
-              console.log(
-                `[ChatMessages] Rendering message ${index}:`,
-                message.role,
-                message.content?.substring(0, 50),
-              );
-              return (
-                <MessageBubble
-                  key={`${message.role}-${index}-${message.content?.substring(0, 50)}`}
-                  message={message}
-                />
-              );
-            })}
-            {loading && <TypingIndicator />}
+            {messages.map((message, index) => (
+              <MessageBubble
+                key={
+                  message.id ||
+                  `${message.role}-${index}-${message.content?.substring(0, 50)}`
+                }
+                message={message}
+              />
+            ))}
+            {loading && !messages.some((m) => m.isStreaming) && (
+              <TypingIndicator />
+            )}
             <div ref={messagesEndRef} />
           </>
         )}
@@ -66,6 +60,7 @@ function MessageBubble({ message }) {
   const { t } = useTranslation("common");
   const isUser = message.role === "user";
   const isProcessing = message.isProcessing;
+  const isStreaming = message.isStreaming;
 
   return (
     <div
@@ -97,11 +92,16 @@ function MessageBubble({ message }) {
             <TypingDots />
             <span>{message.content}</span>
           </div>
+        ) : isStreaming && !message.content ? (
+          <TypingDots />
         ) : isUser ? (
           <p className="m-0">{message.content}</p>
         ) : (
           <div className="prose prose-sm prose-gray max-w-none [&_p]:m-0 [&_p+p]:mt-3 [&_h1]:my-4 [&_h1]:mb-2 [&_h1]:text-2xl [&_h2]:my-4 [&_h2]:mb-2 [&_h2]:text-xl [&_h3]:my-4 [&_h3]:mb-2 [&_h3]:text-lg [&_ul]:my-2 [&_ul]:pl-6 [&_ol]:my-2 [&_ol]:pl-6 [&_li]:my-1 [&_code]:py-0.5 [&_code]:px-1.5 [&_code]:rounded [&_code]:bg-black/5 [&_code]:text-[0.9em] [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:my-3 [&_pre]:bg-gray-800 [&_pre]:text-gray-50 [&_pre_code]:bg-transparent [&_pre_code]:p-0">
             <ReactMarkdown>{message.content}</ReactMarkdown>
+            {isStreaming && (
+              <span className="inline-block w-2 h-4 bg-current animate-pulse ml-0.5 align-middle" />
+            )}
           </div>
         )}
       </div>
