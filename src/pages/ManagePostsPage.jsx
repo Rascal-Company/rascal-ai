@@ -1749,7 +1749,7 @@ export default function ManagePostsPage() {
         <span className="text-xs font-bold sm:hidden">?</span>
       </button>
 
-      <div className="p-3 sm:p-6 lg:p-12 max-w-[1700px] mx-auto min-h-screen space-y-6 sm:space-y-8 lg:space-y-12">
+      <div className="posts-page-shell p-3 sm:p-6 lg:p-12 max-w-[1700px] mx-auto min-h-screen space-y-6 sm:space-y-8 lg:space-y-12">
         {/* Page Header */}
         <PostHeader
           t={t}
@@ -1758,7 +1758,7 @@ export default function ManagePostsPage() {
         />
 
         {/* Tab Navigation & Action Bar Container */}
-        <div className="bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-col sm:flex-row gap-2 sm:gap-6 justify-between items-stretch sm:items-center sticky top-4 z-40 transition-all hover:shadow-2xl overflow-hidden">
+        <div className="posts-primary-bar bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-col xl:flex-row gap-2 sm:gap-4 justify-between items-stretch xl:items-center md:sticky md:top-4 z-40 transition-all hover:shadow-2xl overflow-hidden mb-4 sm:mb-6">
           <PostTabs
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -1828,7 +1828,7 @@ export default function ManagePostsPage() {
         )}
 
         {/* Content Views */}
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="posts-content-area animate-in fade-in slide-in-from-bottom-4 duration-500 mt-4 sm:mt-6 pt-3 md:pt-0">
           {/* Kanban Board */}
           {!currentError && !currentLoading && activeTab === "kanban" && (
             <KanbanTab

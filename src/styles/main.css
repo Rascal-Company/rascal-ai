@@ -115,7 +115,7 @@
    MOBILE RESPONSIVE LAYOUT (from App.css)
    ============================================ */
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   /* Sidebar completely hidden on mobile */
   .sidebar {
     display: none !important;
@@ -1263,7 +1263,7 @@
 }
 
 /* App Layout Mobile Responsiveness */
-@media (max-width: 900px) {
+@media (max-width: 768px) {
   .main-content {
     @apply ml-0 flex-1 w-full;
     padding: 16px 4vw;
@@ -10216,14 +10216,14 @@
   @media (max-width: 768px) {
     .main-content {
       margin-left: 0;
-      width: 100vw;
-      max-width: 100vw;
+      width: 100%;
+      max-width: 100%;
     }
 
     .posts-container {
       @apply m-0;
-      padding: 16px 8px;
-      max-width: 100vw;
+      padding: 16px 12px;
+      max-width: 100%;
     }
 
     .posts-header {
@@ -10339,6 +10339,14 @@
       @apply flex-1;
       min-height: 400px;
     }
+
+    .posts-page-shell {
+      width: 100%;
+      min-width: 0;
+      padding-top: 64px !important;
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+    }
   }
 
   @media (min-width: 769px) and (max-width: 1200px) {
@@ -10374,14 +10382,14 @@
   @media (max-width: 480px) {
     .main-content {
       margin-left: 0;
-      width: 100vw;
-      max-width: 100vw;
+      width: 100%;
+      max-width: 100%;
     }
 
     .posts-container {
       @apply m-0;
-      padding: 12px 4px;
-      max-width: 100vw;
+      padding: 12px 8px;
+      max-width: 100%;
     }
 
     .kanban-board {
@@ -10416,6 +10424,12 @@
 
     .column-content {
       padding: 12px;
+    }
+
+    .posts-page-shell {
+      padding-top: 56px !important;
+      padding-left: 12px !important;
+      padding-right: 12px !important;
     }
 
     .post-thumbnail {
@@ -17612,6 +17626,122 @@ input:checked + .slider:before {
   font-size: 14px;
   color: #6b7280;
   font-weight: 500;
+}
+
+.carousels-list-badge {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  line-height: 16px !important;
+  min-height: 16px !important;
+  padding-top: 2px !important;
+  padding-bottom: 1px !important;
+  overflow: visible !important;
+}
+
+/* PostsCalendar robustness */
+.calendar-header {
+  overflow: visible;
+}
+
+.calendar-period-label {
+  display: block;
+  line-height: 1.45;
+  padding-top: 2px;
+  overflow: visible;
+}
+
+.calendar-period-block {
+  padding-left: 8px;
+}
+
+.calendar-nav-controls {
+  min-width: 220px;
+}
+
+.calendar-today-btn {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .calendar-header {
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+  }
+
+  .calendar-period-block {
+    padding-left: 0 !important;
+    padding-right: 6px !important;
+  }
+
+  .calendar-period-label {
+    line-height: 1.5 !important;
+    padding-top: 4px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .calendar-mobile-view-switch {
+    min-height: 42px;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .calendar-nav-controls {
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .calendar-today-btn {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    letter-spacing: 0.04em !important;
+  }
+
+  .calendar-refresh-btn {
+    margin-left: 8px !important;
+    margin-right: 0 !important;
+    flex-shrink: 0 !important;
+  }
+
+  .calendar-controls-row {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .calendar-time-layout {
+    margin-left: 14px !important;
+    margin-right: 14px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    border-radius: 14px !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+  }
+
+  .calendar-time-label-col {
+    left: 8px !important;
+  }
+
+  .calendar-time-days {
+    padding-right: 8px !important;
+    min-width: 0 !important;
+  }
+
+  .calendar-month-event-pill {
+    padding-left: 12px !important;
+  }
+
+  .calendar-month-day-header {
+    margin-bottom: 10px !important;
+  }
+
+  .calendar-month-events > * + * {
+    margin-top: 8px !important;
+  }
 }
 
 .carousels-empty {
@@ -25063,4 +25193,162 @@ h2.auth-title {
 .settings-grid-row-span {
   grid-row: 1 / 3;
   align-self: start;
+}
+
+/* Hard mobile layout guardrails for /posts only */
+@media (max-width: 768px) {
+  .posts-page-shell > * + * {
+    margin-top: 14px !important;
+  }
+
+  .posts-primary-bar {
+    position: static !important;
+    top: auto !important;
+    z-index: auto !important;
+    overflow: visible !important;
+    margin-bottom: 12px !important;
+    padding: 10px !important;
+    gap: 10px !important;
+  }
+
+  .posts-actions-wrap {
+    width: 100% !important;
+    margin-bottom: 8px !important;
+  }
+
+  .posts-actions-grid {
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .posts-filters-bar {
+    margin-top: 12px !important;
+    margin-bottom: 12px !important;
+    padding-top: 2px !important;
+    padding-bottom: 10px !important;
+    gap: 12px !important;
+  }
+
+  .posts-content-area {
+    margin-top: 12px !important;
+    padding-top: 8px !important;
+  }
+
+  .kanban-status-toolbar {
+    position: static !important;
+    top: auto !important;
+    margin-top: 10px !important;
+    margin-bottom: 14px !important;
+    overflow: visible !important;
+    padding: 12px !important;
+  }
+
+  .kanban-status-grid {
+    padding: 8px !important;
+    gap: 8px !important;
+  }
+
+  .post-quota-card {
+    padding: 0 !important;
+  }
+
+  .post-quota-card-inner {
+    box-sizing: border-box !important;
+    padding: 18px 18px 16px 18px !important;
+  }
+
+  .posts-main-tabs-wrap {
+    overflow: visible !important;
+    padding: 8px !important;
+    gap: 8px !important;
+  }
+
+  .posts-main-tab-btn {
+    min-height: 44px !important;
+    border-width: 2px !important;
+  }
+
+  .posts-mobile-card {
+    overflow: hidden !important;
+  }
+
+  .posts-mobile-card-content {
+    box-sizing: border-box !important;
+    padding: 18px 16px 14px 16px !important;
+    gap: 12px !important;
+  }
+
+  .posts-mobile-card-text {
+    padding-right: 2px !important;
+  }
+
+  .posts-mobile-card-text h3 {
+    margin: 0 0 6px 0 !important;
+    line-height: 1.25 !important;
+  }
+
+  .posts-mobile-card-text p {
+    margin: 0 !important;
+    line-height: 1.45 !important;
+  }
+
+  .posts-mobile-card-meta {
+    width: 100% !important;
+    overflow: hidden !important;
+    gap: 8px !important;
+    padding-top: 2px !important;
+  }
+
+  .posts-mobile-card-date {
+    display: inline-block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    letter-spacing: 0 !important;
+  }
+
+  .posts-mobile-card-icon-actions {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+    overflow: hidden !important;
+    padding-right: 2px !important;
+    box-sizing: border-box !important;
+  }
+
+  .posts-mobile-card-icon-actions button {
+    flex: 0 0 auto !important;
+    transform: none !important;
+  }
+
+  .posts-mobile-card-badges {
+    top: 12px !important;
+    left: 12px !important;
+    right: 12px !important;
+    gap: 6px !important;
+  }
+
+  .posts-mobile-card-badge {
+    padding: 5px 8px !important;
+    line-height: 1.2 !important;
+    letter-spacing: 0.02em !important;
+  }
+
+  .posts-mobile-card-primary-actions {
+    margin-top: 2px !important;
+    padding-top: 6px !important;
+    border-top: none !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+  }
+
+  .posts-mobile-card-primary-btn {
+    box-shadow: 0 1px 3px rgba(17, 24, 39, 0.08) !important;
+  }
+
+  .posts-mobile-card-icon-actions button {
+    box-shadow: 0 1px 2px rgba(17, 24, 39, 0.08) !important;
+    border-color: #e5e7eb !important;
+  }
 }

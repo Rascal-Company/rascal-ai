@@ -171,7 +171,7 @@ function PostCard({
 
   return (
     <div
-      className={`group relative bg-white rounded-[32px] border transition-all duration-500 overflow-hidden flex flex-col h-full hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-100 ${isDragging ? "opacity-50 ring-2 ring-blue-500 ring-offset-4 scale-95 shadow-2xl" : "border-gray-100 shadow-xl shadow-gray-200/20"} ${isSelected ? "ring-2 ring-blue-500 border-blue-200" : ""} ${hideActions ? "cursor-pointer active:scale-[0.98]" : ""}`}
+      className={`posts-mobile-card group relative bg-white rounded-[32px] border transition-all duration-500 overflow-hidden flex flex-col h-full hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-100 ${isDragging ? "opacity-50 ring-2 ring-blue-500 ring-offset-4 scale-95 shadow-2xl" : "border-gray-100 shadow-xl shadow-gray-200/20"} ${isSelected ? "ring-2 ring-blue-500 border-blue-200" : ""} ${hideActions ? "cursor-pointer active:scale-[0.98]" : ""}`}
       draggable={true}
       onDragStart={(e) => onDragStart(e, post)}
       onDragEnd={onDragEnd}
@@ -241,9 +241,9 @@ function PostCard({
           </div>
         )}
 
-        <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10 transition-transform group-hover:translate-y-px">
+        <div className="posts-mobile-card-badges absolute top-4 left-4 flex flex-wrap gap-2 z-10 transition-transform group-hover:translate-y-px">
           <span
-            className={`px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-md flex items-center gap-1.5 border border-white/20 ${
+            className={`posts-mobile-card-badge px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-md flex items-center gap-1.5 border border-white/20 ${
               post.type === "Reels"
                 ? "bg-indigo-600/90 text-white"
                 : post.type === "Carousel"
@@ -269,7 +269,7 @@ function PostCard({
             {post.type}
           </span>
           {post.source === "mixpost" && post.provider && (
-            <span className="px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-md bg-gray-900/90 text-white border border-white/10 uppercase italic">
+            <span className="posts-mobile-card-badge px-2.5 py-1 rounded-lg text-[9px] font-bold uppercase tracking-widest shadow-lg backdrop-blur-md bg-gray-900/90 text-white border border-white/10 uppercase italic">
               {post.provider}
             </span>
           )}
@@ -278,24 +278,24 @@ function PostCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-500" />
       </div>
 
-      <div className="p-6 flex flex-col flex-1 gap-4">
-        <div className="space-y-1.5">
+      <div className="posts-mobile-card-content p-5 sm:p-6 flex flex-col flex-1 gap-4">
+        <div className="posts-mobile-card-text space-y-1.5">
           <h3
-            className="text-sm font-bold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors"
+            className="text-sm font-bold text-gray-900 line-clamp-1 break-words pr-1 group-hover:text-blue-600 transition-colors"
             title={post.title}
           >
             {post.title || t("posts.carouselsTab.postCard.untitled")}
           </h3>
-          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium">
+          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed font-medium break-words pr-1">
             {post.caption || t("posts.carouselsTab.postCard.noDescription")}
           </p>
         </div>
 
-        <div className="mt-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="posts-mobile-card-meta mt-auto pt-1 flex flex-col gap-2 md:flex-row md:items-center md:justify-between min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
             <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/50" />
             {post.originalData?.created_at && (
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+              <span className="posts-mobile-card-date text-[10px] font-bold text-gray-400 uppercase tracking-tight truncate">
                 {new Date(post.originalData.created_at).toLocaleDateString(
                   t("common.locale") === "fi" ? "fi-FI" : "en-US",
                 )}
@@ -303,7 +303,7 @@ function PostCard({
             )}
           </div>
 
-          <div className="flex gap-2 isolate translate-y-0 opacity-100 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
+          <div className="posts-mobile-card-icon-actions w-full md:w-auto flex flex-wrap justify-end gap-2 isolate translate-y-0 opacity-100 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 transition-all duration-300">
             {!hideActions && post.status !== "Julkaistu" && (
               <>
                 {onPreview && (
@@ -312,7 +312,7 @@ function PostCard({
                       e.stopPropagation();
                       onPreview(post);
                     }}
-                    className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-purple-600 transition-all hover:scale-110 active:scale-95"
+                    className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-purple-600 transition-all hover:scale-100 md:hover:scale-110 active:scale-95"
                     title={t("posts.actions.preview") || "Esikatsele"}
                   >
                     <svg
@@ -342,7 +342,7 @@ function PostCard({
                     e.stopPropagation();
                     onEdit(post);
                   }}
-                  className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-blue-600 transition-all hover:scale-110 active:scale-95"
+                  className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-blue-600 transition-all hover:scale-100 md:hover:scale-110 active:scale-95"
                   title={t("posts.actions.edit")}
                 >
                   <svg
@@ -366,7 +366,7 @@ function PostCard({
                       e.stopPropagation();
                       onDuplicate(post);
                     }}
-                    className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-indigo-600 transition-all hover:scale-110 active:scale-95"
+                    className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-indigo-600 transition-all hover:scale-100 md:hover:scale-110 active:scale-95"
                     title={t("posts.carouselsTab.postCard.duplicate")}
                   >
                     <svg
@@ -388,7 +388,7 @@ function PostCard({
                 <button
                   ref={deleteButtonRef}
                   onClick={handleDeleteClick}
-                  className="p-2 bg-red-50 text-red-600 rounded-xl shadow-lg border border-red-100 hover:bg-red-500 hover:text-white transition-all hover:scale-110 active:scale-95"
+                  className="p-2 bg-red-50 text-red-600 rounded-xl shadow-lg border border-red-100 hover:bg-red-500 hover:text-white transition-all hover:scale-100 md:hover:scale-110 active:scale-95"
                   title={t("posts.actions.delete")}
                 >
                   <svg
@@ -416,7 +416,7 @@ function PostCard({
                       e.stopPropagation();
                       onPreview(post);
                     }}
-                    className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-purple-600 transition-all hover:scale-110 active:scale-95"
+                    className="p-2 bg-white text-gray-600 rounded-xl shadow-lg border border-gray-100 hover:bg-gray-50 hover:text-purple-600 transition-all hover:scale-100 md:hover:scale-110 active:scale-95"
                     title={t("posts.actions.preview") || "Esikatsele"}
                   >
                     <svg
@@ -446,7 +446,7 @@ function PostCard({
                       e.stopPropagation();
                       onDuplicate(post);
                     }}
-                    className="p-2 bg-blue-50 text-blue-600 rounded-xl shadow-lg border border-blue-100 hover:bg-blue-600 hover:text-white transition-all hover:scale-110 active:scale-95"
+                    className="p-2 bg-blue-50 text-blue-600 rounded-xl shadow-lg border border-blue-100 hover:bg-blue-600 hover:text-white transition-all hover:scale-100 md:hover:scale-110 active:scale-95"
                     title={t("posts.carouselsTab.postCard.duplicateNew")}
                   >
                     <svg
@@ -470,29 +470,40 @@ function PostCard({
         </div>
 
         {!hideActions && (
-          <div className="flex gap-2 pt-2">
+          <div className="posts-mobile-card-primary-actions flex flex-col md:flex-row gap-2 pt-2">
             {post.status === "Kesken" && post.source === "supabase" && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onMoveToNext(post, "Tarkistuksessa");
                 }}
-                className="w-full py-2.5 bg-gray-900 hover:bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-gray-200"
+                className="posts-mobile-card-primary-btn w-full min-w-0 px-2 py-2.5 bg-gray-900 hover:bg-black text-white text-[10px] font-bold uppercase sm:tracking-widest tracking-wide rounded-2xl transition-all shadow-xl shadow-gray-200 leading-tight"
               >
                 {t("posts.columns.readyToPublish")}
               </button>
             )}
 
             {post.status === "Tarkistuksessa" && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPublish(post);
-                }}
-                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-emerald-500/20"
-              >
-                {t("posts.actions.publish")}
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveToNext(post, "Kesken");
+                  }}
+                  className="posts-mobile-card-primary-btn flex-1 min-w-0 px-2 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-bold uppercase sm:tracking-widest tracking-wide rounded-2xl transition-all border border-gray-200 leading-tight"
+                >
+                  {t("posts.columns.inProgress")}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPublish(post);
+                  }}
+                  className="posts-mobile-card-primary-btn flex-1 min-w-0 px-2 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase sm:tracking-widest tracking-wide rounded-2xl transition-all shadow-xl shadow-emerald-500/20 leading-tight"
+                >
+                  {t("posts.actions.publish")}
+                </button>
+              </>
             )}
           </div>
         )}

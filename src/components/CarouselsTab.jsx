@@ -345,28 +345,27 @@ export default function CarouselsTab({
               <button
                 key={item.content.recordId}
                 onClick={() => setSelectedCarouselId(item.content.recordId)}
-                className="group p-10 bg-white rounded-[48px] border border-gray-100 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.03)] hover:shadow-[0_48px_80px_-16px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-700 text-left relative overflow-hidden"
+                className="group p-10 bg-white rounded-[48px] border border-gray-100 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.03)] hover:shadow-[0_48px_80px_-16px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-700 text-left relative overflow-visible"
               >
-                <div className="absolute top-0 right-0 p-10">
-                  <div className="px-3 py-1 bg-gray-50 rounded-full text-[9px] font-black text-gray-400 uppercase tracking-widest">
-                    {dateStr}
-                  </div>
-                </div>
-
-                <div className="space-y-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-gray-900 rounded-[20px] shadow-lg shadow-gray-200 flex items-center justify-center text-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
-                      <span className="opacity-80">🎠</span>
+                <div className="space-y-8 pt-2 sm:pt-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="w-14 h-14 bg-gray-900 rounded-[20px] shadow-lg shadow-gray-200 flex items-center justify-center text-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                        <span className="opacity-80">🎠</span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="carousels-list-badge flex items-center gap-2 text-blue-500 uppercase mt-0.5 mb-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
+                          {t("posts.carouselsTab.list.badge")}
+                        </p>
+                        <h4 className="text-base font-black text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                          {item.content.idea ||
+                            t("posts.carouselsTab.list.untitled")}
+                        </h4>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                        {t("posts.carouselsTab.list.badge")}
-                      </p>
-                      <h4 className="text-base font-black text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
-                        {item.content.idea ||
-                          t("posts.carouselsTab.list.untitled")}
-                      </h4>
+                    <div className="flex-shrink-0 px-3 py-1 bg-gray-50 rounded-full text-[9px] font-black text-gray-400 uppercase tracking-widest">
+                      {dateStr}
                     </div>
                   </div>
 

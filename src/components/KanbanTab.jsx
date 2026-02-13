@@ -90,8 +90,8 @@ export default function KanbanTab({
   return (
     <div className="space-y-8">
       {/* Tab Navigation Bar */}
-      <div className="bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-2 sm:p-3 flex flex-row gap-2 sm:gap-6 justify-between items-center sticky top-4 z-40 transition-all hover:shadow-2xl overflow-hidden">
-        <div className="flex p-1 sm:p-1.5 bg-gray-50/80 rounded-[24px] overflow-x-auto no-scrollbar gap-1 border border-gray-100 flex-1 sm:flex-none">
+      <div className="kanban-status-toolbar bg-white/60 backdrop-blur-xl rounded-[32px] border border-gray-100 shadow-xl shadow-gray-200/10 p-3 sm:p-3 flex flex-row gap-2 sm:gap-4 justify-between items-start md:sticky md:top-4 z-40 transition-all hover:shadow-2xl overflow-visible mt-2 md:mt-0">
+        <div className="kanban-status-grid grid grid-cols-2 p-2 sm:p-2 bg-gray-50/80 rounded-[24px] overflow-visible no-scrollbar gap-1.5 border border-gray-100 flex-1 min-w-0">
           {tabs.map((tab) => (
             <button
               key={tab.status}
@@ -99,15 +99,18 @@ export default function KanbanTab({
                 setActiveStatusTab(tab.status);
                 setFilter("");
               }}
-              className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 text-[10px] sm:text-xs font-bold rounded-[18px] transition-all duration-300 whitespace-nowrap ${
+              className={`w-full min-w-0 min-h-[42px] flex items-center justify-center gap-2 px-2 sm:px-6 py-2 sm:py-3 text-[10px] sm:text-xs font-bold rounded-[18px] border-2 transition-all duration-300 whitespace-nowrap ${
                 activeStatusTab === tab.status
-                  ? "bg-white text-gray-900 shadow-lg shadow-gray-200/50"
-                  : "text-gray-400 hover:text-gray-900 hover:bg-white/50"
+                  ? "bg-white text-gray-900 shadow-lg shadow-gray-200/50 border-orange-400"
+                  : "text-gray-400 hover:text-gray-900 hover:bg-white/50 border-transparent"
               }`}
             >
               <div
                 className={`w-2.5 h-2.5 rounded-full ${tab.color} ${activeStatusTab === tab.status ? "shadow-sm" : "opacity-50"}`}
               />
+              <span className="uppercase tracking-wide text-[9px] sm:text-[10px] max-w-[74px] truncate md:hidden">
+                {t(tab.titleKey)}
+              </span>
               <span className="uppercase tracking-widest hidden md:inline">
                 {t(tab.titleKey)}
               </span>
@@ -118,8 +121,8 @@ export default function KanbanTab({
           ))}
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="flex items-center gap-1 bg-white/60 backdrop-blur-md p-1 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="flex items-center justify-end gap-2 flex-shrink-0 self-start">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-1 bg-white/60 backdrop-blur-md p-1 rounded-2xl border border-gray-100 shadow-sm">
             <button
               onClick={() => setViewMode("visual")}
               className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${viewMode === "visual" ? "bg-gray-900 text-white shadow-lg" : "text-gray-400 hover:text-gray-900"}`}
@@ -152,17 +155,17 @@ export default function KanbanTab({
       )}
 
       {/* Filter & Sort Controls */}
-      <div className="flex items-center gap-3 px-2">
-        <div className="relative flex-1 max-w-sm group">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-2">
+        <div className="relative w-full sm:flex-1 sm:min-w-[280px] max-w-full sm:max-w-sm group">
           <input
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Hae..."
-            className="w-full pl-9 pr-3 py-2.5 bg-white/60 backdrop-blur-md border border-gray-100 rounded-2xl text-xs font-bold outline-none focus:bg-white focus:border-blue-500/20 focus:shadow-lg transition-all"
+            className="w-full !pl-12 pr-3 py-2.5 bg-white/60 backdrop-blur-md border border-gray-100 rounded-2xl text-xs font-bold outline-none focus:bg-white focus:border-blue-500/20 focus:shadow-lg transition-all"
           />
           <svg
-            className="absolute left-3 top-3 w-3.5 h-3.5 text-gray-300 group-focus-within:text-blue-500"
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-blue-500"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -175,30 +178,32 @@ export default function KanbanTab({
             />
           </svg>
         </div>
-        <button
-          onClick={() =>
-            setSortOrder((prev) => (prev === "new" ? "old" : "new"))
-          }
-          className={`p-2.5 rounded-2xl border transition-all ${sortOrder === "new" ? "bg-blue-50 border-blue-100 text-blue-600" : "bg-white border-gray-100 text-gray-400"}`}
-          title={sortOrder === "new" ? "Uusin ensin" : "Vanhin ensin"}
-        >
-          <svg
-            className="w-3.5 h-3.5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <div className="flex items-center gap-2 self-end sm:self-auto">
+          <button
+            onClick={() =>
+              setSortOrder((prev) => (prev === "new" ? "old" : "new"))
+            }
+            className={`p-2.5 rounded-2xl border transition-all ${sortOrder === "new" ? "bg-blue-50 border-blue-100 text-blue-600" : "bg-white border-gray-100 text-gray-400"}`}
+            title={sortOrder === "new" ? "Uusin ensin" : "Vanhin ensin"}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
-            />
-          </svg>
-        </button>
-        <span className="text-[10px] font-black text-gray-400 bg-gray-100/50 px-3 py-2 rounded-xl border border-gray-100/50 min-w-[32px] text-center">
-          {filteredPosts.length}
-        </span>
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"
+              />
+            </svg>
+          </button>
+          <span className="text-[10px] font-black text-gray-400 bg-gray-100/50 px-3 py-2 rounded-xl border border-gray-100/50 min-w-[32px] text-center">
+            {filteredPosts.length}
+          </span>
+        </div>
       </div>
 
       {/* Tab Content - Card Grid */}
@@ -224,7 +229,7 @@ export default function KanbanTab({
           </span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 px-2">
           {filteredPosts.map((post) => (
             <div
               key={post.id || Math.random()}

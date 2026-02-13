@@ -98,15 +98,15 @@ const PostTabs = ({ activeTab, onTabChange, t, user }) => {
   );
 
   return (
-    <div className="flex p-1 sm:p-1.5 bg-gray-50/80 rounded-[24px] overflow-x-auto no-scrollbar gap-1 border border-gray-100 flex-1 sm:flex-none">
+    <div className="posts-main-tabs-wrap flex p-2 sm:p-2 bg-gray-50/80 rounded-[24px] overflow-visible no-scrollbar gap-1.5 border border-gray-100 flex-1 sm:flex-none">
       {visibleTabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 text-[10px] sm:text-xs font-bold rounded-[18px] transition-all duration-300 whitespace-nowrap ${
+          className={`posts-main-tab-btn flex items-center justify-center gap-2 px-3 sm:px-6 py-2 sm:py-3 text-[10px] sm:text-xs font-bold rounded-[18px] border-2 transition-all duration-300 whitespace-nowrap ${
             activeTab === tab.id
-              ? "bg-white text-gray-900 shadow-lg shadow-gray-200/50"
-              : "text-gray-400 hover:text-gray-900 hover:bg-white/50"
+              ? "bg-white text-gray-900 shadow-lg shadow-gray-200/50 border-orange-400"
+              : "text-gray-400 hover:text-gray-900 hover:bg-white/50 border-transparent"
           }`}
         >
           {tab.icon}
