@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { useVersionPolling } from './src/hooks/useVersionPolling'
+import { usePageTracking } from './src/hooks/usePageTracking'
 import { SpeedInsights } from '@vercel/speed-insights/react'
 import DashboardPage from './src/pages/DashboardPage'
 import SignIn from './src/components/auth/SignIn'
@@ -54,6 +55,7 @@ function ConditionalChatbotWidget() {
 
 export default function App() {
   useVersionPolling()
+  usePageTracking()
 
   console.log('🔵🔵🔵 App.jsx: RENDERING!', {
     timestamp: new Date().toISOString(),
