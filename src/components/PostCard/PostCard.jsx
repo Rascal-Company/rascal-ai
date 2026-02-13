@@ -484,15 +484,26 @@ function PostCard({
             )}
 
             {post.status === "Tarkistuksessa" && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onPublish(post);
-                }}
-                className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-emerald-500/20"
-              >
-                {t("posts.actions.publish")}
-              </button>
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onMoveToNext(post, "Kesken");
+                  }}
+                  className="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all border border-gray-200"
+                >
+                  {t("posts.columns.inProgress")}
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onPublish(post);
+                  }}
+                  className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-2xl transition-all shadow-xl shadow-emerald-500/20"
+                >
+                  {t("posts.actions.publish")}
+                </button>
+              </>
             )}
           </div>
         )}
