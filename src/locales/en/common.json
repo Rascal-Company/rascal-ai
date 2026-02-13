@@ -922,10 +922,15 @@
       "modalTitle": "🎤 Tone of Voice & Brand Voice",
       "helpButton": "I'm not sure, I need help",
       "analyzing": "Analyzing social media...",
+      "analysisComplete": "TOV analysis complete!",
+      "analysisStarted": "TOV analysis started",
+      "analysisError": "TOV analysis failed",
       "socialUrlModal": {
         "title": "Enter social account URL",
+        "description": "We'll analyze the social account content and create a Tone of Voice suggestion for you.",
         "label": "Social account URL (Instagram or LinkedIn personal profile)",
-        "placeholder": "https://instagram.com/example or https://linkedin.com/in/person"
+        "placeholder": "https://instagram.com/example or https://linkedin.com/in/person",
+        "invalidUrl": "Enter a valid social URL (Instagram, Facebook, LinkedIn, TikTok or X)"
       }
     }
   },

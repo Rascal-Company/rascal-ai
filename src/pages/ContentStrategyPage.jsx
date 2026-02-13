@@ -113,6 +113,12 @@ export default function ContentStrategyPage() {
   const [viewingKpi, setViewingKpi] = useState(false);
   const [viewingTov, setViewingTov] = useState(false);
 
+  // TOV analysis
+  const [analyzingTov, setAnalyzingTov] = useState(false);
+  const [tovSocialUrlModal, setTovSocialUrlModal] = useState(false);
+  const [tovSocialUrl, setTovSocialUrl] = useState("");
+  const [tovSocialUrlError, setTovSocialUrlError] = useState("");
+
   // Set orgId when user is logged in
   useEffect(() => {
     const setOrgIdFromUser = async () => {
@@ -633,6 +639,66 @@ export default function ContentStrategyPage() {
     }
   };
 
+  const validateSocialUrl = (url) => {
+    if (!url || !url.trim()) return { valid: false, error: "" };
+    const socialPatterns = [
+      /instagram\.com/i,
+      /facebook\.com/i,
+      /linkedin\.com/i,
+      /tiktok\.com/i,
+      /x\.com/i,
+      /twitter\.com/i,
+    ];
+    const isValid = socialPatterns.some((p) => p.test(url));
+    return isValid
+      ? { valid: true, error: "" }
+      : {
+          valid: false,
+          error: t("strategy.toneOfVoice.socialUrlModal.invalidUrl"),
+        };
+  };
+
+  const handleAnalyzeTovFromSocialMedia = async (socialUrl) => {
+    try {
+      setAnalyzingTov(true);
+      setTovSocialUrlModal(false);
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error("Käyttäjä ei ole kirjautunut");
+      }
+
+      const response = await axios.post(
+        "/api/ai/analyze-tone",
+        {
+          user_id: orgId,
+          social_url: socialUrl,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (response.data?.tov) {
+        setTovEditText(response.data.tov);
+        toast.success(t("strategy.toneOfVoice.analysisComplete"));
+      } else {
+        toast.success(t("strategy.toneOfVoice.analysisStarted"));
+      }
+    } catch (error) {
+      console.error("TOV analysis error:", error);
+      toast.error(t("strategy.toneOfVoice.analysisError"));
+    } finally {
+      setAnalyzingTov(false);
+      setTovSocialUrl("");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -748,8 +814,20 @@ export default function ContentStrategyPage() {
                 const monthName = item.month || item.Month;
                 const createdAt = item.created_at || item.createdTime;
                 if (createdAt) {
-                  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                                      'July', 'August', 'September', 'October', 'November', 'December'];
+                  const monthNames = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                  ];
                   const monthIndex = monthNames.indexOf(monthName);
                   if (monthIndex >= 0) {
                     const createdDate = new Date(createdAt);
@@ -759,7 +837,7 @@ export default function ContentStrategyPage() {
                     if (monthIndex < createdMonth) {
                       year += 1;
                     }
-                    monthValue = `${year}-${String(monthIndex + 1).padStart(2, '0')}-01`;
+                    monthValue = `${year}-${String(monthIndex + 1).padStart(2, "0")}-01`;
                   } else {
                     monthValue = monthName;
                   }
@@ -909,7 +987,96 @@ export default function ContentStrategyPage() {
         onSave={handleSaveTov}
         onCancel={() => setEditingTovModal(false)}
         placeholder={t("strategy.toneOfVoice.placeholder")}
+        extraAction={
+          <button
+            onClick={() => setTovSocialUrlModal(true)}
+            disabled={analyzingTov}
+            className={`w-full py-2.5 px-5 text-sm font-semibold text-white border-none rounded-xl transition-all ${
+              analyzingTov
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-amber-500 hover:bg-amber-600 active:scale-[0.98] shadow-lg shadow-amber-200"
+            }`}
+          >
+            {analyzingTov
+              ? t("strategy.toneOfVoice.analyzing")
+              : t("strategy.toneOfVoice.helpButton")}
+          </button>
+        }
       />
+
+      {/* TOV Social URL Modal */}
+      {tovSocialUrlModal && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => {
+              setTovSocialUrlModal(false);
+              setTovSocialUrl("");
+              setTovSocialUrlError("");
+            }}
+          />
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 sm:p-8 animate-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">
+              {t("strategy.toneOfVoice.socialUrlModal.title")}
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">
+              {t("strategy.toneOfVoice.socialUrlModal.description")}
+            </p>
+            <div className="mb-4">
+              <input
+                type="url"
+                value={tovSocialUrl}
+                onChange={(e) => {
+                  setTovSocialUrl(e.target.value);
+                  if (e.target.value.trim()) {
+                    const result = validateSocialUrl(e.target.value);
+                    setTovSocialUrlError(result.error);
+                  } else {
+                    setTovSocialUrlError("");
+                  }
+                }}
+                placeholder="https://instagram.com/yritys"
+                className="w-full px-4 py-3 border-2 border-gray-100 rounded-2xl text-sm focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 outline-none transition-all"
+              />
+              {tovSocialUrlError && (
+                <p className="mt-2 text-sm text-red-500">{tovSocialUrlError}</p>
+              )}
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setTovSocialUrlModal(false);
+                  setTovSocialUrl("");
+                  setTovSocialUrlError("");
+                }}
+                className="px-5 py-2.5 text-sm font-bold text-gray-600 hover:text-gray-900 transition-colors"
+              >
+                {t("strategy.buttons.cancel")}
+              </button>
+              <button
+                disabled={
+                  analyzingTov || !tovSocialUrl.trim() || !!tovSocialUrlError
+                }
+                onClick={() => {
+                  const validation = validateSocialUrl(tovSocialUrl);
+                  if (validation.valid) {
+                    handleAnalyzeTovFromSocialMedia(tovSocialUrl);
+                  }
+                }}
+                className={`px-5 py-2.5 text-sm font-bold text-white rounded-xl transition-all ${
+                  analyzingTov || !tovSocialUrl.trim() || !!tovSocialUrlError
+                    ? "bg-gray-300 cursor-not-allowed"
+                    : "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-200 active:scale-95"
+                }`}
+              >
+                {analyzingTov
+                  ? t("strategy.toneOfVoice.analyzing")
+                  : t("strategy.buttons.startAnalysis")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

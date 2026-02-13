@@ -5,7 +5,7 @@ import { supabase } from "../lib/supabase";
 import { getUserOrgId } from "../lib/getUserOrgId";
 import { X, CheckCircle2 } from "lucide-react";
 
-const SNOOZE_DAYS = 3;
+const SNOOZE_DAYS = 1;
 const SURVEY_INTERVAL_DAYS = 30;
 
 const getCategory = (score) => {

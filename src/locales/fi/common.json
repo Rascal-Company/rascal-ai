@@ -945,10 +945,15 @@
       "modalTitle": "🎤 Äänenlaatu & TOV",
       "helpButton": "En ole varma, tarvitsen apua",
       "analyzing": "Analysoidaan somea...",
+      "analysisComplete": "TOV-analyysi valmis!",
+      "analysisStarted": "TOV-analyysi käynnistetty",
+      "analysisError": "TOV-analyysi epäonnistui",
       "socialUrlModal": {
         "title": "Syötä sometilin URL",
+        "description": "Analysoimme sometilin sisältöä ja luomme sinulle ehdotuksen Tone of Voicesta.",
         "label": "Sometilin URL (Instagram tai LinkedIn henkilöprofiili)",
-        "placeholder": "https://instagram.com/example tai https://linkedin.com/in/henkilo"
+        "placeholder": "https://instagram.com/example tai https://linkedin.com/in/henkilo",
+        "invalidUrl": "Syötä kelvollinen some-URL (Instagram, Facebook, LinkedIn, TikTok tai X)"
       }
     }
   },
